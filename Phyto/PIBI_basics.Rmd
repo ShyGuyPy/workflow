@@ -1,0 +1,23 @@
+---
+title: "PIBI_basics"
+author: "Luke Vawter"
+date: "August 29, 2018"
+output: html_document
+---
+
+I am not a water scientist.  This is a place for me to document the very basics of water scinec I am learning as I work on the Phyto project with Claire.  
+
+Currently I'm reading through "Revisiting the Chesapeake Bay Phytoplankton Index of Biotic Integrity" by Claire Buchanan and Jaquiline M. Johnson to try and get a basic grasp of the basic terms and concepts involved(so that at the very least I can know what each variable is referring to and have some idea what the datat should look like).
+
+
+IBI is index of biological Integrity and it measures human(anthro)impact on water quality.  Observations on Phytoplankton are the main focus
+
+DOC is dissolved organic carbon
+
+"base"" data set-
+1984-2002
+3607 sampling events
+
+"recent" data set-
+2003-2010
+1546 sampling events

@@ -1,0 +1,16 @@
+---
+title: "Phyto_Shiny"
+author: "Luke Vawter"
+date: "August 29, 2018"
+output: html_document
+---
+
+This is a place for general notes as I examine, unpack, and eventually come to understand Zach's R/Shiny code for the Phyto project.
+
+I'm using this process as a way to:
+1) learning R markdown
+2) improve my understanding of Zach's code
+3) practice comprehensive documentation
+4) document so I can repeat and others can follow
+
+Directory structure is important for maintainability/ scalability of code.  The three main components of a Shiny app are global, ui and server (making up initial directoryforking) 
