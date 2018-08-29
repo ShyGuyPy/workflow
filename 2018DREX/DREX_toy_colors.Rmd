@@ -14,7 +14,7 @@ The code will consist of some basic control flow in R.
 A basic example follows:
 
 ```{r}
-my_vec -> c(1,2,3,4,5,6,7,8,9,10,11,12)
+my_vec <- c(1,2,3,4,5,6,7,8,9,10,11,12)
 for (i in my_vec) {
   if (i >= 0 && i < 3){
     color = "#e5e102"
