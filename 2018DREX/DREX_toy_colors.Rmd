@@ -16,27 +16,35 @@ A basic example follows:
 ```{r}
 my_vec -> c(1,2,3,4,5,6,7,8,9,10,11,12)
 for (i in my_vec) {
-  if (value >= 0 && value < 3){
+  if (i >= 0 && i < 3){
     color = "#e5e102"
+    print(color)
   }
-  else if (value >= 3 && value < 5){
+  else if (i >= 3 && i < 5){
     color = "#e5b702"
+    print(color)
   }
-  else if (value >= 5 && value < 7){
+  else if (i >= 5 && i < 7){
    color = "#e59502"
+   print(color)
   }
-  else if (value >= 7 && value < 9){
+  else if (i >= 7 && i < 9){
    color = "#e57702"
+   print(color)
   }
-  else if (value >= 9 && value < 11){
+  else if (i >= 9 && i < 11){
    color = "#e55102"
+   print(color)
   }
-  else if (value >= 11 && value <13){
+  else if (i >= 11 && i <13){
     color = "#e52402"
+    print(color)
   }
   else{
     color = "#000000"
+    print(color)
   }
+}
 
 
 
