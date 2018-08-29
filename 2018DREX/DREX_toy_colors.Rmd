@@ -14,6 +14,9 @@ The code will consist of some basic control flow in R.
 A basic example follows:
 
 ```{r}
+# library(shiny)
+# 
+# ui <- fluidPage(
 my_vec <- c(1,2,3,4,5,6,7,8,9,10,11,12)
 for (i in my_vec) {
   if (i >= 0 && i < 3){
@@ -51,10 +54,70 @@ for (i in my_vec) {
 
 
 ```
-
-Toy code using provided data:
+setting up a shiny app to adjust color output based on a slider with the same values as used above:
 
 ```{r}
-print("this is a place for the basic boolean logic")
+library(shiny)
+
+ui <- fluidPage(
+  
+  titlePanel("Slider to output test"),
+  
+  sidebarLayout(
+    sidebarPanel(
+      sliderInput(inputId = "color",
+                  label = "HOW RED???",
+                  min = 1, max = 13,
+                  value = 4)
+    
+    ),
+    mainPanel(
+      plotOutput(outputId = "distPlot")
+    )
+  )
+)
+
+server <- function(input, output) {
+  output$distPlot <- renderPlot({
+    if (input$color >= 0 && input$color < 3){
+    color = "#e5e102"
+    }
+    else if (input$color >= 3 && input$color < 5){
+      color = "#e5b702"
+    }
+    else if (input$color >= 5 && input$color < 7){
+     color = "#e59502"
+    }
+    else if (input$color >= 7 && input$color < 9){
+     color = "#e57702"
+    }
+    else if (input$color >= 9 && input$color < 11){
+     color = "#e55102"
+    }
+    else if (input$color >= 11 && input$color <13){
+      color = "#e52402"
+    }
+    else{
+      color = "#000000"
+    }
+    x    <- faithful$waiting
+    bins <- seq(min(x), max(x), length.out = input$color + 1)
+
+    hist(x, breaks = bins, col = color, border = "white",
+         xlab = ":)",
+         main = "Histogram of slider output")
+
+  })
+  
+}
+
+shinyApp(ui, server)
+```
+note: 4 colors.  Run the app and scroll to the bottom to see a mock-up map
+
+Toy code using data from 2018DREX/inputs/state:
+
+```{r}
+print("code coming soon")
 ```
 
