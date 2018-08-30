@@ -13,4 +13,4 @@ I'm using this process as a way to:
 3) practice comprehensive documentation
 4) document so I can repeat and others can follow
 
-Directory structure is important for maintainability/ scalability of code.  The three main components of a Shiny app are global, ui and server (making up initial directoryforking) 
+Directory structure is important for maintainability/ scalability of code.  The three main components of a Shiny app are global, ui and server (making up initial directory branching). 
