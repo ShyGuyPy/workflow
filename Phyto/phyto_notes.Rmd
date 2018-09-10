@@ -22,11 +22,13 @@ Below I will play with some R code, included in the Phyto appendix code, that wa
 ```{r}
 ##this uses a case when structure from dplyr to replicate the structure of an if else control flow structure
 library("dplyr")
-x <- 26
+x <- sample(1:35,1)
 case_when(x > 25 ~ "big",
           x > 15 ~ "medium",
-          x > 5 ~ "small")
+          x > 0 ~ "small")
 ```
+
+
 ```{r}
 ##playing with the mutate
 library("dplyr")
@@ -41,5 +43,26 @@ test.df %>%
   mutate(current_age  = start_age + years_in)
 
 print(test.df)
+
 ```
+
+note:  mmir, Zach's most recent version of R ibi clacualtion packages, seems to be unavailable for version 3.5.1 of R. Will need to either 1)roll back R 2) push a compatibility change 3)contact Zach.
+
+from stack-overflow:
+https://stackoverflow.com/questions/25721884/how-should-i-deal-with-package-xxx-is-not-available-for-r-version-x-y-z-wa
+
+"6. The package is out of date
+
+It may have been archived (if it is no longer maintained and no longer passes R CMD check tests).
+
+In this case, you can load an old version of the package using install_version()
+
+library(remotes)
+install_version("foobarbaz", "0.1.2")
+An alternative is to install from the github CRAN mirror.
+
+library(remotes)
+install_github("cran/foobarbaz")"
+
+
 
