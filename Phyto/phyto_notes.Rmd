@@ -13,4 +13,33 @@ I'm using this process as a way to:
 3) practice comprehensive documentation
 4) document so I can repeat and others can follow
 
-Directory structure is important for maintainability/ scalability of code.  The three main components of a Shiny app are global, ui and server (making up initial directory branching). 
+Directory structure is important for maintainability/ scalability of code.  The three main components of a Shiny app are global, ui and server (making up initial directory branching).  Shiny looks for directories with these names for use.
+
+The current task for the Phyto project is to resolve appendix output.  Current outputs are incorrect.
+
+Below I will play with some R code, included in the Phyto appendix code, that was unfamiliar to me:
+
+```{r}
+##this uses a case when structure from dplyr to replicate the structure of an if else control flow structure
+library("dplyr")
+x <- 26
+case_when(x > 25 ~ "big",
+          x > 15 ~ "medium",
+          x > 5 ~ "small")
+```
+```{r}
+##playing with the mutate
+library("dplyr")
+name <- c("tom","jerry")
+start_age <- c(12,13)
+years_in <- c(3,2)
+
+test.df <- data.frame(name,age
+  
+)
+test.df %>%
+  mutate(current_age  = start_age + years_in)
+
+print(test.df)
+```
+
