@@ -13,7 +13,7 @@ Done-
 -branched that version of DREX
 -write code to pull data from 2018DREX/inputs/state/...(csv) into dataframe
 -adapt existing toy logic to data frame range
-
+-learn that dashboard and shinydashboard are not the same thing. installed shinydashboard
 
 
 Doing-
