@@ -1,0 +1,150 @@
+---
+title: "DREX_colors"
+author: "Luke Vawter"
+date: "August 29, 2018"
+output: html_document
+---
+
+Working on 2018 DREX color quad display for Shenandoah and Northern Virginia.  Quads are:
+precipitation, ground water wells, stream flow, reservoir flows.
+
+Cherie will provide data for you to play with in 2018DREX/inputs repo.  
+
+The code will consist of some basic control flow in R.
+A basic example follows:
+
+```{r}
+# library(shiny)
+# 
+# ui <- fluidPage(
+my_vec <- c(1,2,3,4,5,6,7,8,9,10,11,12)
+for (i in my_vec) {
+  if (i >= 0 && i < 3){
+    color = "#e5e102"
+    print(color)
+  }
+  else if (i >= 3 && i < 5){
+    color = "#e5b702"
+    print(color)
+  }
+  else if (i >= 5 && i < 7){
+   color = "#e59502"
+   print(color)
+  }
+  else if (i >= 7 && i < 9){
+   color = "#e57702"
+   print(color)
+  }
+  else if (i >= 9 && i < 11){
+   color = "#e55102"
+   print(color)
+  }
+  else if (i >= 11 && i <13){
+    color = "#e52402"
+    print(color)
+  }
+  else{
+    color = "#000000"
+    print(color)
+  }
+}
+
+
+
+
+
+```
+setting up a shiny app to adjust color output based on a slider with the same values as used above:
+
+```{r}
+library(shiny)
+
+ui <- fluidPage(
+  
+  titlePanel("Slider to output test"),
+  
+  sidebarLayout(
+    sidebarPanel(
+      sliderInput(inputId = "color",
+                  label = "HOW RED???",
+                  min = 1, max = 13,
+                  value = 4)
+    
+    ),
+    mainPanel(
+      plotOutput(outputId = "distPlot")
+    )
+  )
+)
+
+server <- function(input, output) {
+  output$distPlot <- renderPlot({
+    if (input$color >= 0 && input$color < 3){
+    color = "#e5e102"
+    }
+    else if (input$color >= 3 && input$color < 5){
+      color = "#e5b702"
+    }
+    else if (input$color >= 5 && input$color < 7){
+     color = "#e59502"
+    }
+    else if (input$color >= 7 && input$color < 9){
+     color = "#e57702"
+    }
+    else if (input$color >= 9 && input$color < 11){
+     color = "#e55102"
+    }
+    else if (input$color >= 11 && input$color <13){
+      color = "#e52402"
+    }
+    else{
+      color = "#000000"
+    }
+    x    <- faithful$waiting
+    bins <- seq(min(x), max(x), length.out = input$color + 1)
+
+    hist(x, breaks = bins, col = color, border = "white",
+         xlab = ":)",
+         main = "Histogram of slider output")
+
+  })
+  
+}
+
+shinyApp(ui, server)
+```
+note: 4 colors.  Run the app and scroll to the bottom to see a mock-up map
+
+
+A test of a datatable(to be continued after vacation):
+```{r}
+library("shiny")
+
+ui <- fluidPage(
+  fluidRow(
+    column(8,
+           sliderInput(inputId = "amount", 
+                       label = "slide away",
+                       value = 3, min = 1, max = 13)
+           ),
+    column(4,
+           DT::dataTableOutput("table"))
+  )
+)
+
+server <-function(output, input){
+  output$table <- DT::renderDataTable(DT::datatable({
+    
+  }))
+}
+
+shinyApp(ui, server)
+```
+
+
+Toy code using data from 2018DREX/inputs/state:
+
+```{r}
+print("code coming soon")
+```
+

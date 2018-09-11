@@ -1,0 +1,26 @@
+---
+title: "DREX_notes"
+author: "Luke Vawter"
+date: "September 11, 2018"
+output: html_document
+---
+
+A place for random thoughts and notes on DREX:
+
+Done-
+-build toy logic and Shiny app(DREX_toy_colors.Rmd)
+-added external css to DREX
+-branched that version of DREX
+-
+
+Doing-
+-test extent of control added css has over DREX(Shiny Dashboard framework may limit control)
+-optimize design of DREX ui if/where able
+-move "Today's date is..." to login bar
+-make a square with changable background color
+-write code to pull data from 2018DREX/inputs/state/...(csv) into dataframe
+-include dataframe in toy model
+-adapt existing toy logic to data frame range
+-apply adapted logic to square in toy
+-(optional)integrate toy into DREX alterante branch for testing purposes
+-integrate toy into current master version of DREX 
