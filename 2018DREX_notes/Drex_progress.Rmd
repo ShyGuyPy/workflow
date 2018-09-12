@@ -14,18 +14,18 @@ Done-
 -write code to pull data from 2018DREX/inputs/state/...(csv) into dataframe
 -adapt existing toy logic to data frame range
 -learn that dashboard and shinydashboard are not the same thing. installed shinydashboard
+-make a square with changable background color(valueBox)
+-apply adapted logic to square in toy
 
 
 Doing-
 -test extent of control added css has over DREX(Shiny Dashboard framework may limit control)
 -optimize design of DREX ui if/where able
 -move "Today's date is..." to login bar
--make a square with changable background color
+
 
 -learn in office standard practice for csv to to dataframe(look at DREX)
--include dataframe in toy model
 
--apply adapted logic to square in toy
 -(optional)integrate toy into DREX alterante branch for testing purposes
 -integrate toy into current master version of DREX 
 -check to make sure main.css link is implemented correctly(currently ref in sidebarpanel, not in dashboardbody...)

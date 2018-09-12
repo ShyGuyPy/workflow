@@ -187,6 +187,27 @@ print(color)
 
 note:final version will have 4 colors, not 5.  Data read code probably already exists in DREX so will need to use that pre-existing function(ask Cherie).
 
+next I need to make a basic shinydashboard valuebox:
+```{r}
+library(shinydashboard)
+
+ui <- dashboardPage(
+  dashboardHeader(title = "test"),
+  dashboardSidebar(),
+    dashboardBody(
+       fluidRow(
+      box(valueBox(value = NULL, color = "navy", subtitle = NULL)))
+    )
+)
+
+server <- function(input, output) {}
+
+shinyApp(ui, server)
+  
+  
+```
+note: Valid colors are: red, yellow, aqua, blue, light-blue, green, navy, teal, olive, lime, orange, fuchsia, purple, maroon, black.
+
 next step is to generate a simple box:
 ```{r}
 library(shiny)
@@ -194,43 +215,43 @@ library(shinydashboard)
 library(dplyr)
 
 ui <- dashboardPage(
-  dashboardHeader(title = "warning"),
+  dashboardHeader(title = "test"),
   dashboardSidebar(),
-  dashboardBody(          shinydashboard::valueBoxOutput("precip_value"#, 
-          #height = "200px"
-          ))
+    dashboardBody(
+       fluidRow(
+      box(valueBoxOutput(outputId = "box"#, value = NULL, color = output$precip_value, subtitle = NULL
+                         )))
+    )
 )
 
-# ui <- dashboardPage(titlePanel("make a box"),
-#           #       box(
-#           # title = "warning",
-#           # width = NULL,
-#           shinydashboard::valueBoxOutput("precip_value", 
-#           height = "200px")
-#           )
-#)
           
 server <- function(input,output){
   my_data = read.csv("C:\\Users\\icprbadmin\\Documents\\R\\2018drex\\input\\ts\\state\\i_a1b\\va_shenandoah_p.csv")
 
-  limit <- length(my_data[[1]])
-  random <- sample(1:limit,1)
+  output$box <- renderValueBox({
+    limit <- length(my_data[[1]])
+    random <- sample(1:limit,1)
+    
+    data_percent <- my_data$p_percent_normal[random]
+    
   
-  data_percent <- my_data$p_percent_normal[random]
+    precip_value <- case_when(
+      data_percent <= .0 ~ "purple", #"#000000",
+      data_percent > .0 && data_percent <= .20 ~ "red", #"#cc3300",
+      data_percent > .20 && data_percent <= .40 ~ "orange",  #"#ff9966",
+      data_percent > .40 && data_percent <= .60 ~ "yellow",  #"#ffcc00",
+      data_percent > .60 && data_percent <= .80 ~ "green", #"#99cc33",
+      data_percent > .80 && data_percent < 1 ~  "navy" #"#339900"
+      )
+    valueBox(value = data_percent, color = precip_value, subtitle = "precip warning")
+    
+      
   
-  output$precip_value <- renderValueBox({
-  precip_value <- case_when(
-    data_percent <= .0 ~ "#000000",
-    data_percent > .0 && data_percent <= .20 ~ "#cc3300",
-    data_percent > .20 && data_percent <= .40 ~ "#ff9966",
-    data_percent > .40 && data_percent <= .60 ~ "#ffcc00",
-    data_percent > .60 && data_percent <= .80 ~"#99cc33",
-    data_percent > .80 && data_percent < 1 ~ "#339900")
   
-  #render output code here
   }
 )
 }
+
 shinyApp(ui, server)
 
 ```
