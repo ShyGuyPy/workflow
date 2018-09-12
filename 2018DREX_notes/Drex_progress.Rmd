@@ -28,4 +28,4 @@ Doing-
 -apply adapted logic to square in toy
 -(optional)integrate toy into DREX alterante branch for testing purposes
 -integrate toy into current master version of DREX 
-
+-check to make sure main.css link is implemented correctly(currently ref in sidebarpanel, not in dashboardbody...)
