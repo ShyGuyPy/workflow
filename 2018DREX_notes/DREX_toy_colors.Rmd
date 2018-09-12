@@ -256,3 +256,52 @@ shinyApp(ui, server)
 
 ```
 
+adding a slider to scroll through elements in dataframe, and date as subtitle:
+```{r}
+library(shiny)
+library(shinydashboard)
+library(dplyr)
+
+ui <- dashboardPage(
+  dashboardHeader(title = "test"),
+  dashboardSidebar(),
+    dashboardBody(
+       fluidRow(
+      box(valueBoxOutput(outputId = "box"#, value = NULL, color = output$precip_value, subtitle = NULL
+                         )))
+    )
+)
+
+          
+server <- function(input,output){
+  my_data = read.csv("C:\\Users\\icprbadmin\\Documents\\R\\2018drex\\input\\ts\\state\\i_a1b\\va_shenandoah_p.csv")
+
+  output$box <- renderValueBox({
+    limit <- length(my_data[[1]])
+    random <- sample(1:limit,1)
+    
+    data_percent <- my_data$p_percent_normal[random]
+    data_date <- my_data$date[random]
+    
+  
+    precip_value <- case_when(
+      data_percent <= .0 ~ "purple", #"#000000",
+      data_percent > .0 && data_percent <= .20 ~ "red", #"#cc3300",
+      data_percent > .20 && data_percent <= .40 ~ "orange",  #"#ff9966",
+      data_percent > .40 && data_percent <= .60 ~ "yellow",  #"#ffcc00",
+      data_percent > .60 && data_percent <= .80 ~ "green", #"#99cc33",
+      data_percent > .80 && data_percent < 1 ~  "navy" #"#339900"
+      )
+    valueBox(value = data_percent, color = precip_value, subtitle = data_date)
+    
+      
+  
+  
+  }
+)
+}
+
+shinyApp(ui, server)
+
+```
+

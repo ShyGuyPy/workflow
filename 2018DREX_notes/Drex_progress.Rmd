@@ -16,16 +16,28 @@ Done-
 -learn that dashboard and shinydashboard are not the same thing. installed shinydashboard
 -make a square with changable background color(valueBox)
 -apply adapted logic to square in toy
-
+-add date column value as subtitle in valueBoxOutput
 
 Doing-
 -test extent of control added css has over DREX(Shiny Dashboard framework may limit control)
 -optimize design of DREX ui if/where able
 -move "Today's date is..." to login bar
-
-
 -learn in office standard practice for csv to to dataframe(look at DREX)
+
+-add an inputSlider to toy for date selection
+-add quadrants structure
+-learn how to adjust infoBox/valueBox height
 
 -(optional)integrate toy into DREX alterante branch for testing purposes
 -integrate toy into current master version of DREX 
 -check to make sure main.css link is implemented correctly(currently ref in sidebarpanel, not in dashboardbody...)
+
+
+UI adjustments needed (after meeting Wed 9/12/18):
+-tighten layout (adjust heighs)
+-move date
+-remove "Flow at Point of Rocks Panel"
+-move quadrant of graphs up
+-inscrease readabbility of large graph, simply small graphs
+-drought warning quads as 2 side by side square sections (?)
+-tweak css until it pops
