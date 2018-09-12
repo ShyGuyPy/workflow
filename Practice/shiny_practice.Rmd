@@ -1,0 +1,8 @@
+---
+title: "Shiny_practice"
+author: "Luke Vawter"
+date: "September 12, 2018"
+output: html_document
+---
+
+a space for practicing basic shiny app elements, features and ...well.. practices:

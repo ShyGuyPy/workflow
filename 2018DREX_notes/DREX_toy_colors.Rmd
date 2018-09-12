@@ -193,24 +193,33 @@ library(shiny)
 library(shinydashboard)
 library(dplyr)
 
-ui <- dashboardPage(titlePanel("make a box"),
-                box(
-          title = "warning",
-          width = NULL,
-          shinydashboard::valueBoxOutput("precip_value", 
-          height = "200px")
-          )
+ui <- dashboardPage(
+  dashboardHeader(title = "warning"),
+  dashboardSidebar(),
+  dashboardBody(          shinydashboard::valueBoxOutput("precip_value"#, 
+          #height = "200px"
+          ))
 )
+
+# ui <- dashboardPage(titlePanel("make a box"),
+#           #       box(
+#           # title = "warning",
+#           # width = NULL,
+#           shinydashboard::valueBoxOutput("precip_value", 
+#           height = "200px")
+#           )
+#)
           
 server <- function(input,output){
   my_data = read.csv("C:\\Users\\icprbadmin\\Documents\\R\\2018drex\\input\\ts\\state\\i_a1b\\va_shenandoah_p.csv")
 
   limit <- length(my_data[[1]])
   random <- sample(1:limit,1)
+  
   data_percent <- my_data$p_percent_normal[random]
   
-  output$color <- renderValueBox({
-  color <- case_when(
+  output$precip_value <- renderValueBox({
+  precip_value <- case_when(
     data_percent <= .0 ~ "#000000",
     data_percent > .0 && data_percent <= .20 ~ "#cc3300",
     data_percent > .20 && data_percent <= .40 ~ "#ff9966",
