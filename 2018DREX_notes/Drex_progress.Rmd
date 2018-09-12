@@ -25,13 +25,13 @@ Doing-
 -learn in office standard practice for csv to to dataframe(look at DREX)
 
 -add an inputSlider to toy for date selection
--add quadrants structure
+-add quadrants structure(multiple valueBox with css shrinking and arranging, or raw html elements?)
 -learn how to adjust infoBox/valueBox height
 
 -(optional)integrate toy into DREX alterante branch for testing purposes
 -integrate toy into current master version of DREX 
 -check to make sure main.css link is implemented correctly(currently ref in sidebarpanel, not in dashboardbody...)
-
+-learn/use/build reactive objects(data <- reactive({do a thing to input$value}))
 
 UI adjustments needed (after meeting Wed 9/12/18):
 -tighten layout (adjust heighs)

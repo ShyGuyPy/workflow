@@ -7,6 +7,8 @@ output: html_document
 
 a space for practicing basic shiny app elements, features and ...well.. practices:
 
+isolate(input$value...) makes input non-reactive
+
 ```{r}
 library(shiny)
 
