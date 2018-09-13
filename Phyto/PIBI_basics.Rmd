@@ -33,3 +33,5 @@ Salinity is the level of salt dissolved in the body of water. Salinity zones wou
 zones in which the salinity varies
 
 Estuary is the tidal mouth, such as where a stream meets a larger body of water (I assume since it's tidal such a body of water connected tot eh ocean)
+
+Water Tables is the upper most level of underground (water-level) saturation of the ground.  To put it anohter way, it is the top of the saturated zone.

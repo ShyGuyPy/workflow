@@ -64,5 +64,30 @@ An alternative is to install from the github CRAN mirror.
 library(remotes)
 install_github("cran/foobarbaz")"
 
+__MMIR__ is the Multi-Metric Index R-package built by zachary smith. It is used to calculate "the majority of metrics" in phyto. phyto/notebooks/sections/metric_calc.RMD describes this.
+
+Below is a piece of Zach's code in appendix_a_master.R of Phyto.
+it uses paste0 to appends "__l" to each vector element, which is pretty neat:
+```{r}
+metrics.vec <- c("chl_surf", "biomass_chl_ratio", "cyano_biomass", "doc",
+                 "pheo", "tot_biomass", "diatom_biomass", "dino_biomass",
+                 "prorocentrum_min_abund", "microcystis_aer_abund",
+                 "crypto_bio_pct")
+
+scores.vec <- paste0(metrics.vec, "__1")
+print(scores.vec)
+```
+
+```{r}
+library(dplyr)
+library(readxl)
+
+old.org.df <- read_excel(file.path(project.dir, "data/jackie_data/Data 2013_4plus-phyto-metrics.xlsx"),
+                         sheet = "DATA_4+biometrics",
+                         skip = 1) %>% 
+  clean_up()
+
+print(old.org.df)
+```
 
 
