@@ -9,6 +9,8 @@ a space for practicing basic shiny app elements, features and ...well.. practice
 
 isolate(input$value...) makes input non-reactive
 
+observeEvent
+
 ```{r}
 library(shiny)
 
