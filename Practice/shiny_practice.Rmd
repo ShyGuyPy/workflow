@@ -11,8 +11,10 @@ isolate(input$value...) makes input non-reactive
 
 observeEvent
 
+looks as though the Cairo package may have some issues on Mac(working from home today and it popped up so and trying to resolve it):
 ```{r}
 library(shiny)
+library(Cairo)
 
 
 ```
