@@ -226,8 +226,8 @@ ui <- dashboardPage(
 
           
 server <- function(input,output){
-  my_data = read.csv("C:\\Users\\icprbadmin\\Documents\\R\\2018drex\\input\\ts\\state\\i_a1b\\va_shenandoah_p.csv")
-
+  #my_data = read.csv("C:\\Users\\icprbadmin\\Documents\\R\\2018drex\\input\\ts\\state\\i_a1b\\va_shenandoah_p.csv")
+  my_data = read.csv("/Users/lukevawter/Desktop/R/2018drex/input/ts/state/i_a1b/va_shenandoah_p.csv")
   output$box <- renderValueBox({
     limit <- length(my_data[[1]])
     random <- sample(1:limit,1)
@@ -305,3 +305,33 @@ shinyApp(ui, server)
 
 ```
 
+9/14/18
+looks as though the Cairo package may have some issues on Mac(working from home today and it popped up so and trying to resolve it):
+```{r}
+library(shiny)
+library(Cairo)
+
+
+```
+returns an error...
+
+but since final product only needs to run on Cherie's machine(not a linux one) I'll just work on a windows machine when working on DREX
+
+next problem is filepaths issues when on a new system(windows to linux here).  Since this issue is likely to pop up often, and the fix looks doable, I'll spend a bit of time to attempt to resolve.  Solution below is apadted from and borrows heavily from the solution at https://stackoverflow.com/questions/22423020/detect-os-and-change-the-path-appropriately-in-r:
+```{r}
+#Sys.info()
+  #my_data = read.csv("C:\\Users\\icprbadmin\\Documents\\R\\2018drex\\input\\ts\\state\\i_a1b\\va_shenandoah_p.csv")
+  #my_data = read.csv("/Users/lukevawter/Desktop/R/2018drex/input/ts/state/i_a1b/va_shenandoah_p.csv")
+ 
+path <- "C:\\Users\\icprbadmin\\Documents\\R\\2018drex\\input\\ts\\state\\i_a1b\\va_shenandoah_p.csv"
+
+ print(.Platform$OS.type)
+if( .Platform$OS.type == "unix" )
+  path <- "/Users/lukevawter/Desktop/R/2018drex/input/ts/state/i_a1b/va_shenandoah_p.csv"
+
+my_data = read.csv(path)
+#setwd( path )
+
+print(my_data)
+```
+with this solved I can keep building up the toy model of DREX components in DREX_toy_colors.Rmd and Shiny_test_app.Rmd
