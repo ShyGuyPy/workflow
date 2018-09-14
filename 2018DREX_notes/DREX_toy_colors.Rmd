@@ -226,8 +226,13 @@ ui <- dashboardPage(
 
           
 server <- function(input,output){
-  #my_data = read.csv("C:\\Users\\icprbadmin\\Documents\\R\\2018drex\\input\\ts\\state\\i_a1b\\va_shenandoah_p.csv")
-  my_data = read.csv("/Users/lukevawter/Desktop/R/2018drex/input/ts/state/i_a1b/va_shenandoah_p.csv")
+  path <- "C:\\Users\\icprbadmin\\Documents\\R\\2018drex\\input\\ts\\state\\i_a1b\\va_shenandoah_p.csv"
+
+  #print(.Platform$OS.type)
+  if( .Platform$OS.type == "unix" )
+    path <- "/Users/lukevawter/Desktop/R/2018drex/input/ts/state/i_a1b/va_shenandoah_p.csv"
+
+my_data = read.csv(path)
   output$box <- renderValueBox({
     limit <- length(my_data[[1]])
     random <- sample(1:limit,1)
@@ -267,18 +272,22 @@ ui <- dashboardPage(
   dashboardHeader(title = "test"),
   dashboardSidebar(),
     dashboardBody(
-       fluidRow( sliderInput(inputId = "data_index", 
+      fluidRow(sliderInput(inputId = "data_index", 
             label = "test_slider", 
             value = 1, min = 1, max = 427),
-      box(valueBoxOutput(outputId = "box"#, value = NULL, color = output$precip_value, subtitle = NULL
+      box(valueBoxOutput(outputId = "box"
                          )))
     )
 )
 
           
 server <- function(input,output){
-  my_data = read.csv("C:\\Users\\icprbadmin\\Documents\\R\\2018drex\\input\\ts\\state\\i_a1b\\va_shenandoah_p.csv")
-  #go <- input$data_index 
+  path <- "C:\\Users\\icprbadmin\\Documents\\R\\2018drex\\input\\ts\\state\\i_a1b\\va_shenandoah_p.csv"
+
+  if( .Platform$OS.type == "unix" )
+    path <- "/Users/lukevawter/Desktop/R/2018drex/input/ts/state/i_a1b/va_shenandoah_p.csv"
+
+  my_data = read.csv(path)
 
   limit <- length(my_data[[1]])
   #random <- sample(1:limit,1)
