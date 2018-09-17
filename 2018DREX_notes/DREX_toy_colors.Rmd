@@ -304,4 +304,6 @@ server <- function(input,output){
 shinyApp(ui, server)
 
 ```
+https://stackoverflow.com/questions/20456694/grid-of-responsive-squares
+has a nice guide for creating html squares with reactive content:
 
