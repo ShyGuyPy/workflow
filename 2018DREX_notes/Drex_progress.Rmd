@@ -17,15 +17,20 @@ Done-
 -make a square with changable background color(valueBox)
 -apply adapted logic to square in toy
 -add date column value as subtitle in valueBoxOutput
+-build quadrants as raw html in toy Shiny ui
+-moderate testing of  extent of control added css has over DREX(Shiny Dashboard framework may limit control)
+-add quadrants structure(multiple valueBox with css shrinking and arranging, or raw html elements?)
+...went raw html but it needs major tweaking..good firt steps
+
 
 Doing-
--test extent of control added css has over DREX(Shiny Dashboard framework may limit control)
+-deep testing of  extent of control added css has over DREX
 -optimize design of DREX ui if/where able
 -move "Today's date is..." to login bar
 -learn in office standard practice for csv to to dataframe(look at DREX)
 
 -add an inputSlider to toy for date selection
--add quadrants structure(multiple valueBox with css shrinking and arranging, or raw html elements?)
+
 -learn how to adjust infoBox/valueBox height
 
 -(optional)integrate toy into DREX alterante branch for testing purposes
