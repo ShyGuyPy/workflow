@@ -5,9 +5,9 @@ date: "August 29, 2018"
 output: html_document
 ---
 
-I am not a water scientist.  This is a place for me to document the very basics of water scinec I am learning as I work on the Phyto project with Claire.  
+I am not a water scientist.  This is a place for me to document the very basics of water science I am learning as I work on the Phyto project with Claire.  
 
-Currently I'm reading through "Revisiting the Chesapeake Bay Phytoplankton Index of Biotic Integrity" by Claire Buchanan and Jaquiline M. Johnson to try and get a basic grasp of the basic terms and concepts involved(so that at the very least I can know what each variable is referring to and have some idea what the datat should look like).
+Currently I'm reading through "Revisiting the Chesapeake Bay Phytoplankton Index of Biotic Integrity" by Claire Buchanan and Jaquiline M. Johnson to try and get a basic grasp of the terms and concepts involved(so that at the very least I can know what each variable is referring to and have some idea what the datat should look like).
 
 
 IBI is index of biological Integrity and it measures human(anthro)impact on water quality.  Observations on Phytoplankton are the main focus
@@ -30,8 +30,10 @@ Benthic zone is bottom zone of lake/ocean, includes edge reaching surface.
 Benthos are those plants and animals living in the Benthic zone
 
 Salinity is the level of salt dissolved in the body of water. Salinity zones would then be 
-zones in which the salinity varies
+zones of a given salinity range
 
 Estuary is the tidal mouth, such as where a stream meets a larger body of water (I assume since it's tidal such a body of water connected tot eh ocean)
 
 Water Tables is the upper most level of underground (water-level) saturation of the ground.  To put it anohter way, it is the top of the saturated zone.
+
+Taxonomy is classification of information

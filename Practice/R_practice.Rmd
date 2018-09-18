@@ -1,0 +1,37 @@
+---
+title: "R practice"
+author: "Luke Vawter"
+date: "September 18, 2018"
+output: html_document
+---
+
+factors in R:
+https://swcarpentry.github.io/r-novice-inflammation/12-supp-factors/
+not char or string,
+they are integers and behave as such
+```{r}
+fruits <- factor(c("grape", "bananna", "grape", "bananna", "apple", "orange"))
+#sets order of factor levels
+fruits <- factor(fruits, levels = c("orange", "grape", "bananna", "apple"))
+levels(fruits)
+nlevels(fruits)
+```
+
+trimws():
+```{r}
+thing <- " this is a test   "
+print(trimws(thing))
+#and again using pipes
+thing %>% 
+  trimws() %>%
+  print()
+
+```
+
+
+about purrr:
+
+```{r}
+library("purrr")
+```
+

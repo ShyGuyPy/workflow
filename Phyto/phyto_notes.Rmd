@@ -36,7 +36,7 @@ name <- c("tom","jerry")
 start_age <- c(12,13)
 years_in <- c(3,2)
 
-test.df <- data.frame(name,age
+test.df <- data.frame(name,start_age
   
 )
 test.df %>%
@@ -65,6 +65,9 @@ library(remotes)
 install_github("cran/foobarbaz")"
 
 __MMIR__ is the Multi-Metric Index R-package built by zachary smith. It is used to calculate "the majority of metrics" in phyto. phyto/notebooks/sections/metric_calc.RMD describes this.
+9/18/18 update:  it looks as though MMIR is now working.  devtools::install_github(repo = "InterstateCommissionPotomacRiverBasin/mmir") ..as instructed in getting started section of pibi_notebook (file:///C:/Users/icprbadmin/Downloads/pibi_notebook%20(1).html#validation_of_r-script_calculations)
+that worked but needed to install devtools package first.  new errors popped up so go look at those now...
+
 
 Below is a piece of Zach's code in appendix_a_master.R of Phyto.
 it uses paste0 to appends "__l" to each vector element, which is pretty neat:
@@ -81,13 +84,53 @@ print(scores.vec)
 ```{r}
 library(dplyr)
 library(readxl)
+library(rprojroot)
+
+#was missing this piece of code for a while but finally found it
+project.dir <- rprojroot::find_rstudio_root_file()
 
 old.org.df <- read_excel(file.path(project.dir, "data/jackie_data/Data 2013_4plus-phyto-metrics.xlsx"),
                          sheet = "DATA_4+biometrics",
-                         skip = 1) %>% 
+                         skip = 1) %>%
   clean_up()
 
 print(old.org.df)
 ```
 
+After looking at the most recent updates to phyto github it seems the sections Zach was last working on are:
 
+data/Jackie_data/JMJ_Pibi_Salzone_Data.xlsx
+../gitignore
+data/salzone_8_21.csv
+
+notebook/pibi_calculations.Rmd
+notebook/pibi_notebook.Rmd
+
+notebook/rawscripts/extract_notebook_scripts.R
+../extracted/...the exctrated outputs:
+appendix_a_master.R
+conclusions.R
+data_acquisition_cedr.R
+data_acquisition_itis.R
+prep_wq.R
+prep_wq_favor_johnson_salzone.R
+validation_indepth_metric_assessment.R
+validation_metric_disagreement.R
+
+notebook/sections/development/prep_event.Rmd
+../prep_wq.Rmd
+
+notebook/section/appendix/:
+conclusions.Rmd	
+prep_wq_favor_johnson_salzone.Rmd	
+summary.Rmd	
+validation_indepth_metric_assessment.Rmd	
+validation_metric_disagreement.Rmd	
+validation_old_values.Rmd	
+validation_scoring_disagreement.Rmd
+
+
+this is the html output of the phyto project
+this file is generated from phyto/notebook/pibi_notebook.Rmd
+which links all the relevant Rmd files together(try for yourself):
+file:///C:/Users/icprbadmin/Downloads/pibi_notebook%20(1).html#appendix_a:_score_comparisons
