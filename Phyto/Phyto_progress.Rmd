@@ -1,0 +1,14 @@
+---
+title: "Phyto_progress"
+author: "Luke Vawter"
+date: "September 18, 2018"
+output: html_document
+---
+
+Done: 
+-get mmir working on my machine
+-download CDER and ITIS data
+-get pibi_notebook knitting error free on my machine
+
+Doing: 
+-Read through pibi_notebook

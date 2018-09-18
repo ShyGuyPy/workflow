@@ -350,6 +350,6 @@ if( .Platform$OS.type == "unix" )
 my_data = read.csv(path)
 #setwd( path )
 
-print(my_data)
+#print(my_data)
 ```
 with this solved I can keep building up the toy model of DREX components in DREX_toy_colors.Rmd and Shiny_test_app.Rmd
