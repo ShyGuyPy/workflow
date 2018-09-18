@@ -3,21 +3,35 @@ title: "workflow_notebook"
 author: "Luke Vawter"
 date: "September 18, 2018"
 output: html_document
+#runtime: shiny
 ---
 
-
+##2018DREX Progress
 ```{r child = '2018DREX_notes/Drex_progress.Rmd',eval=TRUE}
 
 ```
 
+##2018DREX colored quadrant work
 ```{r child = '2018DREX_notes/DREX_toy_colors.Rmd',eval=TRUE}
 
 ```
 
+##Phyto progress
+```{r child = 'Phyto/phyto_progress.Rmd',eval=TRUE}
+
+```
+
+##Phyto notes
 ```{r child = 'Phyto/phyto_notes.Rmd',eval=TRUE}
 
 ```
 
-```{r child = 'Phyto/phyto_progress.Rmd',eval=TRUE}
+##Some Shiny
+```{r child = 'practice/shiny_practice.Rmd',eval=TRUE}
+
+```
+
+##Basic R
+```{r child = 'practice/R_practice.Rmd',eval=TRUE}
 
 ```

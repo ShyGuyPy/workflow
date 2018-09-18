@@ -129,6 +129,8 @@ $(document).ready(function () {
 </div>
 
 
+<div id="drex-progress" class="section level2">
+<h2>2018DREX Progress</h2>
 <p>A place for random thoughts and notes on DREX:</p>
 <p>Done- -build toy logic and Shiny app(DREX_toy_colors.Rmd) -added external css to DREX -branched that version of DREX -write code to pull data from 2018DREX/inputs/state/…(csv) into dataframe -adapt existing toy logic to data frame range -learn that dashboard and shinydashboard are not the same thing. installed shinydashboard -make a square with changable background color(valueBox) -apply adapted logic to square in toy -add date column value as subtitle in valueBoxOutput -build quadrants as raw html in toy Shiny ui -moderate testing of extent of control added css has over DREX(Shiny Dashboard framework may limit control) -add quadrants structure(multiple valueBox with css shrinking and arranging, or raw html elements?) …went raw html but it needs major tweaking..good firt steps</p>
 <p>Doing- -deep testing of extent of control added css has over DREX -optimize design of DREX ui if/where able -move “Today’s date is…” to login bar -learn in office standard practice for csv to to dataframe(look at DREX)</p>
@@ -136,6 +138,9 @@ $(document).ready(function () {
 <p>-learn how to adjust infoBox/valueBox height</p>
 <p>-(optional)integrate toy into DREX alterante branch for testing purposes -integrate toy into current master version of DREX -check to make sure main.css link is implemented correctly(currently ref in sidebarpanel, not in dashboardbody…) -learn/use/build reactive objects(data &lt;- reactive({do a thing to input$value}))</p>
 <p>UI adjustments needed (after meeting Wed 9/12/18): -tighten layout (adjust heighs) -move date -remove “Flow at Point of Rocks Panel” -move quadrant of graphs up -inscrease readabbility of large graph, simply small graphs -drought warning quads as 2 side by side square sections (?) -tweak css until it pops</p>
+</div>
+<div id="drex-colored-quadrant-work" class="section level2">
+<h2>2018DREX colored quadrant work</h2>
 <p>Working on 2018 DREX color quad display for Shenandoah and Northern Virginia. Quads are: precipitation, ground water wells, stream flow, reservoir flows.</p>
 <p>Cherie will provide data for you to play with in 2018DREX/inputs repo.</p>
 <p>The code will consist of some basic control flow in R. A basic example follows:</p>
@@ -284,10 +289,10 @@ print(typeof(my_data))</code></pre>
 limit &lt;- length(my_data[[1]])
 x &lt;- sample(1:limit,1)
 print(my_data$date[x])</code></pre>
-<pre><code>## [1] 1999-12-01
+<pre><code>## [1] 1999-07-05
 ## 457 Levels: 1998-10-01 1998-10-02 1998-10-03 1998-10-04 ... 1999-12-31</code></pre>
 <pre class="r"><code>print(my_data$p_percent_normal[x])</code></pre>
-<pre><code>## [1] 0.69</code></pre>
+<pre><code>## [1] 0.58</code></pre>
 <pre class="r"><code>x &lt;- sample(1:length(my_data),1)
 #print(my_data)</code></pre>
 <p>Next I need to take the above code and adapt(for a percentage range, as above data) then apply the boolean logic from earlier:</p>
@@ -456,466 +461,16 @@ path &lt;- &quot;C:\\Users\\icprbadmin\\Documents\\R\\2018drex\\input\\ts\\state
 my_data = read.csv(path)
 #setwd( path )
 
-print(my_data)</code></pre>
-<pre><code>##           date p_percent_normal  X X.1
-## 1   1998-10-01             0.12 NA  NA
-## 2   1998-10-02             0.06 NA  NA
-## 3   1998-10-03             0.04 NA  NA
-## 4   1998-10-04             0.19 NA  NA
-## 5   1998-10-05             0.23 NA  NA
-## 6   1998-10-06             0.20 NA  NA
-## 7   1998-10-07             0.17 NA  NA
-## 8   1998-10-08             0.54 NA  NA
-## 9   1998-10-09             0.62 NA  NA
-## 10  1998-10-10             0.56 NA  NA
-## 11  1998-10-11             0.51 NA  NA
-## 12  1998-10-12             0.47 NA  NA
-## 13  1998-10-13             0.43 NA  NA
-## 14  1998-10-14             0.40 NA  NA
-## 15  1998-10-15             0.37 NA  NA
-## 16  1998-10-16             0.35 NA  NA
-## 17  1998-10-17             0.33 NA  NA
-## 18  1998-10-18             0.31 NA  NA
-## 19  1998-10-19             0.30 NA  NA
-## 20  1998-10-20             0.28 NA  NA
-## 21  1998-10-21             0.27 NA  NA
-## 22  1998-10-22             0.27 NA  NA
-## 23  1998-10-23             0.25 NA  NA
-## 24  1998-10-24             0.24 NA  NA
-## 25  1998-10-25             0.23 NA  NA
-## 26  1998-10-26             0.23 NA  NA
-## 27  1998-10-27             0.22 NA  NA
-## 28  1998-10-28             0.21 NA  NA
-## 29  1998-10-29             0.20 NA  NA
-## 30  1998-10-30             0.20 NA  NA
-## 31  1998-10-31             0.19 NA  NA
-## 32  1998-11-01             0.19 NA  NA
-## 33  1998-11-02             0.18 NA  NA
-## 34  1998-11-03             0.22 NA  NA
-## 35  1998-11-04             0.25 NA  NA
-## 36  1998-11-05             0.24 NA  NA
-## 37  1998-11-06             0.23 NA  NA
-## 38  1998-11-07             0.23 NA  NA
-## 39  1998-11-08             0.22 NA  NA
-## 40  1998-11-09             0.22 NA  NA
-## 41  1998-11-10             0.22 NA  NA
-## 42  1998-11-11             0.25 NA  NA
-## 43  1998-11-12             0.24 NA  NA
-## 44  1998-11-13             0.24 NA  NA
-## 45  1998-11-14             0.23 NA  NA
-## 46  1998-11-15             0.23 NA  NA
-## 47  1998-11-16             0.22 NA  NA
-## 48  1998-11-17             0.22 NA  NA
-## 49  1998-11-18             0.21 NA  NA
-## 50  1998-11-19             0.21 NA  NA
-## 51  1998-11-20             0.20 NA  NA
-## 52  1998-11-21             0.21 NA  NA
-## 53  1998-11-22             0.20 NA  NA
-## 54  1998-11-23             0.20 NA  NA
-## 55  1998-11-24             0.19 NA  NA
-## 56  1998-11-25             0.19 NA  NA
-## 57  1998-11-26             0.20 NA  NA
-## 58  1998-11-27             0.20 NA  NA
-## 59  1998-11-28             0.20 NA  NA
-## 60  1998-11-29             0.19 NA  NA
-## 61  1998-11-30             0.19 NA  NA
-## 62  1998-12-01             0.19 NA  NA
-## 63  1998-12-02             0.18 NA  NA
-## 64  1998-12-03             0.18 NA  NA
-## 65  1998-12-04             0.18 NA  NA
-## 66  1998-12-05             0.18 NA  NA
-## 67  1998-12-06             0.17 NA  NA
-## 68  1998-12-07             0.17 NA  NA
-## 69  1998-12-08             0.18 NA  NA
-## 70  1998-12-09             0.28 NA  NA
-## 71  1998-12-10             0.28 NA  NA
-## 72  1998-12-11             0.27 NA  NA
-## 73  1998-12-12             0.27 NA  NA
-## 74  1998-12-13             0.30 NA  NA
-## 75  1998-12-14             0.32 NA  NA
-## 76  1998-12-15             0.31 NA  NA
-## 77  1998-12-16             0.31 NA  NA
-## 78  1998-12-17             0.30 NA  NA
-## 79  1998-12-18             0.30 NA  NA
-## 80  1998-12-19             0.30 NA  NA
-## 81  1998-12-20             0.29 NA  NA
-## 82  1998-12-21             0.29 NA  NA
-## 83  1998-12-22             0.29 NA  NA
-## 84  1998-12-23             0.29 NA  NA
-## 85  1998-12-24             0.29 NA  NA
-## 86  1998-12-25             0.29 NA  NA
-## 87  1998-12-26             0.29 NA  NA
-## 88  1998-12-27             0.29 NA  NA
-## 89  1998-12-28             0.28 NA  NA
-## 90  1998-12-29             0.29 NA  NA
-## 91  1998-12-30             0.29 NA  NA
-## 92  1998-12-31             0.29 NA  NA
-## 93  1999-01-01             0.29 NA  NA
-## 94  1999-01-02             0.29 NA  NA
-## 95  1999-01-03             0.43 NA  NA
-## 96  1999-01-04             0.43 NA  NA
-## 97  1999-01-05             0.43 NA  NA
-## 98  1999-01-06             0.42 NA  NA
-## 99  1999-01-07             0.42 NA  NA
-## 100 1999-01-08             0.43 NA  NA
-## 101 1999-01-09             0.47 NA  NA
-## 102 1999-01-10             0.47 NA  NA
-## 103 1999-01-11             0.47 NA  NA
-## 104 1999-01-12             0.46 NA  NA
-## 105 1999-01-13             0.46 NA  NA
-## 106 1999-01-14             0.46 NA  NA
-## 107 1999-01-15             0.51 NA  NA
-## 108 1999-01-16             0.51 NA  NA
-## 109 1999-01-17             0.50 NA  NA
-## 110 1999-01-18             0.51 NA  NA
-## 111 1999-01-19             0.52 NA  NA
-## 112 1999-01-20             0.52 NA  NA
-## 113 1999-01-21             0.52 NA  NA
-## 114 1999-01-22             0.55 NA  NA
-## 115 1999-01-23             0.55 NA  NA
-## 116 1999-01-24             0.65 NA  NA
-## 117 1999-01-25             0.65 NA  NA
-## 118 1999-01-26             0.64 NA  NA
-## 119 1999-01-27             0.64 NA  NA
-## 120 1999-01-28             0.63 NA  NA
-## 121 1999-01-29             0.63 NA  NA
-## 122 1999-01-30             0.62 NA  NA
-## 123 1999-01-31             0.62 NA  NA
-## 124 1999-02-01             0.62 NA  NA
-## 125 1999-02-02             0.63 NA  NA
-## 126 1999-02-03             0.63 NA  NA
-## 127 1999-02-04             0.62 NA  NA
-## 128 1999-02-05             0.62 NA  NA
-## 129 1999-02-06             0.61 NA  NA
-## 130 1999-02-07             0.61 NA  NA
-## 131 1999-02-08             0.61 NA  NA
-## 132 1999-02-09             0.61 NA  NA
-## 133 1999-02-10             0.60 NA  NA
-## 134 1999-02-11             0.60 NA  NA
-## 135 1999-02-12             0.59 NA  NA
-## 136 1999-02-13             0.60 NA  NA
-## 137 1999-02-14             0.59 NA  NA
-## 138 1999-02-15             0.59 NA  NA
-## 139 1999-02-16             0.58 NA  NA
-## 140 1999-02-17             0.58 NA  NA
-## 141 1999-02-18             0.61 NA  NA
-## 142 1999-02-19             0.60 NA  NA
-## 143 1999-02-20             0.60 NA  NA
-## 144 1999-02-21             0.59 NA  NA
-## 145 1999-02-22             0.59 NA  NA
-## 146 1999-02-23             0.59 NA  NA
-## 147 1999-02-24             0.58 NA  NA
-## 148 1999-02-25             0.58 NA  NA
-## 149 1999-02-26             0.58 NA  NA
-## 150 1999-02-27             0.57 NA  NA
-## 151 1999-02-28             0.58 NA  NA
-## 152 1999-03-01             0.57 NA  NA
-## 153 1999-03-02             0.56 NA  NA
-## 154 1999-03-03             0.56 NA  NA
-## 155 1999-03-04             0.60 NA  NA
-## 156 1999-03-05             0.59 NA  NA
-## 157 1999-03-06             0.59 NA  NA
-## 158 1999-03-07             0.59 NA  NA
-## 159 1999-03-08             0.59 NA  NA
-## 160 1999-03-09             0.59 NA  NA
-## 161 1999-03-10             0.61 NA  NA
-## 162 1999-03-11             0.61 NA  NA
-## 163 1999-03-12             0.60 NA  NA
-## 164 1999-03-13             0.60 NA  NA
-## 165 1999-03-14             0.61 NA  NA
-## 166 1999-03-15             0.65 NA  NA
-## 167 1999-03-16             0.65 NA  NA
-## 168 1999-03-17             0.65 NA  NA
-## 169 1999-03-18             0.64 NA  NA
-## 170 1999-03-19             0.64 NA  NA
-## 171 1999-03-20             0.64 NA  NA
-## 172 1999-03-21             0.64 NA  NA
-## 173 1999-03-22             0.66 NA  NA
-## 174 1999-03-23             0.66 NA  NA
-## 175 1999-03-24             0.65 NA  NA
-## 176 1999-03-25             0.65 NA  NA
-## 177 1999-03-26             0.65 NA  NA
-## 178 1999-03-27             0.64 NA  NA
-## 179 1999-03-28             0.64 NA  NA
-## 180 1999-03-29             0.64 NA  NA
-## 181 1999-03-30             0.63 NA  NA
-## 182 1999-03-31             0.63 NA  NA
-## 183 1999-04-01             0.64 NA  NA
-## 184 1999-04-02             0.64 NA  NA
-## 185 1999-04-03             0.64 NA  NA
-## 186 1999-04-04             0.63 NA  NA
-## 187 1999-04-05             0.64 NA  NA
-## 188 1999-04-06             0.64 NA  NA
-## 189 1999-04-07             0.63 NA  NA
-## 190 1999-04-08             0.63 NA  NA
-## 191 1999-04-09             0.63 NA  NA
-## 192 1999-04-10             0.63 NA  NA
-## 193 1999-04-11             0.64 NA  NA
-## 194 1999-04-12             0.64 NA  NA
-## 195 1999-04-13             0.64 NA  NA
-## 196 1999-04-14             0.64 NA  NA
-## 197 1999-04-15             0.63 NA  NA
-## 198 1999-04-16             0.63 NA  NA
-## 199 1999-04-17             0.63 NA  NA
-## 200 1999-04-18             0.63 NA  NA
-## 201 1999-04-19             0.63 NA  NA
-## 202 1999-04-20             0.63 NA  NA
-## 203 1999-04-21             0.62 NA  NA
-## 204 1999-04-22             0.63 NA  NA
-## 205 1999-04-23             0.63 NA  NA
-## 206 1999-04-24             0.63 NA  NA
-## 207 1999-04-25             0.63 NA  NA
-## 208 1999-04-26             0.63 NA  NA
-## 209 1999-04-27             0.62 NA  NA
-## 210 1999-04-28             0.62 NA  NA
-## 211 1999-04-29             0.62 NA  NA
-## 212 1999-04-30             0.62 NA  NA
-## 213 1999-05-01             0.61 NA  NA
-## 214 1999-05-02             0.61 NA  NA
-## 215 1999-05-03             0.61 NA  NA
-## 216 1999-05-04             0.61 NA  NA
-## 217 1999-05-05             0.60 NA  NA
-## 218 1999-05-06             0.60 NA  NA
-## 219 1999-05-07             0.60 NA  NA
-## 220 1999-05-08             0.62 NA  NA
-## 221 1999-05-09             0.62 NA  NA
-## 222 1999-05-10             0.62 NA  NA
-## 223 1999-05-11             0.62 NA  NA
-## 224 1999-05-12             0.61 NA  NA
-## 225 1999-05-13             0.61 NA  NA
-## 226 1999-05-14             0.62 NA  NA
-## 227 1999-05-15             0.62 NA  NA
-## 228 1999-05-16             0.62 NA  NA
-## 229 1999-05-17             0.61 NA  NA
-## 230 1999-05-18             0.61 NA  NA
-## 231 1999-05-19             0.61 NA  NA
-## 232 1999-05-20             0.61 NA  NA
-## 233 1999-05-21             0.60 NA  NA
-## 234 1999-05-22             0.60 NA  NA
-## 235 1999-05-23             0.62 NA  NA
-## 236 1999-05-24             0.63 NA  NA
-## 237 1999-05-25             0.62 NA  NA
-## 238 1999-05-26             0.62 NA  NA
-## 239 1999-05-27             0.62 NA  NA
-## 240 1999-05-28             0.62 NA  NA
-## 241 1999-05-29             0.61 NA  NA
-## 242 1999-05-30             0.61 NA  NA
-## 243 1999-05-31             0.61 NA  NA
-## 244 1999-06-01             0.61 NA  NA
-## 245 1999-06-02             0.61 NA  NA
-## 246 1999-06-03             0.60 NA  NA
-## 247 1999-06-04             0.60 NA  NA
-## 248 1999-06-05             0.60 NA  NA
-## 249 1999-06-06             0.60 NA  NA
-## 250 1999-06-07             0.60 NA  NA
-## 251 1999-06-08             0.59 NA  NA
-## 252 1999-06-09             0.59 NA  NA
-## 253 1999-06-10             0.59 NA  NA
-## 254 1999-06-11             0.59 NA  NA
-## 255 1999-06-12             0.58 NA  NA
-## 256 1999-06-13             0.58 NA  NA
-## 257 1999-06-14             0.58 NA  NA
-## 258 1999-06-15             0.58 NA  NA
-## 259 1999-06-16             0.58 NA  NA
-## 260 1999-06-17             0.59 NA  NA
-## 261 1999-06-18             0.59 NA  NA
-## 262 1999-06-19             0.59 NA  NA
-## 263 1999-06-20             0.59 NA  NA
-## 264 1999-06-21             0.59 NA  NA
-## 265 1999-06-22             0.59 NA  NA
-## 266 1999-06-23             0.59 NA  NA
-## 267 1999-06-24             0.58 NA  NA
-## 268 1999-06-25             0.58 NA  NA
-## 269 1999-06-26             0.58 NA  NA
-## 270 1999-06-27             0.58 NA  NA
-## 271 1999-06-28             0.58 NA  NA
-## 272 1999-06-29             0.58 NA  NA
-## 273 1999-06-30             0.57 NA  NA
-## 274 1999-07-01             0.57 NA  NA
-## 275 1999-07-02             0.58 NA  NA
-## 276 1999-07-03             0.58 NA  NA
-## 277 1999-07-04             0.58 NA  NA
-## 278 1999-07-05             0.58 NA  NA
-## 279 1999-07-06             0.58 NA  NA
-## 280 1999-07-07             0.58 NA  NA
-## 281 1999-07-08             0.58 NA  NA
-## 282 1999-07-09             0.58 NA  NA
-## 283 1999-07-10             0.57 NA  NA
-## 284 1999-07-11             0.57 NA  NA
-## 285 1999-07-12             0.57 NA  NA
-## 286 1999-07-13             0.58 NA  NA
-## 287 1999-07-14             0.57 NA  NA
-## 288 1999-07-15             0.57 NA  NA
-## 289 1999-07-16             0.57 NA  NA
-## 290 1999-07-17             0.57 NA  NA
-## 291 1999-07-18             0.57 NA  NA
-## 292 1999-07-19             0.57 NA  NA
-## 293 1999-07-20             0.57 NA  NA
-## 294 1999-07-21             0.57 NA  NA
-## 295 1999-07-22             0.58 NA  NA
-## 296 1999-07-23             0.58 NA  NA
-## 297 1999-07-24             0.58 NA  NA
-## 298 1999-07-25             0.59 NA  NA
-## 299 1999-07-26             0.58 NA  NA
-## 300 1999-07-27             0.58 NA  NA
-## 301 1999-07-28             0.58 NA  NA
-## 302 1999-07-29             0.60 NA  NA
-## 303 1999-07-30             0.60 NA  NA
-## 304 1999-07-31             0.60 NA  NA
-## 305 1999-08-01             0.60 NA  NA
-## 306 1999-08-02             0.60 NA  NA
-## 307 1999-08-03             0.60 NA  NA
-## 308 1999-08-04             0.59 NA  NA
-## 309 1999-08-05             0.59 NA  NA
-## 310 1999-08-06             0.59 NA  NA
-## 311 1999-08-07             0.59 NA  NA
-## 312 1999-08-08             0.59 NA  NA
-## 313 1999-08-09             0.59 NA  NA
-## 314 1999-08-10             0.59 NA  NA
-## 315 1999-08-11             0.58 NA  NA
-## 316 1999-08-12             0.58 NA  NA
-## 317 1999-08-13             0.58 NA  NA
-## 318 1999-08-14             0.59 NA  NA
-## 319 1999-08-15             0.60 NA  NA
-## 320 1999-08-16             0.60 NA  NA
-## 321 1999-08-17             0.60 NA  NA
-## 322 1999-08-18             0.59 NA  NA
-## 323 1999-08-19             0.59 NA  NA
-## 324 1999-08-20             0.61 NA  NA
-## 325 1999-08-21             0.61 NA  NA
-## 326 1999-08-22             0.61 NA  NA
-## 327 1999-08-23             0.61 NA  NA
-## 328 1999-08-24             0.61 NA  NA
-## 329 1999-08-25             0.61 NA  NA
-## 330 1999-08-26             0.62 NA  NA
-## 331 1999-08-27             0.63 NA  NA
-## 332 1999-08-28             0.63 NA  NA
-## 333 1999-08-29             0.63 NA  NA
-## 334 1999-08-30             0.62 NA  NA
-## 335 1999-08-31             0.62 NA  NA
-## 336 1999-09-01             0.62 NA  NA
-## 337 1999-09-02             0.62 NA  NA
-## 338 1999-09-03             0.62 NA  NA
-## 339 1999-09-04             0.62 NA  NA
-## 340 1999-09-05             0.65 NA  NA
-## 341 1999-09-06             0.68 NA  NA
-## 342 1999-09-07             0.68 NA  NA
-## 343 1999-09-08             0.69 NA  NA
-## 344 1999-09-09             0.69 NA  NA
-## 345 1999-09-10             0.69 NA  NA
-## 346 1999-09-11             0.69 NA  NA
-## 347 1999-09-12             0.69 NA  NA
-## 348 1999-09-13             0.69 NA  NA
-## 349 1999-09-14             0.68 NA  NA
-## 350 1999-09-15             0.68 NA  NA
-## 351 1999-09-16             0.70 NA  NA
-## 352 1999-09-17             0.71 NA  NA
-## 353 1999-09-18             0.71 NA  NA
-## 354 1999-09-19             0.70 NA  NA
-## 355 1999-09-20             0.70 NA  NA
-## 356 1999-09-21             0.71 NA  NA
-## 357 1999-09-22             0.72 NA  NA
-## 358 1999-09-23             0.72 NA  NA
-## 359 1999-09-24             0.71 NA  NA
-## 360 1999-09-25             0.71 NA  NA
-## 361 1999-09-26             0.71 NA  NA
-## 362 1999-09-27             0.71 NA  NA
-## 363 1999-09-28             0.72 NA  NA
-## 364 1999-09-29             0.72 NA  NA
-## 365 1999-09-30             0.75 NA  NA
-## 366 1999-10-01             0.74 NA  NA
-## 367 1999-10-02             0.74 NA  NA
-## 368 1999-10-03             0.74 NA  NA
-## 369 1999-10-04             0.74 NA  NA
-## 370 1999-10-05             0.75 NA  NA
-## 371 1999-10-06             0.74 NA  NA
-## 372 1999-10-07             0.74 NA  NA
-## 373 1999-10-08             0.74 NA  NA
-## 374 1999-10-09             0.74 NA  NA
-## 375 1999-10-10             0.74 NA  NA
-## 376 1999-10-11             0.74 NA  NA
-## 377 1999-10-12             0.74 NA  NA
-## 378 1999-10-13             0.74 NA  NA
-## 379 1999-10-14             0.74 NA  NA
-## 380 1999-10-15             0.74 NA  NA
-## 381 1999-10-16             0.73 NA  NA
-## 382 1999-10-17             0.73 NA  NA
-## 383 1999-10-18             0.73 NA  NA
-## 384 1999-10-19             0.73 NA  NA
-## 385 1999-10-20             0.73 NA  NA
-## 386 1999-10-21             0.73 NA  NA
-## 387 1999-10-22             0.73 NA  NA
-## 388 1999-10-23             0.73 NA  NA
-## 389 1999-10-24             0.72 NA  NA
-## 390 1999-10-25             0.72 NA  NA
-## 391 1999-10-26             0.72 NA  NA
-## 392 1999-10-27             0.72 NA  NA
-## 393 1999-10-28             0.72 NA  NA
-## 394 1999-10-29             0.71 NA  NA
-## 395 1999-10-30             0.71 NA  NA
-## 396 1999-10-31             0.71 NA  NA
-## 397 1999-11-01             0.71 NA  NA
-## 398 1999-11-02             0.71 NA  NA
-## 399 1999-11-03             0.73 NA  NA
-## 400 1999-11-04             0.72 NA  NA
-## 401 1999-11-05             0.72 NA  NA
-## 402 1999-11-06             0.72 NA  NA
-## 403 1999-11-07             0.72 NA  NA
-## 404 1999-11-08             0.72 NA  NA
-## 405 1999-11-09             0.71 NA  NA
-## 406 1999-11-10             0.71 NA  NA
-## 407 1999-11-11             0.71 NA  NA
-## 408 1999-11-12             0.71 NA  NA
-## 409 1999-11-13             0.71 NA  NA
-## 410 1999-11-14             0.71 NA  NA
-## 411 1999-11-15             0.70 NA  NA
-## 412 1999-11-16             0.70 NA  NA
-## 413 1999-11-17             0.70 NA  NA
-## 414 1999-11-18             0.70 NA  NA
-## 415 1999-11-19             0.70 NA  NA
-## 416 1999-11-20             0.70 NA  NA
-## 417 1999-11-21             0.69 NA  NA
-## 418 1999-11-22             0.69 NA  NA
-## 419 1999-11-23             0.69 NA  NA
-## 420 1999-11-24             0.69 NA  NA
-## 421 1999-11-25             0.69 NA  NA
-## 422 1999-11-26             0.70 NA  NA
-## 423 1999-11-27             0.70 NA  NA
-## 424 1999-11-28             0.70 NA  NA
-## 425 1999-11-29             0.70 NA  NA
-## 426 1999-11-30             0.69 NA  NA
-## 427 1999-12-01             0.69 NA  NA
-## 428 1999-12-02             0.69 NA  NA
-## 429 1999-12-03             0.69 NA  NA
-## 430 1999-12-04             0.69 NA  NA
-## 431 1999-12-05             0.69 NA  NA
-## 432 1999-12-06             0.69 NA  NA
-## 433 1999-12-07             0.69 NA  NA
-## 434 1999-12-08             0.69 NA  NA
-## 435 1999-12-09             0.68 NA  NA
-## 436 1999-12-10             0.68 NA  NA
-## 437 1999-12-11             0.69 NA  NA
-## 438 1999-12-12             0.69 NA  NA
-## 439 1999-12-13             0.69 NA  NA
-## 440 1999-12-14             0.71 NA  NA
-## 441 1999-12-15             0.71 NA  NA
-## 442 1999-12-16             0.71 NA  NA
-## 443 1999-12-17             0.71 NA  NA
-## 444 1999-12-18             0.71 NA  NA
-## 445 1999-12-19             0.70 NA  NA
-## 446 1999-12-20             0.70 NA  NA
-## 447 1999-12-21             0.71 NA  NA
-## 448 1999-12-22             0.71 NA  NA
-## 449 1999-12-23             0.71 NA  NA
-## 450 1999-12-24             0.71 NA  NA
-## 451 1999-12-25             0.70 NA  NA
-## 452 1999-12-26             0.70 NA  NA
-## 453 1999-12-27             0.70 NA  NA
-## 454 1999-12-28             0.70 NA  NA
-## 455 1999-12-29             0.70 NA  NA
-## 456 1999-12-30             0.70 NA  NA
-## 457 1999-12-31             0.70 NA  NA</code></pre>
+#print(my_data)</code></pre>
 <p>with this solved I can keep building up the toy model of DREX components in DREX_toy_colors.Rmd and Shiny_test_app.Rmd</p>
+</div>
+<div id="phyto-progress" class="section level2">
+<h2>Phyto progress</h2>
+<p>Done: -get mmir working on my machine -download CDER and ITIS data -get pibi_notebook knitting error free on my machine</p>
+<p>Doing: -Read through pibi_notebook</p>
+</div>
+<div id="phyto-notes" class="section level2">
+<h2>Phyto notes</h2>
 <p>This is a place for general notes as I examine, unpack, and eventually come to understand Zach’s R/Shiny code for the Phyto project.</p>
 <p>I’m using this process as a way to: 1) learning R markdown 2) improve my understanding of Zach’s code 3) practice comprehensive documentation 4) document so I can repeat and others can follow</p>
 <p>Directory structure is important for maintainability/ scalability of code. The three main components of a Shiny app are global, ui and server (making up initial directory branching). Shiny looks for directories with these names for use.</p>
@@ -953,7 +508,7 @@ test.df %&gt;%
 <p>In this case, you can load an old version of the package using install_version()</p>
 <p>library(remotes) install_version(“foobarbaz”, “0.1.2”) An alternative is to install from the github CRAN mirror.</p>
 <p>library(remotes) install_github(“cran/foobarbaz”)&quot;</p>
-<p><strong>MMIR</strong> is the Multi-Metric Index R-package built by zachary smith. It is used to calculate “the majority of metrics” in phyto. phyto/notebooks/sections/metric_calc.RMD describes this.</p>
+<p><strong>MMIR</strong> is the Multi-Metric Index R-package built by zachary smith. It is used to calculate “the majority of metrics” in phyto. phyto/notebooks/sections/metric_calc.RMD describes this. 9/18/18 update: it looks as though MMIR is now working. devtools::install_github(repo = “InterstateCommissionPotomacRiverBasin/mmir”) ..as instructed in getting started section of pibi_notebook (<a href="file:///C:/Users/icprbadmin/Downloads/pibi_notebook%20(1).html#validation_of_r-script_calculations">file:///C:/Users/icprbadmin/Downloads/pibi_notebook%20(1).html#validation_of_r-script_calculations</a>) that worked but needed to install devtools package first. new errors popped up so go look at those now…</p>
 <p>Below is a piece of Zach’s code in appendix_a_master.R of Phyto. it uses paste0 to appends “__l&quot; to each vector element, which is pretty neat:</p>
 <pre class="r"><code>metrics.vec &lt;- c(&quot;chl_surf&quot;, &quot;biomass_chl_ratio&quot;, &quot;cyano_biomass&quot;, &quot;doc&quot;,
                  &quot;pheo&quot;, &quot;tot_biomass&quot;, &quot;diatom_biomass&quot;, &quot;dino_biomass&quot;,
@@ -968,16 +523,77 @@ print(scores.vec)</code></pre>
 ##  [7] &quot;diatom_biomass__1&quot;         &quot;dino_biomass__1&quot;          
 ##  [9] &quot;prorocentrum_min_abund__1&quot; &quot;microcystis_aer_abund__1&quot; 
 ## [11] &quot;crypto_bio_pct__1&quot;</code></pre>
-<pre class="r"><code># library(dplyr)
-# library(readxl)
-# 
-# 
-# old.org.df &lt;- read_excel(file.path(project.dir, &quot;data/jackie_data/Data 2013_4plus-phyto-metrics.xlsx&quot;),
-#                          sheet = &quot;DATA_4+biometrics&quot;,
-#                          skip = 1) %&gt;% 
-#   clean_up()
-# 
-# print(old.org.df)</code></pre>
+<pre class="r"><code>library(dplyr)
+library(readxl)
+library(rprojroot)
+
+clean_string &lt;- function(x) {
+  x %&gt;% 
+    stringr::str_trim() %&gt;% 
+    tolower() %&gt;% 
+    stringr::str_replace_all(&quot;\\s+&quot;, &quot; &quot;) %&gt;% 
+    stringr::str_replace_all(&quot; &quot;, &quot;_&quot;) %&gt;%  
+    if_else(. == &quot;&quot;, as.character(NA), .)
+}
+
+clean_up &lt;- function(x) {
+  x %&gt;% 
+    rename_all(clean_string) %&gt;% 
+    mutate_if(is.character, funs(clean_string))%&gt;% 
+    distinct()
+}
+
+
+project.dir &lt;- rprojroot::find_rstudio_root_file()
+
+old.org.df &lt;- read_excel(file.path(project.dir, &quot;data/jackie_data/Data 2013_4plus-phyto-metrics.xlsx&quot;),
+                         sheet = &quot;DATA_4+biometrics&quot;,
+                         skip = 1) %&gt;%
+  clean_up()
+
+print(old.org.df)</code></pre>
+<pre><code>## # A tibble: 5,637 x 90
+##    survey_id station sample_date         up_date            
+##        &lt;dbl&gt; &lt;chr&gt;   &lt;dttm&gt;              &lt;dttm&gt;             
+##  1     30851 cb4.3c  1984-08-06 00:00:00 1984-08-09 00:00:00
+##  2     30852 cb5.2   1984-08-06 00:00:00 1984-08-09 00:00:00
+##  3     30854 ret2.2  1984-08-06 00:00:00 1984-08-09 00:00:00
+##  4     30855 tf2.3   1984-08-06 00:00:00 1984-08-09 00:00:00
+##  5     30861 cb1.1   1984-08-07 00:00:00 1984-08-10 00:00:00
+##  6     30862 cb2.2   1984-08-07 00:00:00 1984-08-10 00:00:00
+##  7     30863 cb3.3c  1984-08-07 00:00:00 1984-08-10 00:00:00
+##  8     30867 wt5.1   1984-08-09 00:00:00 1984-08-12 00:00:00
+##  9     30877 et5.1   1984-08-23 00:00:00 1984-08-26 00:00:00
+## 10     30878 et5.2   1984-08-23 00:00:00 1984-08-26 00:00:00
+## # ... with 5,627 more rows, and 86 more variables: dn_date &lt;dttm&gt;,
+## #   wq_date &lt;dttm&gt;, year &lt;dbl&gt;, period &lt;chr&gt;, season &lt;chr&gt;,
+## #   ibi_layer &lt;chr&gt;, ibi_salzone &lt;chr&gt;, salzone &lt;chr&gt;, chl_surf &lt;dbl&gt;,
+## #   chloro_abund &lt;dbl&gt;, chloro_biomass &lt;dbl&gt;, chryso_abund &lt;dbl&gt;,
+## #   chryso_biomass &lt;dbl&gt;, cochlodinium_het_abund &lt;dbl&gt;,
+## #   cochlodinium_het_biomass &lt;dbl&gt;, crypto_abund &lt;dbl&gt;,
+## #   crypto_biomass &lt;dbl&gt;, cyano_abund &lt;dbl&gt;, cyano_biomass &lt;dbl&gt;,
+## #   diatom_abund &lt;dbl&gt;, diatom_biomass &lt;dbl&gt;, dino_abund &lt;dbl&gt;,
+## #   dino_biomass &lt;dbl&gt;, eugleno_abund &lt;dbl&gt;, eugleno_biomass &lt;dbl&gt;,
+## #   hapto_abund &lt;dbl&gt;, hapto_biomass &lt;dbl&gt;, microcystis_aer_abund &lt;dbl&gt;,
+## #   microcystis_aer_biomass &lt;dbl&gt;, pico_abund &lt;lgl&gt;, pico_biomass &lt;lgl&gt;,
+## #   prasino_abund &lt;dbl&gt;, prasino_biomass &lt;dbl&gt;,
+## #   prorocentrum_min_abund &lt;dbl&gt;, prorocentrum_min_biomass &lt;dbl&gt;,
+## #   tot_abund &lt;dbl&gt;, tot_biomass &lt;dbl&gt;, salinity &lt;dbl&gt;, po4 &lt;dbl&gt;,
+## #   din &lt;dbl&gt;, secchi &lt;dbl&gt;, `&quot;fair&quot;` &lt;chr&gt;, secchi_rank &lt;chr&gt;,
+## #   po4_rank &lt;chr&gt;, din_rank &lt;chr&gt;, chla &lt;dbl&gt;, do_value &lt;dbl&gt;, doc &lt;dbl&gt;,
+## #   pc &lt;dbl&gt;, pheo &lt;dbl&gt;, tss &lt;dbl&gt;, wtemp &lt;dbl&gt;, toc &lt;dbl&gt;,
+## #   biomass_chl_ratio &lt;dbl&gt;, cell_size &lt;dbl&gt;, crypto_bio_pct &lt;dbl&gt;,
+## #   cyano_bio_pct &lt;dbl&gt;, diatom_bio_pct &lt;dbl&gt;, dino_bio_pct &lt;dbl&gt;,
+## #   wq_category &lt;chr&gt;, wqcat2 &lt;chr&gt;, ref &lt;chr&gt;, r_date &lt;dbl&gt;,
+## #   survey_id__1 &lt;dbl&gt;, limitation &lt;chr&gt;, classes &lt;chr&gt;,
+## #   biomass_chl_ratio__1 &lt;dbl&gt;, chl_surf__1 &lt;dbl&gt;,
+## #   crypto_bio_pct__1 &lt;dbl&gt;, cyano_biomass__1 &lt;dbl&gt;,
+## #   diatom_biomass__1 &lt;dbl&gt;, dino_biomass__1 &lt;dbl&gt;, doc__1 &lt;dbl&gt;,
+## #   microcystis_aer_abund__1 &lt;dbl&gt;, pheo__1 &lt;dbl&gt;, pico_abund__1 &lt;lgl&gt;,
+## #   prorocentrum_min_abund__1 &lt;dbl&gt;, tot_biomass__1 &lt;dbl&gt;,
+## #   pibi_score &lt;dbl&gt;, pibi_rank &lt;chr&gt;, habitat &lt;chr&gt;, habitatscore &lt;dbl&gt;,
+## #   avg &lt;dbl&gt;, `1_if_avg(chl+pheo+doc)&gt;=3` &lt;dbl&gt;, passingchla &lt;dbl&gt;,
+## #   habitat2 &lt;chr&gt;</code></pre>
 <p>After looking at the most recent updates to phyto github it seems the sections Zach was last working on are:</p>
 <p>data/Jackie_data/JMJ_Pibi_Salzone_Data.xlsx ../gitignore data/salzone_8_21.csv</p>
 <p>notebook/pibi_calculations.Rmd notebook/pibi_notebook.Rmd</p>
@@ -989,24 +605,74 @@ validation_metric_disagreement.Rmd<br />
 validation_old_values.Rmd<br />
 validation_scoring_disagreement.Rmd</p>
 <p>this is the html output of the phyto project this file is generated from phyto/notebook/pibi_notebook.Rmd which links all the relevant Rmd files together(try for yourself): <a href="file:///C:/Users/icprbadmin/Downloads/pibi_notebook%20(1).html#appendix_a:_score_comparisons">file:///C:/Users/icprbadmin/Downloads/pibi_notebook%20(1).html#appendix_a:_score_comparisons</a></p>
-<div id="r-markdown" class="section level2">
-<h2>R Markdown</h2>
-<p>This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <a href="http://rmarkdown.rstudio.com" class="uri">http://rmarkdown.rstudio.com</a>.</p>
-<p>When you click the <strong>Knit</strong> button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:</p>
-<pre class="r"><code>summary(cars)</code></pre>
-<pre><code>##      speed           dist       
-##  Min.   : 4.0   Min.   :  2.00  
-##  1st Qu.:12.0   1st Qu.: 26.00  
-##  Median :15.0   Median : 36.00  
-##  Mean   :15.4   Mean   : 42.98  
-##  3rd Qu.:19.0   3rd Qu.: 56.00  
-##  Max.   :25.0   Max.   :120.00</code></pre>
+<p>according to Claire (starting fromt the top of the above document) we have these items yet to run/resolve: Appendix A:Score Comparisons -Validation of R-Script calculations -Import Old Values -Modify Old Values -IBI Value, IBI Rating, Metric Scoring Disagreements -Metric Score Disagreement -Calculation of Metric Values from the Raw Data -Conclusion</p>
+<p>Zach’s custom functions (finally): -sessionInfo() can generate info needed to replicate the report(as things change in subsequent versions) shows dependency version etc. -project.dir &lt;- rprojroot::find_rstudio_root_file() represents phyto project directory(was looking for this for a while) -clean_up is wrapper for clean_string which does needed formatting of text</p>
 </div>
-<div id="including-plots" class="section level2">
-<h2>Including Plots</h2>
-<p>You can also embed plots, for example:</p>
-<p><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAABUAAAAPACAMAAADDuCPrAAAAXVBMVEUAAAAAADoAAGYAOjoAOpAAZpAAZrY6AAA6OgA6kLY6kNtmAABmtrZmtv+QOgCQZgCQkNuQ29uQ2/+2ZgC2/7a2///bkDrbtmbb/9vb////tmb/25D//7b//9v///+8jXATAAAACXBIWXMAAB2HAAAdhwGP5fFlAAAgAElEQVR4nO3da2PTSICmUdPDwC4s7A7eziwG8v9/5lq+ypcE601FVWWf86UhYLlaiR8kq1RePAMQWdQeAECvBBQgJKAAIQEFCAkoQEhAAUICChASUICQgAKEBBQgJKAAIQEFCAkoQEhAAUICChASUICQgAKEBBQgJKAAIQEFCAkoQEhAAUICChASUICQgAKEBBQgJKAAIQEFCAkoQEhAAUICChASUICQgAKEBBQgJKAAIQEFCAkoQEhAAUICChASUICQgAKEBBQgJKAAIQEFCAkoQEhAAUICChASUICQgAKEBBQgJKAAIQEFCAkoQEhAAUICChASUICQgAKEBBQgJKAAIQEFCAkoQEhAAUICChASUICQgAKEBBQgJKAAIQEFCAkoQEhAAUICChASUICQgAKEBBQgJKAAIQEFCAkoQEhAAUICChASUICQgAKEBBQgJKAAIQEFCAkoQEhAAUICChASUICQgAKEBBQgJKAAIQEFCAkoQEhAAUICChASUICQgAKEBBQgJKAAIQEFCAkoQEhAAUICChASUICQgAKEBBQgJKAAIQEFCAkoQEhAAUICChASUICQgAKEBBQgJKAAIQEFCAkoQEhAAUICChASUICQgAKEBBQgJKAAIQEFCAkoQEhAAUICChASUICQgAKEBBQgJKAAIQEFCAkoQEhAAUICChASUICQgAKEBBQgJKAAIQEFCAkoQEhAAUICChASUICQgAKEBBQgJKAAIQEFCAkoQEhAAUICChASUICQgAKEBBQgJKAAobYDugAopnyiim+xoNp7G7gvxRtVeoNnloeRf5r+4Hf4BwN4WJ0F9Oms/lMbKqBAOV0F9Nfni+Pnf/6dtAUBBcrpKaB/vp8W8/fX9e8//pyyCQEFyukpoKuLXA5J/TZlEwIKlNNTQJeXJ+zrg9BJb4MKKFBORwFdH25+ufji07RzeAEFyukooOujzcvT9dW0y0gCCpQjoAChjgLq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" width="672" /></p>
-<p>Note that the <code>echo = FALSE</code> parameter was added to the code chunk to prevent printing of the R code that generated the plot.</p>
+<div id="some-shiny" class="section level2">
+<h2>Some Shiny</h2>
+<p>a space for practicing basic shiny app elements, features and …well.. practices:</p>
+<p>isolate(input$value…) makes input non-reactive</p>
+<p>observeEvent</p>
+<p>test of Render UI use explained in tutorial <a href="https://www.youtube.com/watch?v=JUop-YfRAuw" class="uri">https://www.youtube.com/watch?v=JUop-YfRAuw</a>:</p>
+<pre class="r"><code>library(shiny)
+
+ui &lt;- fluidPage(
+  title = &quot;test&quot;,
+  selectInput(inputId = &quot;thing&quot;, label = &quot;choose a color&quot;, choices = c(&quot;red&quot;, &quot;orange&quot;, &quot;yellow&quot;) ),
+  uiOutput(&quot;first&quot;)
+  
+)
+
+server &lt;- function(input, output)({
+  var &lt;- reactive({case_when(
+    value &lt;- input$thing == &quot;red&quot; ~ &quot;apples&quot;,
+    value &lt;- input$thing == &quot;orange&quot; ~ &quot;oranges&quot;,
+    value &lt;- input$thing == &quot;yellow&quot; ~ &quot;banannas&quot;
+  )
+  })
+  output$first &lt;- renderUI({
+    selectInput(&quot;variablex&quot;, &quot;select 1st var&quot;, choice = var())
+  })
+  
+})
+
+
+
+shinyApp(ui, server)</code></pre>
+<div style="width: 100% ; height: 400px ; text-align: center; box-sizing: border-box; -moz-box-sizing: border-box; -webkit-box-sizing: border-box;" class="muted well">Shiny applications not supported in static R Markdown documents</div>
+</div>
+<div id="basic-r" class="section level2">
+<h2>Basic R</h2>
+<p>factors in R: <a href="https://swcarpentry.github.io/r-novice-inflammation/12-supp-factors/" class="uri">https://swcarpentry.github.io/r-novice-inflammation/12-supp-factors/</a> not char or string, they are integers and behave as such</p>
+<pre class="r"><code>library(magrittr)
+
+fruits &lt;- factor(c(&quot;grape&quot;, &quot;bananna&quot;, &quot;grape&quot;, &quot;bananna&quot;, &quot;apple&quot;, &quot;orange&quot;))
+#sets order of factor levels
+fruits &lt;- factor(fruits, levels = c(&quot;orange&quot;, &quot;grape&quot;, &quot;bananna&quot;, &quot;apple&quot;), ordered = TRUE)
+levels(fruits)</code></pre>
+<pre><code>## [1] &quot;orange&quot;  &quot;grape&quot;   &quot;bananna&quot; &quot;apple&quot;</code></pre>
+<pre class="r"><code>nlevels(fruits)</code></pre>
+<pre><code>## [1] 4</code></pre>
+<pre class="r"><code>fruits %&gt;%
+  trimws() %&gt;%
+  print()</code></pre>
+<pre><code>## [1] &quot;grape&quot;   &quot;bananna&quot; &quot;grape&quot;   &quot;bananna&quot; &quot;apple&quot;   &quot;orange&quot;</code></pre>
+<p>trimws():</p>
+<pre class="r"><code>thing &lt;- &quot; this is a test   &quot;
+print(trimws(thing))</code></pre>
+<pre><code>## [1] &quot;this is a test&quot;</code></pre>
+<pre class="r"><code>#and again using pipes
+thing %&gt;% 
+  trimws() %&gt;%
+  print()</code></pre>
+<pre><code>## [1] &quot;this is a test&quot;</code></pre>
+<p>about purrr:</p>
+<pre class="r"><code>library(&quot;purrr&quot;)</code></pre>
+<pre><code>## 
+## Attaching package: 'purrr'</code></pre>
+<pre><code>## The following object is masked from 'package:magrittr':
+## 
+##     set_names</code></pre>
 </div>
 
 

@@ -10,11 +10,18 @@ https://swcarpentry.github.io/r-novice-inflammation/12-supp-factors/
 not char or string,
 they are integers and behave as such
 ```{r}
+library(magrittr)
+
 fruits <- factor(c("grape", "bananna", "grape", "bananna", "apple", "orange"))
 #sets order of factor levels
-fruits <- factor(fruits, levels = c("orange", "grape", "bananna", "apple"))
+fruits <- factor(fruits, levels = c("orange", "grape", "bananna", "apple"), ordered = TRUE)
 levels(fruits)
 nlevels(fruits)
+
+fruits %>%
+  trimws() %>%
+  print()
+
 ```
 
 trimws():
