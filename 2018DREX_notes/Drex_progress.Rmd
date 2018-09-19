@@ -20,21 +20,24 @@ Done-
 -build quadrants as raw html in toy Shiny ui
 -moderate testing of  extent of control added css has over DREX(Shiny Dashboard framework may limit control)
 -add quadrants structure(multiple valueBox with css shrinking and arranging, or raw html elements?)
-...went raw html but it needs major tweaking..good firt steps
+...went raw html but it needs major tweaking..good first steps
+-tag$li for login bar access
+-(optional)integrate toy into DREX alterante branch for testing purposes
 
 
 Doing-
--deep testing of  extent of control added css has over DREX
+-build toy DREX for testing/practice of:
+html/css feature integration, various reactive render types, andShiny in general(I was just an intern and work in Python(not R or Shiny) just a few weeks ago after all.  Going to need a little practice/tutorials from time to time)
+
+-deep testing of extent of control added css has over DREX
 -optimize design of DREX ui if/where able
--move "Today's date is..." to login bar
+-output sim_today varaible output reactively to tag$li in login bar
 -learn in office standard practice for csv to to dataframe(look at DREX)
 
 -add an inputSlider to toy for date selection
-
 -learn how to adjust infoBox/valueBox height
 
--(optional)integrate toy into DREX alterante branch for testing purposes
--integrate toy into current master version of DREX 
+-merge CSS branch and master branch of DREX 
 -check to make sure main.css link is implemented correctly(currently ref in sidebarpanel, not in dashboardbody...)
 -learn/use/build reactive objects(data <- reactive({do a thing to input$value}))
 
