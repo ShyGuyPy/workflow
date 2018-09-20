@@ -41,6 +41,9 @@ library(dplyr)
 toy.df <- read_excel(file.path(project.dir, "data/jackie_data/Data 2013_4plus-phyto-metrics.xlsx"),
                          sheet = "DATA_4+biometrics",
                          skip = 1)
+
+#colnames(toy.df)
+
 new.toy.df <- toy.df %>%
   #include only those columns starting with s
   select(starts_with("s")) %>%
@@ -53,8 +56,11 @@ new.toy.df <- toy.df %>%
   arrange(desc(SURVEY_ID)) %>%
   print()
 
-# new.toy.df <- toy.df %>%
-#   filter(SURVEY_ID <= 30867) %>%
-#   print()
+mutant.toy.df <- toy.df %>%
+  
+  mutate(nonsense=SECCHI/SALINITY) %>%
+  print()
+  
+#also could do group_by()
 ```
 
