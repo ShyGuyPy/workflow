@@ -34,11 +34,27 @@ thing %>%
   print()
 
 ```
-
-
-about purrr:
-
+playing with select, filter,     :
 ```{r}
-library("purrr")
+library(dplyr)
+
+toy.df <- read_excel(file.path(project.dir, "data/jackie_data/Data 2013_4plus-phyto-metrics.xlsx"),
+                         sheet = "DATA_4+biometrics",
+                         skip = 1)
+new.toy.df <- toy.df %>%
+  #include only those columns starting with s
+  select(starts_with("s")) %>%
+  
+  #only include rows which fall within given ranges
+  filter(SURVEY_ID <= 30867, SALINITY < 6) %>%
+  #select(SURVEY_ID:SAMPLE_DATE) %>
+  
+  #arrange in descending order based on SURVEY_ID value
+  arrange(desc(SURVEY_ID)) %>%
+  print()
+
+# new.toy.df <- toy.df %>%
+#   filter(SURVEY_ID <= 30867) %>%
+#   print()
 ```
 

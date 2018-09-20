@@ -70,7 +70,7 @@ that worked but needed to install devtools package first.  new errors popped up 
 
 
 Below is a piece of Zach's code in appendix_a_master.R of Phyto.
-it uses paste0 to appends "__l" to each vector element, which is pretty neat:
+it uses paste0 to appends "__l" to each vector element, which is pretty neat.  It's used in creating scores.vec from metrics.vec:
 ```{r}
 metrics.vec <- c("chl_surf", "biomass_chl_ratio", "cyano_biomass", "doc",
                  "pheo", "tot_biomass", "diatom_biomass", "dino_biomass",
