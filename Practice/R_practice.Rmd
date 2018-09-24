@@ -89,10 +89,10 @@ cars.columns.df <- ggplot2::mpg %>%
   print()
 
 ggplot(data = mpg) +
-  geom_point(mapping = aes(x = displ, y = hwy))
+  geom_point(mapping = aes(x = displ, y = hwy, color = class, shape = drv))
 
 ggplot(data = mpg) +
-  geom_point(mapping = aes(x = cyl, y = hwy))
+  geom_point(mapping = aes(x = cyl, y = hwy, color = class, shape = drv))
 
 
 
@@ -112,6 +112,28 @@ nrow(mpg)
 ncol(mpg)
 ```
 
+how to apply an aesthetic to the whole plot
+```{r}
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, y = hwy), color = "blue")
 
 ```
+
+facets can be used to break the above scaterplot into separate visualizations.  In this case the data is divided by the class of the car. What we end up with is clusters of data because car class(class) and engine size(displ) are tightly related.Also, we can see distinct sections of the downward trend of the data as engine size increases, hgihtlighting the negative relationship between engine size and highway miles per gallon(hwy).:
+```{r}
+
+ggplot(data = mpg)+
+  geom_point(mapping = aes(x=displ, y = hwy))+
+  facet_wrap(~class, nrow = 2)
+
+```
+
+
+geoms:
+```{r}
+ggplot(data = mpg)+
+  geom_smooth(mapping = aes(x=displ, y= hwy, linetype= drv))
+```
+
+
 
