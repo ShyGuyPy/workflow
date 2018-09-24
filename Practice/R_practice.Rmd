@@ -10,7 +10,7 @@ https://swcarpentry.github.io/r-novice-inflammation/12-supp-factors/
 not char or string,
 they are integers and behave as such
 ```{r}
-library(magrittr)
+
 
 fruits <- factor(c("grape", "bananna", "grape", "bananna", "apple", "orange"))
 #sets order of factor levels
@@ -36,10 +36,7 @@ thing %>%
 ```
 playing with select, filter,     :
 ```{r}
-library(dplyr)
-library(readxl)
-library(rprojroot)
-library(purrr)
+
 
 toy.df <- read_excel(file.path(project.dir, "data/jackie_data/Data 2013_4plus-phyto-metrics.xlsx"),
                          sheet = "DATA_4+biometrics",
@@ -68,10 +65,7 @@ mutant.toy.df <- toy.df %>%
 ```
 
 ```{r}
-library(purrr)
-library(dplyr)
-library(readxl)
-library(rprojroot)
+
 
 toy.df <- read_excel(file.path(project.dir, "data/jackie_data/Data 2013_4plus-phyto-metrics.xlsx"),
                          sheet = "DATA_4+biometrics",

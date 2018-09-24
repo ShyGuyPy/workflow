@@ -21,7 +21,7 @@ Below I will play with some R code, included in the Phyto appendix code, that wa
 
 ```{r}
 ##this uses a case when structure from dplyr to replicate the structure of an if else control flow structure
-library("dplyr")
+
 x <- sample(1:35,1)
 case_when(x > 25 ~ "big",
           x > 15 ~ "medium",
@@ -31,7 +31,7 @@ case_when(x > 25 ~ "big",
 
 ```{r}
 ##playing with the mutate
-library("dplyr")
+
 name <- c("tom","jerry")
 start_age <- c(12,13)
 years_in <- c(3,2)
@@ -82,9 +82,7 @@ print(scores.vec)
 ```
 
 ```{r}
-library(dplyr)
-library(readxl)
-library(rprojroot)
+
 
 clean_string <- function(x) {
   x %>% 
@@ -169,8 +167,6 @@ represents phyto project directory(was looking for this for a while)
 -clean_up is wrapper for clean_string which does needed formatting of text
 
 
-```{r}
-library("purrr")
-```
+
 
 
