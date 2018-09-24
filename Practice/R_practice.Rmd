@@ -37,6 +37,9 @@ thing %>%
 playing with select, filter,     :
 ```{r}
 library(dplyr)
+library(readxl)
+library(rprojroot)
+library(purrr)
 
 toy.df <- read_excel(file.path(project.dir, "data/jackie_data/Data 2013_4plus-phyto-metrics.xlsx"),
                          sheet = "DATA_4+biometrics",
@@ -62,5 +65,20 @@ mutant.toy.df <- toy.df %>%
   print()
   
 #also could do group_by()
+```
+
+```{r}
+library(purrr)
+library(dplyr)
+library(readxl)
+library(rprojroot)
+
+toy.df <- read_excel(file.path(project.dir, "data/jackie_data/Data 2013_4plus-phyto-metrics.xlsx"),
+                         sheet = "DATA_4+biometrics",
+                         skip = 1)
+
+map(SEASON, print("count") )
+
+
 ```
 

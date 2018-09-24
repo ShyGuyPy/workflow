@@ -167,3 +167,10 @@ Zach's custom functions (finally):
 -project.dir <- rprojroot::find_rstudio_root_file()
 represents phyto project directory(was looking for this for a while)
 -clean_up is wrapper for clean_string which does needed formatting of text
+
+
+```{r}
+library("purrr")
+```
+
+
