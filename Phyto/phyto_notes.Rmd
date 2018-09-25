@@ -20,6 +20,7 @@ The current task for the Phyto project is to resolve appendix output.  Current o
 Below I will play with some R code, included in the Phyto appendix code, that was unfamiliar to me:
 
 ```{r}
+
 ##this uses a case when structure from dplyr to replicate the structure of an if else control flow structure
 
 x <- sample(1:35,1)
@@ -30,6 +31,9 @@ case_when(x > 25 ~ "big",
 
 
 ```{r}
+library(dplyr)
+library(magrittr)
+
 ##playing with the mutate
 
 name <- c("tom","jerry")
@@ -83,6 +87,7 @@ print(scores.vec)
 
 ```{r}
 library(dplyr)
+library(magrittr)
 
 clean_string <- function(x) {
   x %>% 
