@@ -172,6 +172,8 @@ represents phyto project directory(was looking for this for a while)
 -clean_up is wrapper for clean_string which does needed formatting of text
 
 
+The specific area we are looking at in the pibi_notebook is Overview of Discrepancies/IBI Scores.  link is:
+file:///C:/Users/icprbadmin/Downloads/pibi_notebook%20(1).html#overview_of_discrepancies
 
 
 

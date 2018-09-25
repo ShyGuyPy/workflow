@@ -170,7 +170,8 @@ ggplot(data = mpg, mapping = aes(x = displ, y = hwy, color = drv)) +
 ```{r}
 ggplot(data = mpg, mapping = aes(x = displ, y = hwy))+
   geom_point(mapping=aes(color=drv))+
-  geom_smooth(mapping=aes(linetype=drv),se=FALSE)
+  geom_smooth(mapping=aes(linetype=drv),se=FALSE)+
+  coord_flip()
 ```
 
 
