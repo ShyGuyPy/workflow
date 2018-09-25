@@ -82,7 +82,7 @@ print(scores.vec)
 ```
 
 ```{r}
-
+library(dplyr)
 
 clean_string <- function(x) {
   x %>% 

@@ -10,7 +10,7 @@ https://swcarpentry.github.io/r-novice-inflammation/12-supp-factors/
 not char or string,
 they are integers and behave as such
 ```{r}
-
+library(magrittr)
 
 fruits <- factor(c("grape", "bananna", "grape", "bananna", "apple", "orange"))
 #sets order of factor levels
@@ -26,6 +26,8 @@ fruits %>%
 
 trimws():
 ```{r}
+library(magrittr)
+
 thing <- " this is a test   "
 print(trimws(thing))
 #and again using pipes
@@ -36,8 +38,11 @@ thing %>%
 ```
 playing with select, filter,     :
 ```{r}
+library(magrittr)
+library(readxl)
+library(dplyr)
 
-
+#project.dir in dplyr
 toy.df <- read_excel(file.path(project.dir, "data/jackie_data/Data 2013_4plus-phyto-metrics.xlsx"),
                          sheet = "DATA_4+biometrics",
                          skip = 1)
@@ -65,7 +70,7 @@ mutant.toy.df <- toy.df %>%
 ```
 
 ```{r}
-
+library(magrittr)
 
 toy.df <- read_excel(file.path(project.dir, "data/jackie_data/Data 2013_4plus-phyto-metrics.xlsx"),
                          sheet = "DATA_4+biometrics",
@@ -81,6 +86,7 @@ toy.df %>%
 http://r4ds.had.co.nz/data-visualisation.html
 working through "R for Data Science", a resource Zach linked.  Plenty of it I'm familiar with, but I'm finding my data scientist skills could use some work so I'm doing some review:
 ```{r}
+library(ggplot2)
 # cars.df <- ggplot2::mpg
 # print(cars.df)
 
@@ -122,6 +128,7 @@ ggplot(data = mpg) +
 facets can be used to break the above scaterplot into separate visualizations.  In this case the data is divided by the class of the car. What we end up with is clusters of data because car class(class) and engine size(displ) are tightly related.Also, we can see distinct sections of the downward trend of the data as engine size increases, hgihtlighting the negative relationship between engine size and highway miles per gallon(hwy).:
 ```{r}
 
+
 ggplot(data = mpg)+
   geom_point(mapping = aes(x=displ, y = hwy))+
   facet_wrap(~class, nrow = 2)
@@ -132,7 +139,7 @@ ggplot(data = mpg)+
 geoms:
 ```{r}
 ggplot(data = mpg)+
-  geom_smooth(mapping = aes(x=displ, y= hwy, linetype= drv))
+  geom_line(mapping = aes(x=displ, y= hwy, linetype= drv))
 ```
 
 
