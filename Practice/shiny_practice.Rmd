@@ -64,3 +64,22 @@ shinyApp(ui = ui, server = server)
 
 ```
 
+```{r}
+library(shiny)
+
+ui <- dashboardPage(
+  dashboardHeader(title = "break me"
+                  ),
+  dashboardSidebar(dateInput("enter a date: ")
+                   ),
+  dashboardBody()
+)
+  
+server <- function(input, output, session) {
+htmlOutput(.....)
+}
+
+shinyApp(ui = ui, server = server)
+
+```
+

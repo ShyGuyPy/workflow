@@ -9,6 +9,10 @@ Done:
 -get mmir working on my machine
 -download CDER and ITIS data
 -get pibi_notebook knitting error free on my machine
+-read through the majority of pibi_notebook
+-learn ggplot basics
+
 
 Doing: 
--Read through pibi_notebook
+-finish working through R For Data Science
+-evaluate ibi metric code to the point where you could effectively bug check it
