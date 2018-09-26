@@ -23,23 +23,22 @@ Done-
 ...went raw html but it needs major tweaking..good first steps
 -tag$li for login bar access
 -(optional)integrate toy into DREX alterante branch for testing purposes
+-output sim_today varaible output reactively to tag$li in login bar
+-build toy DREX for testing/practice of:
+html/css feature integration, various reactive render types, andShiny in general
 
 
 Doing-
--build toy DREX for testing/practice of:
-html/css feature integration, various reactive render types, andShiny in general(I was just an intern and work in Python(not R or Shiny) just a few weeks ago after all.  Going to need a little practice/tutorials from time to time)
-
 -deep testing of extent of control added css has over DREX
 -optimize design of DREX ui if/where able
--output sim_today varaible output reactively to tag$li in login bar
 -learn in office standard practice for csv to to dataframe(look at DREX)
-
 -add an inputSlider to toy for date selection
--learn how to adjust infoBox/valueBox height
 
 -merge CSS branch and master branch of DREX 
 -check to make sure main.css link is implemented correctly(currently ref in sidebarpanel, not in dashboardbody...)
 -learn/use/build reactive objects(data <- reactive({do a thing to input$value}))
+
+
 
 UI adjustments needed (after meeting Wed 9/12/18):
 -tighten layout (adjust heighs)

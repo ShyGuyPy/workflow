@@ -353,3 +353,84 @@ my_data = read.csv(path)
 #print(my_data)
 ```
 with this solved I can keep building up the toy model of DREX components in DREX_toy_colors.Rmd and Shiny_test_app.Rmd
+
+this is the raw html for the quadrants as they are now:
+
+"<div class='topbox_main'>
+    <div class='topbox1'>
+        <div class='square',style='precip_value'>
+            <div class='content'>
+                <div class='table'>
+                    <div class='table-cell'>
+                        <p> 'precipitation deficit' </p>
+                    </div>
+                </div>
+            </div>
+        </div> 
+        <div class='square', style='background-color:red'>
+            <div class='content'>
+                <div class='table'>
+                    <div class='table-cell'>
+                        <p>'ground water wells'</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class='square', style='background-color:green'>
+            <div class='content'>
+                <div class='table'>
+                    <div class='table-cell'>
+                        <p>'reservoir flow'</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class='square', style='background-color:orange'>
+            <div class='content'>
+                <div class='table'>
+                    <div class='table-cell'>
+                        <p>'streamflow'</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class='topbox2'> 
+        <div class='square', style='background-color:yellow'>
+            <div class='content'>
+                <div class='table'>
+                    <div class='table-cell'>
+                        <p>'precipitation deficit'</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class='square', style='background-color:orange'>
+            <div class='content'>
+                <div class='table'>
+                    <div class='table-cell'>
+                        <p>'ground water wells'</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class='square', style='background-color:red'>
+            <div class='content'>
+                <div class='table'>
+                    <div class='table-cell'>
+                        <p>'reservoir flow'</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class='square', style='background-color:green'>
+            <div class='content'>
+                <div class='table'>
+                    <div class='table-cell'>
+                        <p>'streamflow'</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>"
