@@ -15,26 +15,34 @@ test of Render UI
 use explained in tutorial https://www.youtube.com/watch?v=JUop-YfRAuw:
 ```{r}
 library(shiny)
-
+library(dplyr)
+#value <- "color:black"
 ui <- fluidPage(
   title = "test",
-  selectInput(inputId = "thing", label = "choose a color", choices = c("red", "orange", "yellow") ),
-  uiOutput("first")
+  selectInput(inputId = "thing", label = "choose a fruit", choices = c("apples", "oranges", "banannas") ),
+  htmlOutput("first")
   
 )
 
 server <- function(input, output)({
-  var <- reactive({case_when(
-    value <- input$thing == "red" ~ "apples",
-    value <- input$thing == "orange" ~ "oranges",
-    value <- input$thing == "yellow" ~ "banannas"
+ 
+  value <- eventReactive(input$thing, { case_when(
+    input$thing == "apples" ~ "color: red",
+    input$thing == "oranges" ~ "color: orange",
+    input$thing == "banannas" ~ "color: yellow"
+    
   )
   })
+  #output$first <- renderText({value()})
   output$first <- renderUI({
-    selectInput("variablex", "select 1st var", choice = var())
+    withTags(
+      div(style= value(),
+          p("words")))
+
   })
   
 })
+
 
 
 
