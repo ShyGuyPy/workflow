@@ -224,3 +224,34 @@ graph_components <- c("dataset", "geom", "set of mappings", "a stat", "postion",
 #   print(component)
 # }
 ```
+
+some basic R,; seq() is a function that constructs a sequence between(inclusive) the two numbers passed to it:
+```{r}
+seq(1,25)
+```
+
+dplyr exercises and I need the practice:
+```{r}
+library(nycflights13)
+library(tidyverse)
+
+#wrapped in () to both print and assign to variable
+(my_flight_data <- flights %>%
+  #only showing rows where dep_delay value is greater than 20
+  filter(dep_delay < -20) %>%
+  #only showing columns cep_delay and arr_time
+  select(dep_delay,arr_time))
+  #something else
+  
+  
+```
+
+dealing with NA values.  is.na() can be used to reference such values:
+```{r}
+things.df <- tibble(stuff = c(NA,2,NA))
+
+things.df %>%
+  filter(is.na(things.df) | things.df<3)
+
+```
+
