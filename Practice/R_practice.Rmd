@@ -203,8 +203,8 @@ coxcomb chart:
 ```{r}
 library(ggplot2)
 
-assigned <- ggplot(data=diamonds, mapping = aes(x=cut, fill =cut))+
-  geom_bar()+
+assigned <- ggplot(data=mpg, mapping = aes(x=drv, fill =drv))+
+  geom_bar(width=1)+
   theme(aspect.ratio = 1)+
   labs(x = NULL, y =NULL)
 
@@ -213,3 +213,14 @@ assigned + coord_polar() #+ coord_flip()
   
 ```
 
+"The grammar of graphics is based on the insight that you can uniquely describe any plot as a combination of a dataset, a geom, a set of mappings, a stat, a position adjustment, a coordinate system, and a faceting scheme."
+
+
+```{r}
+graph_components <- c("dataset", "geom", "set of mappings", "a stat", "postion", "coordinate system", "faceting scheme" )
+
+
+# for (component in graph_components){
+#   print(component)
+# }
+```
