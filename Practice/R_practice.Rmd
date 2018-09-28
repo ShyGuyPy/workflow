@@ -174,4 +174,28 @@ ggplot(data = mpg, mapping = aes(x = displ, y = hwy))+
   coord_flip()
 ```
 
+summary I don't fully get or see the value of but here it is:
+```{r}
+library(ggplot2)
+ggplot(data= mpg)+
+  stat_summary(
+    mapping = aes(x = displ, y = hwy),
+    fun.ymin = min,
+    fun.ymax = max,
+    fun.y = median
+  )
+```
+
+
+position values of identity, dodge, and fill(below) alter the presentation of the data:
+```{r}
+ggplot(data = diamonds, mapping = aes(x=cut, fill = clarity))+
+  geom_bar(alpha = 3/5, position= "fill" )
+```
+
+The use of jitter in a scatterplot fixes the problem of overplotting cuased by rounding of values.  Here we can see the clustering various points(such as position 4.7, 5 or 2.8,20).  The desnity of the blob gies us a sense of how many points land at approximately the same axis point
+```{r}
+ggplot(data=mpg)+
+  geom_point(mapping=aes(x=displ,y=hwy), position ="jitter")
+```
 
