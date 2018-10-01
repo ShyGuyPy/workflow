@@ -255,3 +255,26 @@ things.df %>%
 
 ```
 
+playing with for loops:
+```{r}
+library(tidyverse)
+library(dplyr)
+date <- "1/1/1"
+
+date_df <- c("1/1/1","2/2/2","3/3/3")
+value_df <- c(1,2,3)
+data.df <- data.frame(date_df, value_df)
+print(data.df)
+
+for (i in 2:nrow(data.df)){
+  case_when(
+    i != "1/1/1" ~ print("nope"),
+    i == "1/1/1" ~ print("yep")
+  )
+}
+
+  
+             
+             
+```
+

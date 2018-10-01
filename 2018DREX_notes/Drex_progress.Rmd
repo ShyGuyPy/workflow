@@ -26,15 +26,19 @@ Done-
 -output sim_today varaible output reactively to tag$li in login bar
 -build toy DREX for testing/practice of:
 html/css feature integration, various reactive render types, andShiny in general
-
+-add an inputSlider to toy for date selection
 
 Doing-
+-merge CSS branch and master branch of DREX
+-write bool logic to replace current pseudo logic for precip, gw, reservoir(q), and stor
+-link existing code to current date rather than slider
+-add title bars above squares
+-write code to iter thru df, find date and spit out value
 -deep testing of extent of control added css has over DREX
 -optimize design of DREX ui if/where able
 -learn in office standard practice for csv to to dataframe(look at DREX)
--add an inputSlider to toy for date selection
 
--merge CSS branch and master branch of DREX 
+
 -check to make sure main.css link is implemented correctly(currently ref in sidebarpanel, not in dashboardbody...)
 -learn/use/build reactive objects(data <- reactive({do a thing to input$value}))
 
@@ -42,9 +46,7 @@ Doing-
 
 UI adjustments needed (after meeting Wed 9/12/18):
 -tighten layout (adjust heighs)
--move date
 -remove "Flow at Point of Rocks Panel"
 -move quadrant of graphs up
 -inscrease readabbility of large graph, simply small graphs
--drought warning quads as 2 side by side square sections (?)
 -tweak css until it pops
