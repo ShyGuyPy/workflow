@@ -174,4 +174,84 @@ ggplot(data = mpg, mapping = aes(x = displ, y = hwy))+
   coord_flip()
 ```
 
+summary I don't fully get or see the value of but here it is:
+```{r}
+library(ggplot2)
+ggplot(data= mpg)+
+  stat_summary(
+    mapping = aes(x = displ, y = hwy),
+    fun.ymin = min,
+    fun.ymax = max,
+    fun.y = median
+  )
+```
+
+
+position values of identity, dodge, and fill(below) alter the presentation of the data:
+```{r}
+ggplot(data = diamonds, mapping = aes(x=cut, fill = clarity))+
+  geom_bar(alpha = 3/5, position= "fill" )
+```
+
+The use of jitter in a scatterplot fixes the problem of overplotting cuased by rounding of values.  Here we can see the clustering various points(such as position 4.7, 5 or 2.8,20).  The desnity of the blob gies us a sense of how many points land at approximately the same axis point
+```{r}
+ggplot(data=mpg)+
+  geom_point(mapping=aes(x=displ,y=hwy), position ="jitter")
+```
+
+coxcomb chart:
+```{r}
+library(ggplot2)
+
+assigned <- ggplot(data=mpg, mapping = aes(x=drv, fill =drv))+
+  geom_bar(width=1)+
+  theme(aspect.ratio = 1)+
+  labs(x = NULL, y =NULL)
+
+
+assigned + coord_polar() #+ coord_flip()
+  
+```
+
+"The grammar of graphics is based on the insight that you can uniquely describe any plot as a combination of a dataset, a geom, a set of mappings, a stat, a position adjustment, a coordinate system, and a faceting scheme."
+
+
+```{r}
+graph_components <- c("dataset", "geom", "set of mappings", "a stat", "postion", "coordinate system", "faceting scheme" )
+
+
+# for (component in graph_components){
+#   print(component)
+# }
+```
+
+some basic R,; seq() is a function that constructs a sequence between(inclusive) the two numbers passed to it:
+```{r}
+seq(1,25)
+```
+
+dplyr exercises and I need the practice:
+```{r}
+library(nycflights13)
+library(tidyverse)
+
+#wrapped in () to both print and assign to variable
+(my_flight_data <- flights %>%
+  #only showing rows where dep_delay value is greater than 20
+  filter(dep_delay < -20) %>%
+  #only showing columns cep_delay and arr_time
+  select(dep_delay,arr_time))
+  #something else
+  
+  
+```
+
+dealing with NA values.  is.na() can be used to reference such values:
+```{r}
+things.df <- tibble(stuff = c(NA,2,NA))
+
+things.df %>%
+  filter(is.na(things.df) | things.df<3)
+
+```
 
