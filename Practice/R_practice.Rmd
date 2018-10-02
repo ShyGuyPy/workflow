@@ -295,17 +295,70 @@ for(i in 2:nrow(my_data_p)){
 
 convert date format:
 ```{r}
-date <- "10/1/1998"
+#convert from "10/1/1998" to "1998/10/01"
+#date <- "10/1/1998"
+date <- "5/5/1981"
+month="-"
+day="-"
+#day_single="-0"
+year =""
 
+#iterates over string date
 for(i in strsplit(date,"")[[1]]){ 
-  print(i)
+  #for single digit month values
+  if (i == "/" && nchar(month) <3){month <- paste0(substring(month, 1, 1), 0, substring(month,2,2))}
+  #adds value to month until month has enough characters
+  if (i != "/" && nchar(month) < 3) {month <- paste0(month,i)}
+
+
   
-  if (i == "/") {print(paste0(i, " is a /"))}
+  #adds value to day until day is long enough
+  else if (i != "/" && nchar(day) <3) {day <- paste0(day,i)}
+  #adds a 0 in front of day value if day is only one digit
+  else if (i == "/" && nchar(month) ==3 && nchar(day) >1 && nchar(day) <3) {day <- paste0(substring(day, 1, 1), 0, substring(day,2,2))}#day <- paste0(day_single,day[2])}
+  #adds value to years until it is long enough
+  else if (i != "/" && nchar(day) ==3 && nchar(month) == 3 && nchar(year)<4){year<- paste0(year,i)}
+  
+  #else if (i == "/"){}
   # case_when(
   #   i != "/"~print("no tilde"),
   #   i == "1"~print("bingo")
-
+#date2 <- paste0(year,month,day)
 #)
 }
+date2 <- paste0(year,month,day)
+print(date2)
+```
+and it works. now to add it to shiny_test_app2
+...and realize I've written it to convert in reverse...
+so the other way now:
+
+
+```{r}
+#convert from "1998-10-01" to "10/1/1998"
+date <- "1990-05-17"
+#date <- paste0(date,"-")
+month=""
+day="/"
+day_single= FALSE
+month_single=FALSE
+year ="/"
+
+#iterates over string date
+for(i in strsplit(date,"")[[1]]){
+  
+  if (i != "-" && nchar(year) < 5){year<- paste0(year,i)}
+  
+  else if (i == "0" && nchar(month) <1){month_single = TRUE}
+  else if (i != "-" && nchar(month) <1){month <- paste0(month,i)}
+  else if (i != "-" && nchar(month) <2 && month_single == FALSE){month <- paste0(month,i)}
+  
+  else if (i == "0" && nchar(day) <2) {day_single = TRUE}
+  else if (i != "-" && nchar(day) <2) {day <- paste0(day,i)}
+  else if (i != "-" && nchar(day) <3 && day_single == FALSE) {day <- paste0(day,i)}
+
+}
+date2 <- paste0(month,day, year)
+print(date2)
 ```
 

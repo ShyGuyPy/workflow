@@ -27,6 +27,7 @@ Done-
 -build toy DREX for testing/practice of:
 html/css feature integration, various reactive render types, andShiny in general
 -add an inputSlider to toy for date selection
+-write code to convert date format
 
 Doing-
 -merge CSS branch and master branch of DREX
