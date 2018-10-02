@@ -261,20 +261,51 @@ library(tidyverse)
 library(dplyr)
 date <- "1/1/1"
 
+id_df <- c(1,2,3)
 date_df <- c("1/1/1","2/2/2","3/3/3")
-value_df <- c(1,2,3)
-data.df <- data.frame(date_df, value_df)
+value_df <- c(12,18,10)
+data.df <- data.frame(id_df,date_df, value_df)
 print(data.df)
 
 for (i in 2:nrow(data.df)){
   case_when(
-    i != "1/1/1" ~ print("nope"),
-    i == "1/1/1" ~ print("yep")
+    date_df[i] != "1/1/1" ~ print(paste0("nope ", value_df[i])),
+    date_df[i] == "1/1/1" ~ print(paste0("yep ", value_df[i]))#"yep")
   )
 }
 
   
              
              
+```
+I think the above code has an issue with how I constructed the dataframe.  Will revisit but it's not my primary issue atm.
+
+```{r}
+library(readxl)
+
+path_p <- "C:\\Users\\icprbadmin\\Documents\\R\\2018drex\\input\\ts\\state\\i_a1b\\va_shenandoah_p.csv"
+my_data_p = read.csv(path_p)
+
+#print(my_data_p)
+#print(nrow(my_data_p))
+for(i in 2:nrow(my_data_p)){
+   print(my_data_p[[i]])
+}
+```
+
+convert date format:
+```{r}
+date <- "10/1/1998"
+
+for(i in strsplit(date,"")[[1]]){ 
+  print(i)
+  
+  if (i == "/") {print(paste0(i, " is a /"))}
+  # case_when(
+  #   i != "/"~print("no tilde"),
+  #   i == "1"~print("bingo")
+
+#)
+}
 ```
 
