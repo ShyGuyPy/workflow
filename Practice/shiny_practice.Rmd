@@ -150,3 +150,42 @@ shinyApp(ui = ui, server = server)
 
 ```
 
+```{r}
+library(shiny)
+library(shinydashboard)
+
+ui <- dashboardPage(
+  dashboardHeader(title = "break me"
+                  ),
+  dashboardSidebar(dateInput(inputId = "date", "enter a date")
+                   ),
+  dashboardBody(htmlOutput(outputId = "boxes")
+  )
+)
+  
+server <- function(input, output, session) {
+
+path_p <- "C:\\Users\\icprbadmin\\Documents\\R\\2018drex\\input\\ts\\state\\i_a1b\\va_shenandoah_p.csv"
+my_data_p = read.csv(path_p)  
+
+p_data_percent <- eventReactive(input$date, {
+  input$date
+  # for(i in my_data_p$date){
+  # 
+  #   case_when(
+  #   as.character(i) == date_func(as.character(input$date))~ my_data_p$p_percent_normal[which(my_data_p$date == i)])
+  
+  #}
+  
+#my_data_p$p_percent_normal[input$data_index]
+})
+  
+output$boxes  <- renderUI({
+div(as.character(p_data_percent()))
+})
+}
+
+
+shinyApp(ui = ui, server = server)
+
+```
