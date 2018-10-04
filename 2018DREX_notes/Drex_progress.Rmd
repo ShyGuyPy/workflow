@@ -7,6 +7,8 @@ output: html_document
 
 A place for random thoughts and notes on DREX:
 
+
+----------------------UI--------------------------
 Done-
 -build toy logic and Shiny app(DREX_toy_colors.Rmd)
 -added external css to DREX
@@ -30,6 +32,7 @@ html/css feature integration, various reactive render types, andShiny in general
 -write code to convert date format
 
 Doing-
+-learn where/how to plug in your code for squares
 -merge CSS branch and master branch of DREX
 -write bool logic to replace current pseudo logic for precip, gw, reservoir(q), and stor
 -link existing code to current date rather than slider
@@ -38,11 +41,7 @@ Doing-
 -deep testing of extent of control added css has over DREX
 -optimize design of DREX ui if/where able
 -learn in office standard practice for csv to to dataframe(look at DREX)
-
-
 -check to make sure main.css link is implemented correctly(currently ref in sidebarpanel, not in dashboardbody...)
--learn/use/build reactive objects(data <- reactive({do a thing to input$value}))
-
 
 
 UI adjustments needed (after meeting Wed 9/12/18):
@@ -51,3 +50,46 @@ UI adjustments needed (after meeting Wed 9/12/18):
 -move quadrant of graphs up
 -inscrease readabbility of large graph, simply small graphs
 -tweak css until it pops
+
+
+
+-----------------------Debugging--------------------------
+
+Done-
+-start generating and documenting instances of buggy behavior
+-look at generated outputs from running sim and writing time series
+
+Doing-
+-read through all of DREX code at least once
+-run DREX multiple times -
+-become familiar with output deviations between input types(last day select vs. add chunk of days)
+-look at generated outputs from running sim
+-start learning water process policy
+-branch and break DREX
+-isolate and execute pieces of suspect code
+-play with add days code in isolation of the rest of the codebase
+-learn reactive values
+
+
+Bugs:
+-crashes on date inputs outside of expected range
+
+Files read through:
+-ui, sim_add_days_func,
+Files to read through:
+-server, global, simulation_func, reservoir_ops_today, forecasts_flows
+
+
+note:input$run_main is a click of 're-run simulation' buttion
+
+input files to be aware of:  flows_daily_mgd.csv and demands_daily.csv in input/ts/1929_1929prrism/ 
+
+the output files created for QAing: 
+output_flows.csv - the flows in the river
+output_pat.csv - what happens in the Patuxent reservoir
+the 3 functions that do the calculations:
+simulation_func - which calls reservoir_ops_today_func and forecasts_flows_func
+---------------------------------------------------------
+
+
+

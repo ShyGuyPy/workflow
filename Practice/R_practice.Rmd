@@ -463,3 +463,14 @@ print(thing3)
 ```
 
 R is running date values with "-" as math operations
+
+Interesting...but discontinuing because a different approach is needed for integration into 2018DEX.
+
+r for Data Science 5.3:
+```{r}
+library(dplyr)
+arrange()
+
+
+```
+
