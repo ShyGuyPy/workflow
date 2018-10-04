@@ -42,7 +42,8 @@ library(magrittr)
 library(readxl)
 library(dplyr)
 
-#project.dir in dplyr
+
+#sporadic issues with project.dir...unresolved
 toy.df <- read_excel(file.path(project.dir, "data/jackie_data/Data 2013_4plus-phyto-metrics.xlsx"),
                          sheet = "DATA_4+biometrics",
                          skip = 1)
