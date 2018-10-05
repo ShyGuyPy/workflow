@@ -43,7 +43,9 @@ library(readxl)
 library(dplyr)
 
 
-#sporadic issues with project.dir...unresolved
+#creates project.dir, phyto directory object 
+project.dir <- rprojroot::find_rstudio_root_file()
+
 toy.df <- read_excel(file.path(project.dir, "data/jackie_data/Data 2013_4plus-phyto-metrics.xlsx"),
                          sheet = "DATA_4+biometrics",
                          skip = 1)
@@ -72,6 +74,8 @@ mutant.toy.df <- toy.df %>%
 
 ```{r}
 library(magrittr)
+
+project.dir <- rprojroot::find_rstudio_root_file()
 
 toy.df <- read_excel(file.path(project.dir, "data/jackie_data/Data 2013_4plus-phyto-metrics.xlsx"),
                          sheet = "DATA_4+biometrics",
@@ -467,11 +471,68 @@ R is running date values with "-" as math operations
 
 Interesting...but discontinuing because a different approach is needed for integration into 2018DEX.
 
-r for Data Science 5.3:
+r for Data Science 5.3, 5.4:
 ```{r}
 library(dplyr)
-arrange()
+
+path_p <- "C:\\Users\\icprbadmin\\Documents\\R\\2018drex\\input\\ts\\state\\i_a1b\\va_shenandoah_p.csv"
+                if( .Platform$OS.type == "unix" ) {
+                  path_p <- "/Users/lukevawter/Desktop/R/2018drex/input/ts/state/i_a1b/va_shenandoah_p.csv"
+                }
+my_data_p = data.table::fread(path_p)
+print(my_data_p)
+
+
+mdp_trimmed <- my_data_p %>%
+  #arrange(my_data_p$p_percent_normal) %>%
+  select(-date) %>%
+  select(-V3,-V4)
+
+  
+mdp_trimmed %>%
+  transmute(double = my_data_p$p_percent_normal * 2) %>%
+  mutate(triple = my_data_p$p_percent_normal * 3)
+
+  
 
 
 ```
+
+
+```{r}
+library(nycflights13)
+
+flights_sml <- select(flights,
+                      year:day,
+                      ends_with("delay"),
+                      distance,
+                      air_time
+                      )
+
+flights_mut <- flights_sml %>%
+  mutate(gain = dep_delay - arr_delay,
+       speed = distance / air_time * 60)
+
+flights_mut %>%
+  select(gain, speed)
+```
+
+R for Data Science 5.5:
+```{r}
+library(nycflights13)
+
+flights %>%
+  transmute(dep_time, hour = dep_time %/% 100,
+            minutes = dep_time %% 100)
+```
+
+and a bit of python review just because I feel like I'm getting rusty:
+```{python}
+test_var = 517 
+
+remains_2= test_var % 100
+remains_1= (test_var - remains_2) / 100
+print("{}:{}".format(remains_1,remains_2))
+```
+
 
