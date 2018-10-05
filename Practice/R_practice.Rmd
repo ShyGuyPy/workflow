@@ -535,4 +535,43 @@ remains_1= (test_var - remains_2) / 100
 print("{}:{}".format(remains_1,remains_2))
 ```
 
+R for Data Science 5.6 using summarise():
+```{r}
+library(nycflights13)
+
+by_day <- flights %>%
+  group_by(year, month, day) #%>%
+
+by_day %>%
+  summarise( delay = mean(dep_delay, na.rm=TRUE))
+
+# by_day <- group_by(flights, year, month, day)
+# summarise(by_day, delay = mean(dep_delay, na.rm = TRUE))
+```
+na.rm overrieds the rule that any input with missing values will generate a missing value(NA).  If we don't want those NA's in our output we include na.rm in summarise.
+
+```{r}
+library(ggplot2)
+
+not_cancelled <- flights %>% 
+  filter(!is.na(dep_delay), !is.na(arr_delay))
+
+delays <- not_cancelled %>% 
+  group_by(tailnum) %>% 
+  summarise(
+    delay = mean(arr_delay, na.rm = TRUE),
+    n = n()
+  )
+
+ggplot(data = delays, mapping = aes(x = n, y = delay)) + 
+  geom_point(alpha = 1/10)
+
+delays %>% 
+  filter(n > 20) %>% 
+  ggplot(mapping = aes(x = n, y = delay)) + 
+    geom_point(alpha = 1/10)
+
+```
+
+
 
