@@ -595,3 +595,31 @@ print(typeof(cake))
 
 ```
 
+```{r}
+library(shiny)
+path_p <- "C:\\Users\\icprbadmin\\Documents\\R\\2018drex\\input\\ts\\state\\i_a1b\\va_shenandoah_p.csv"
+my_data_p = read.csv(path_p)
+
+p_data_percent <- eventReactive(test_date$test_date_value, {
+  for(i in my_data_p$date){
+    case_when(
+      as.character(i) == as.character(test_date$test_date_value)~ my_data_p$p_percent_normal[which(my_data_p$date == i)])
+                    
+                  }})
+
+                
+precip_value<-eventReactive(test_date$test_date_value,{#a_index,{
+                case_when(
+                  p_data_percent() <= .0 ~ "background-color:purple", #"#000000",
+                  p_data_percent() > .0 && p_data_percent() <= .20 ~ red,#"background-color:red", #"#cc3300",
+                  p_data_percent() > .20 && p_data_percent() <= .40 ~ orange,#"background-color:orange",  #"#ff9966",
+                  p_data_percent() > .40 && p_data_percent() <= .60 ~ yellow,#"background-color:yellow",  #"#ffcc00",
+                  p_data_percent() > .60 && p_data_percent() <= .80 ~ green,#"background-color:green", #"#99cc33",
+                  p_data_percent() > .80 && p_data_percent() < 1 ~  navy, #"background-color:navy" #"#339900"
+                  TRUE ~ black
+                )})
+
+print(p_data_percent)
+print(precip_value)
+```
+
