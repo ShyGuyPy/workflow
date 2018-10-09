@@ -216,3 +216,11 @@ shinyApp(ui = ui, server = server)
 
 ```
 
+```{r}
+library(shiny)
+
+shinyServer(function(input, output, session){
+  counter <- reactiveValues(countervalue=0)
+})
+```
+

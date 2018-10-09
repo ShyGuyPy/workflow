@@ -30,12 +30,14 @@ Done-
 html/css feature integration, various reactive render types, andShiny in general
 -add an inputSlider to toy for date selection
 -write code to convert date format
+-link existing code to current date rather than slider in shinytestapp2
+-add otdays_date to login bar of 2018DREX  master branch
 
 Doing-
 -learn where/how to plug in your code for squares
--merge CSS branch and master branch of DREX
+
 -write bool logic to replace current pseudo logic for precip, gw, reservoir(q), and stor
--link existing code to current date rather than slider
+
 -add title bars above squares
 -write code to iter thru df, find date and spit out value
 -deep testing of extent of control added css has over DREX
@@ -58,14 +60,17 @@ UI adjustments needed (after meeting Wed 9/12/18):
 Done-
 -start generating and documenting instances of buggy behavior
 -look at generated outputs from running sim and writing time series
+-run DREX multiple times 
+--create debug branch of DREX
 
 Doing-
+-explore including a reactive relationship from days_added(sp?) to DREXtoday
 -read through all of DREX code at least once
--run DREX multiple times -
+-add date input validation method
 -become familiar with output deviations between input types(last day select vs. add chunk of days)
 -look at generated outputs from running sim
 -start learning water process policy
--branch and break DREX
+
 -isolate and execute pieces of suspect code
 -play with add days code in isolation of the rest of the codebase
 -learn reactive values
@@ -75,9 +80,10 @@ Bugs:
 -crashes on date inputs outside of expected range
 
 Files read through:
--ui, sim_add_days_func,
+-ui, sim_add_days_func, server,
+
 Files to read through:
--server, global, simulation_func, reservoir_ops_today, forecasts_flows
+ global, simulation_func, reservoir_ops_today, forecasts_flows, rule_curve_func, sim_main_func, 
 
 
 note:input$run_main is a click of 're-run simulation' buttion
