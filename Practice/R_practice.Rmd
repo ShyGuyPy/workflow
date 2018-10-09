@@ -298,7 +298,7 @@ for(i in my_data_p$date){
   #print(i)
   if(as.character(i) == "1998-10-04"){print(my_data_p$p_percent_normal[which(my_data_p$date == i)])}#print(my_data_p$p_percent_normal[4])}
  
-    
+  
   
 
    #print(my_data_p[[i]])
@@ -574,4 +574,24 @@ delays %>%
 ```
 
 
+
+```{r}
+library(readxl)
+
+path_p <- "C:\\Users\\icprbadmin\\Documents\\R\\2018drex\\input\\ts\\state\\i_a1b\\va_shenandoah_p.csv"
+my_data_p = read.csv(path_p)
+
+#print(my_data_p)
+#print(nrow(my_data_p))
+cake = "hello"
+for(i in my_data_p$date){
+  if(as.character(i) == "1998-10-04"){cake<-my_data_p$p_percent_normal[which(my_data_p$date == i)]}#print(my_data_p$p_percent_normal[4])}
+}
+print(cake) 
+print(typeof(cake))
+  
+
+   #print(my_data_p[[i]])
+
+```
 
