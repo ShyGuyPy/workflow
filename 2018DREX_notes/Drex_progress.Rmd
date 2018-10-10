@@ -32,18 +32,20 @@ html/css feature integration, various reactive render types, andShiny in general
 -write code to convert date format
 -link existing code to current date rather than slider in shinytestapp2
 -add otdays_date to login bar of 2018DREX  master branch
+-learn where/how to plug in your code for squares
+-add title bars above squares
+-write code to iter thru df, find date and spit out value
 
 Doing-
--learn where/how to plug in your code for squares
+-fix/finish integration of proto squares in DREX
 
 -write bool logic to replace current pseudo logic for precip, gw, reservoir(q), and stor
 
--add title bars above squares
--write code to iter thru df, find date and spit out value
+
 -deep testing of extent of control added css has over DREX
 -optimize design of DREX ui if/where able
 -learn in office standard practice for csv to to dataframe(look at DREX)
--check to make sure main.css link is implemented correctly(currently ref in sidebarpanel, not in dashboardbody...)
+
 
 
 UI adjustments needed (after meeting Wed 9/12/18):
