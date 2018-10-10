@@ -293,16 +293,18 @@ my_data_p = read.csv(path_p)
 
 #print(my_data_p)
 #print(nrow(my_data_p))
+mystery <- {
 for(i in my_data_p$date){
   
   #print(i)
-  if(as.character(i) == "1998-10-04"){print(my_data_p$p_percent_normal[which(my_data_p$date == i)])}#print(my_data_p$p_percent_normal[4])}
+  if(as.character(i) == "1998-10-06"){print(my_data_p$p_percent_normal[which(my_data_p$date == i)])}#print(my_data_p$p_percent_normal[4])}
  
   
   
 
    #print(my_data_p[[i]])
-}
+}}
+
 ```
 
 convert date format:
@@ -623,3 +625,19 @@ print(p_data_percent)
 print(precip_value)
 ```
 
+
+```{r}
+library(readxl)
+
+path_p <- "C:\\Users\\icprbadmin\\Documents\\R\\2018drex\\input\\ts\\state\\i_a1b\\va_shenandoah_p.csv"
+my_data_p = read.csv(path_p)
+
+
+find_date <- function(col_date, col_val ){
+for(i in col_date){
+  if(as.character(i) == "1998-10-06"){our_value <- (col_val[which(col_date == i)])}
+}
+  return(our_value)}
+
+print(find_date(my_data_p$date, my_data_p$p_percent_normal))
+```
