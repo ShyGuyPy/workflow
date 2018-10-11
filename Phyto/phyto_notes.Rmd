@@ -175,5 +175,31 @@ represents phyto project directory(was looking for this for a while)
 The specific area we are looking at in the pibi_notebook is Overview of Discrepancies/IBI Scores.  link is:
 file:///C:/Users/icprbadmin/Downloads/pibi_notebook%20(1).html#overview_of_discrepancies
 
+this demonstrates use of clean_up():
+```{r}
+clean_string <- function(x) {
+  x %>% 
+    stringr::str_trim() %>% 
+    tolower() %>% 
+    stringr::str_replace_all("\\s+", " ") %>% 
+    stringr::str_replace_all(" ", "_") %>%  
+    if_else(. == "", as.character(NA), .)
+}
 
+clean_up <- function(x) {
+  x %>% 
+    rename_all(clean_string) %>% 
+    mutate_if(is.character, funs(clean_string))%>% 
+    distinct()
+}
 
+project.dir <- rprojroot::find_rstudio_root_file()
+
+old.salzone <- readxl::read_excel(file.path(project.dir, "data/jackie_data/JMJ_PIBI_Salzone_Data.xlsx"),
+                                  sheet = "COMBINED")#was "JMJ Salzone+Scores"
+colnames(old.salzone)
+
+(clean_zone <- clean_up(old.salzone) %>%
+    select(latitude, longitude))
+
+```

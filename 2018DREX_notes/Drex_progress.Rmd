@@ -35,16 +35,17 @@ html/css feature integration, various reactive render types, andShiny in general
 -learn where/how to plug in your code for squares
 -add title bars above squares
 -write code to iter thru df, find date and spit out value
+-fix/finish integration of proto squares in DREX
+-learn in office standard practice for csv to dataframe(look at DREX, use fread)
 
 Doing-
--fix/finish integration of proto squares in DREX
+-thurough bug testing of squares
 
 -write bool logic to replace current pseudo logic for precip, gw, reservoir(q), and stor
 
-
 -deep testing of extent of control added css has over DREX
 -optimize design of DREX ui if/where able
--learn in office standard practice for csv to to dataframe(look at DREX)
+
 
 
 

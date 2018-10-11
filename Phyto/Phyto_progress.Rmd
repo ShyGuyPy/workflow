@@ -11,8 +11,11 @@ Done:
 -get pibi_notebook knitting error free on my machine
 -read through the majority of pibi_notebook
 -learn ggplot basics
+-test use of custom function clean_up()
 
 
 Doing: 
 -finish working through R For Data Science
 -evaluate ibi metric code to the point where you could effectively bug check it
+-know the parts of MMIR package that are applicable to phyto
+

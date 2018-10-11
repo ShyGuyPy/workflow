@@ -641,3 +641,79 @@ for(i in col_date){
 
 print(find_date(my_data_p$date, my_data_p$p_percent_normal))
 ```
+
+```{r}
+nums <- c(1,2,3)
+
+(2 %in% nums)
+(4 %in% nums)
+```
+
+```{r}
+library(magrittr)
+library(dplyr)
+project.dir <- rprojroot::find_rstudio_root_file()
+
+col.class.vec <- c("samplenumber" = "character",
+                   "tsn" = "character",
+                   "speccode" = "character")
+
+taxa.raw <- data.table::fread(file.path(project.dir, "data/phytoplankton/cedr_phyto_taxa.csv"),
+                            data.table = FALSE,
+                            colClasses = col.class.vec,
+                            na.strings = "") %>% 
+  mutate(sampledate = as.Date(sampledate))
+
+bay.df <- taxa.raw %>% 
+  filter(layer %in% c("ap", "wc")) %>% 
+  distinct() %>% 
+  mutate(month = month(sampledate),
+         season = case_when(
+           month %in% c(3, 4, 5) ~ "spring",
+           month %in% c(7, 8, 9) ~ "summer",
+           TRUE ~ "remove"
+         )) %>% 
+  filter(season %in% c("spring", "summer"))
+```
+
+this is how rename works(requires plyr apparently):
+```{r}
+library(dplyr)
+library(plyr)
+
+my_vec <- c("a" = 1, "b" = 2, "c" = 4)
+my_vec
+
+my_vec <- rename(my_vec, c("a"="alpha","b"="bravo","c"="charlie"))
+my_vec
+
+```
+
+```{r}
+clean_string <- function(x) {
+  x %>% 
+    stringr::str_trim() %>% 
+    tolower() %>% 
+    stringr::str_replace_all("\\s+", " ") %>% 
+    stringr::str_replace_all(" ", "_") %>%  
+    if_else(. == "", as.character(NA), .)
+}
+
+clean_up <- function(x) {
+  x %>% 
+    rename_all(clean_string) %>% 
+    mutate_if(is.character, funs(clean_string))%>% 
+    distinct()
+}
+
+project.dir <- rprojroot::find_rstudio_root_file()
+
+old.salzone <- readxl::read_excel(file.path(project.dir, "data/jackie_data/JMJ_PIBI_Salzone_Data.xlsx"),
+                                  sheet = "COMBINED")#was "JMJ Salzone+Scores"
+colnames(old.salzone)
+
+(clean_zone <- clean_up(old.salzone) %>%
+    select(latitude, longitude))
+
+```
+
