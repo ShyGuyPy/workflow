@@ -39,7 +39,9 @@ html/css feature integration, various reactive render types, andShiny in general
 -learn in office standard practice for csv to dataframe(look at DREX, use fread)
 
 Doing-
--thurough bug testing of squares
+-thorough bug testing of squares
+-move my paths from global to paths.R, in 2018drex/config
+-put the dummy input time series for the state data in 2018drex/input/ts/1929_1929prrism for now 
 
 -write bool logic to replace current pseudo logic for precip, gw, reservoir(q), and stor
 
