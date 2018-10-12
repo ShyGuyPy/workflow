@@ -690,6 +690,10 @@ my_vec
 ```
 
 ```{r}
+library(magrittr)
+library(dplyr)
+library(ggplot2)
+
 clean_string <- function(x) {
   x %>% 
     stringr::str_trim() %>% 
@@ -713,7 +717,9 @@ old.salzone <- readxl::read_excel(file.path(project.dir, "data/jackie_data/JMJ_P
 colnames(old.salzone)
 
 (clean_zone <- clean_up(old.salzone) %>%
-    select(latitude, longitude))
+    select(jmj_salz, totaldepth))
 
+ggplot(data = clean_zone, mapping = aes(x = totaldepth, color= jmj_salz)) +
+  geom_freqpoly(binwidth = 1 )
 ```
 

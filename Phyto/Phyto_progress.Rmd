@@ -18,5 +18,14 @@ Doing:
 -finish working through R For Data Science
 -evaluate ibi metric code to the point where you could effectively bug check it
 -know the parts of MMIR package that are applicable to phyto
+-do some exploratory data ananysis on phyto data to familiarize your self both with the data and the EDA process
 
 
+understand steps:
+
+downlaod data and dependencies
+
+-downlaod CEDR data(from API, url.root <- "http://datahub.chesapeakebay.net/api.JSON"
+-install packages(including MMIR)
+-create vesctor for station data
+-download all of the phytoplankton data from the CEDR API

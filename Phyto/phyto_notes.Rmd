@@ -203,3 +203,24 @@ colnames(old.salzone)
     select(latitude, longitude))
 
 ```
+
+creating the station vector that contains phyto data.  I think he's establishinga path to pull from the remote source...it's pulling from a json file (fromJSON())
+```{r}
+library(jsonlite)
+url.root <- "http://datahub.chesapeakebay.net/api.JSON"
+todays.date <- format(Sys.Date(), "%m-%d-%Y")
+
+station.vec <- file.path(url.root,
+                       "LivingResources",
+                       "TidalPlankton",
+                       "Reported",
+                       "1-01-1970",
+                       todays.date,
+                       "17",
+                       "Station") %>% 
+  fromJSON() %>% 
+  pull(unique(MonitoringLocationId))
+
+print(station.vec)
+```
+
