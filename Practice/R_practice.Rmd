@@ -689,7 +689,7 @@ my_vec
 
 ```
 
-```{r}
+````{r}
 library(magrittr)
 library(dplyr)
 library(ggplot2)
@@ -713,13 +713,32 @@ clean_up <- function(x) {
 project.dir <- rprojroot::find_rstudio_root_file()
 
 old.salzone <- readxl::read_excel(file.path(project.dir, "data/jackie_data/JMJ_PIBI_Salzone_Data.xlsx"),
-                                  sheet = "COMBINED")#was "JMJ Salzone+Scores"
+                                  sheet = "DataHub_Phytoplankton_Events_22")#was "JMJ Salzone+Scores"
 colnames(old.salzone)
 
-(clean_zone <- clean_up(old.salzone) %>%
-    select(jmj_salz, totaldepth))
+clean_zone <- clean_up(old.salzone) 
 
-ggplot(data = clean_zone, mapping = aes(x = totaldepth, color= jmj_salz)) +
-  geom_freqpoly(binwidth = 1 )
+ggplot(data = clean_zone, mapping = aes(x = totaldepth, color= salzone)) +
+  geom_freqpoly(binwidth = 1, na.rm = TRUE )
+
+ggplot(data=clean_zone, mapping = aes(x = totaldepth, color= pdepth))+
+  geom_histogram(binwidth = 1, na.rm = TRUE )#+
+  #coord_cartesian(ylim= c(0,200))  #used to zoom in
+
+explore_val <- clean_zone %>%
+  filter(totaldepth > 33 | totaldepth <2) %>%
+  select(sampletime, longitude, latitude, salzone)
+  #select()
+rare_val
+
+#as far as I know these are not values that should be excluded in this way.  I'm only using them for practice
+clean_zone.nona <- clean_zone %>%
+  mutate(totaldepth = ifelse(totaldepth<2 | totaldepth>33, NA, totaldepth)) %>%
+  arrange(totaldepth) 
+
+print(clean_zone.nona %>%
+  select(totaldepth))
+  
 ```
+
 

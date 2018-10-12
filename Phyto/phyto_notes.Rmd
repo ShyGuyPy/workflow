@@ -204,7 +204,7 @@ colnames(old.salzone)
 
 ```
 
-creating the station vector that contains phyto data.  I think he's establishinga path to pull from the remote source...it's pulling from a json file (fromJSON())
+creating the station vector that contains phyto data.  I think he's establishinga path to pull from the remote source...it's pulling from a json file (fromJSON())...so is 
 ```{r}
 library(jsonlite)
 url.root <- "http://datahub.chesapeakebay.net/api.JSON"
@@ -224,3 +224,56 @@ station.vec <- file.path(url.root,
 print(station.vec)
 ```
 
+ex 7.3 (R for Data Science):
+this uses clean_up(zach's custom function in phyto) to create a new df called clean_zone (from "data/jackie_data/JMJ_PIBI_Salzone_Data.xlsx") and then uses geom_frqpoly() to "overlay multiple histograms in the same plot"().  In terms of looking for trends in data or even really knowing what the data is showing...I'm not very expreienced, so this is helpful:
+```{r}
+library(magrittr)
+library(dplyr)
+library(ggplot2)
+
+clean_string <- function(x) {
+  x %>% 
+    stringr::str_trim() %>% 
+    tolower() %>% 
+    stringr::str_replace_all("\\s+", " ") %>% 
+    stringr::str_replace_all(" ", "_") %>%  
+    if_else(. == "", as.character(NA), .)
+}
+
+clean_up <- function(x) {
+  x %>% 
+    rename_all(clean_string) %>% 
+    mutate_if(is.character, funs(clean_string))%>% 
+    distinct()
+}
+
+project.dir <- rprojroot::find_rstudio_root_file()
+
+old.salzone <- readxl::read_excel(file.path(project.dir, "data/jackie_data/JMJ_PIBI_Salzone_Data.xlsx"),
+                                  sheet = "DataHub_Phytoplankton_Events_22")#was "JMJ Salzone+Scores"
+colnames(old.salzone)
+
+clean_zone <- clean_up(old.salzone) 
+
+ggplot(data = clean_zone, mapping = aes(x = totaldepth, color= salzone)) +
+  geom_freqpoly(binwidth = 1, na.rm = TRUE )
+
+ggplot(data=clean_zone, mapping = aes(x = totaldepth, color= pdepth))+
+  geom_histogram(binwidth = 1, na.rm = TRUE )#+
+  #coord_cartesian(ylim= c(0,200))  #used to zoom in
+
+explore_val <- clean_zone %>%
+  filter(totaldepth > 33 | totaldepth <2) %>%
+  select(sampletime, longitude, latitude, salzone)
+  #select()
+rare_val
+
+#as far as I know these are not values that should be excluded in this way.  I'm only using them for practice
+clean_zone.nona <- clean_zone %>%
+  mutate(totaldepth = ifelse(totaldepth<2 | totaldepth>33, NA, totaldepth)) %>%
+  arrange(totaldepth) 
+
+print(clean_zone.nona %>%
+  select(totaldepth))
+  
+```
