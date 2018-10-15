@@ -37,14 +37,12 @@ html/css feature integration, various reactive render types, andShiny in general
 -write code to iter thru df, find date and spit out value
 -fix/finish integration of proto squares in DREX
 -learn in office standard practice for csv to dataframe(look at DREX, use fread)
-
-Doing-
--thorough bug testing of squares
 -move my paths from global to paths.R, in 2018drex/config
 -put the dummy input time series for the state data in 2018drex/input/ts/1929_1929prrism for now 
 
+Doing-
+-thorough bug testing of squares
 -write bool logic to replace current pseudo logic for precip, gw, reservoir(q), and stor
-
 -deep testing of extent of control added css has over DREX
 -optimize design of DREX ui if/where able
 
@@ -67,9 +65,11 @@ Done-
 -look at generated outputs from running sim and writing time series
 -run DREX multiple times 
 --create debug branch of DREX
+-explore including a reactive relationship from days_added(sp?) to DREXtoday
+-learn reactive values
 
 Doing-
--explore including a reactive relationship from days_added(sp?) to DREXtoday
+
 -read through all of DREX code at least once
 -add date input validation method
 -become familiar with output deviations between input types(last day select vs. add chunk of days)
@@ -78,7 +78,7 @@ Doing-
 
 -isolate and execute pieces of suspect code
 -play with add days code in isolation of the rest of the codebase
--learn reactive values
+
 
 
 Bugs:

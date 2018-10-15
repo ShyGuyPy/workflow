@@ -742,3 +742,13 @@ print(clean_zone.nona %>%
 ```
 
 
+```{r}
+library(readxl)
+library(dplyr)
+
+test_data <-data.table::fread(paste("test_data.csv", sep = ""))
+print(test_data)
+
+
+```
+

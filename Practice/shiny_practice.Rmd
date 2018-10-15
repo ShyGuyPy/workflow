@@ -281,6 +281,51 @@ shinyApp(ui = ui, server = server)
 ```
 
 ```{r}
+library(readxl)
+library(dplyr)
+library(shiny)
+library(shinydashboard)
 
+ui <- fluidPage(dateInput(inputId = "date", label = "enter a date", value = "1998-10-04"),htmlOutput(outputId = "boxes")
+                )
+
+
+server<-function(input, output, session){
+
+  output$date_text  <- renderText({
+                paste("Today's date is",    as.character(test_date$test_date_value))
+              })
+  
+  output$boxes  <- renderUI({
+                div(as.character(p_data_percent()))
+                })
+
+  date_func <- function(col_date, col_val, date_today ){
+  our_value <- 0
+  for(i in col_date){
+    if(as.character(i) == date_today){our_value <- (col_val[which(col_date == i)])}
+  }
+  return(our_value)}
+
+
+  my_data_p <-data.table::fread(paste("test_data.csv", sep = ""))
+
+
+  p_data_percent <- eventReactive(test_date$test_date_value, {
+                  date_func(my_data_p$date, my_data_p$p_percent_normal,      test_date$test_date_value)
+})
+
+
+           
+  observeEvent(input$date, {
+                  test_date$test_date_value <- input$date
+                })
+                
+  test_date <- reactiveValues(test_date_value = "1930-05-01")
+                
+}
+
+
+shinyApp(ui = ui, server = server)
 ```
 
