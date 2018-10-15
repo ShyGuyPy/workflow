@@ -309,7 +309,8 @@ server<-function(input, output, session){
 
 
   my_data_p <-data.table::fread(paste("test_data.csv", sep = ""))
-
+  # my_data_p <- my_data_p %>% 
+  # mutate(date = as.Date(date))
 
   p_data_percent <- eventReactive(test_date$test_date_value, {
                   date_func(my_data_p$date, my_data_p$p_percent_normal,      test_date$test_date_value)
@@ -323,6 +324,7 @@ server<-function(input, output, session){
                 
   test_date <- reactiveValues(test_date_value = "1930-05-01")
                 
+
 }
 
 

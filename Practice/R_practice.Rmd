@@ -746,8 +746,19 @@ print(clean_zone.nona %>%
 library(readxl)
 library(dplyr)
 
-test_data <-data.table::fread(paste("test_data.csv", sep = ""))
+my_data_p <-data.table::fread(paste("test_data.csv", sep = ""))
 print(test_data)
+
+my_data_p <- my_data_p %>% 
+  mutate(date = as.Date(date))
+
+```
+
+```{r}
+library(tidyverse)
+
+library(lubridate)
+library(nycflights13)
 
 
 ```
