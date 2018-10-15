@@ -86,10 +86,11 @@ Bugs:
 -crashes on date inputs outside of expected range
 
 Files read through:
--ui, sim_add_days_func, server,
+-ui, sim_add_days_func, server, reservoir_ops_today, import_data, load_packages,
 
 Files to read through:
- global, simulation_func, reservoir_ops_today, forecasts_flows, rule_curve_func, sim_main_func, 
+ global, simulation_func, forecasts_flows_func, rule_curve_func, sim_main_func, reservoir_opts_init_func, forecasts_demands_func, estimate_need_func, date_func, reservoir_class, reservoirs_make,
+ potomac_flows_init, forecasts, demands_maybediscard,
 
 
 note:input$run_main is a click of 're-run simulation' buttion

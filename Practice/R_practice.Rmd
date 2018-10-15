@@ -754,12 +754,54 @@ my_data_p <- my_data_p %>%
 
 ```
 
+R for Data science 7.5 plus incorporating some of Zach's phyto code:
 ```{r}
-library(tidyverse)
+library(magrittr)
+library(dplyr)
+library(ggplot2)
 
-library(lubridate)
-library(nycflights13)
+clean_string <- function(x) {
+  x %>% 
+    stringr::str_trim() %>% 
+    tolower() %>% 
+    stringr::str_replace_all("\\s+", " ") %>% 
+    stringr::str_replace_all(" ", "_") %>%  
+    if_else(. == "", as.character(NA), .)
+}
 
+clean_up <- function(x) {
+  x %>% 
+    rename_all(clean_string) %>% 
+    mutate_if(is.character, funs(clean_string))%>% 
+    distinct()
+}
+
+project.dir <- rprojroot::find_rstudio_root_file()
+
+old.salzone <- readxl::read_excel(file.path(project.dir, "data/jackie_data/JMJ_PIBI_Salzone_Data.xlsx"),
+                                  sheet = "DataHub_Phytoplankton_Events_22")#was "JMJ
+
+colnames(old.salzone)
+
+clean_zone <- clean_up(old.salzone) 
+
+print(tail(clean_zone,2))
+print(clean_zone[1,5])
+
+zone.vec <- sort(unique(clean_zone$salzone))
+min.zone <- zone.vec[1]
+max.zone <- zone.vec[length(zone.vec)]
+
+ggplot(data=clean_zone, mapping = aes(salzone, totaldepth)) +
+  scale_y_continuous(limits = c(0,35))+
+  annotate("rect", xmin=min.zone, xmax=max.zone, ymin =0, ymax = 10,fill= "red", alpha=.25)+
+  annotate("rect", xmin=min.zone, xmax=max.zone, ymin =10, ymax =25 ,fill= "yellow", alpha=.25)+
+  annotate("rect", xmin=min.zone, xmax=max.zone, ymin =25, ymax = 35,fill= "green", alpha=.25)+
+  geom_boxplot()
+```
+
+
+```{r}
 
 ```
 
