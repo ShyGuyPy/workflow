@@ -747,10 +747,9 @@ library(readxl)
 library(dplyr)
 
 my_data_p <-data.table::fread(paste("test_data.csv", sep = ""))
-print(test_data)
-
-my_data_p <- my_data_p %>% 
-  mutate(date = as.Date(date))
+print(head(my_data_p,2))
+print(typeof(my_data_p$date[1]))
+print(typeof(my_data_p$date[2]))
 
 ```
 
@@ -801,7 +800,29 @@ ggplot(data=clean_zone, mapping = aes(salzone, totaldepth)) +
 ```
 
 
+
 ```{r}
+library(readxl)
+library(dplyr)
+
+
+my_data_p <-data.table::fread(paste("handmade_test_data.csv", sep = ""))
+print(head(my_data_p,6))
+print(typeof(my_data_p$date[1]))
+print(typeof(my_data_p$date[2]))
+
+
+todays_date = "1998-10-05"
+
+
+date_func <- function(col_date, col_val, date_today ){
+  our_value <- 0
+  for(i in col_date){
+    if(as.character(i) == as.character(date_today)){our_value <- (col_val[which(col_date == i)])}
+  }
+  return(our_value)}
+
+date_func(my_data_p$date, my_data_p$p_percent_normal, todays_date)
 
 ```
 
