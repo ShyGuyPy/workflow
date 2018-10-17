@@ -244,8 +244,9 @@ server<-function(input, output, session){
                 #my_data_g = read.csv(path_g)
                 
                 find_date <- function(col_date, col_val ){
-                for(i in col_date){
-                  if(as.character(i) == "1998-10-06"){our_value <- (col_val[which(col_date == i)])}
+                  col_val <- 0
+                  for(i in col_date){
+                    if(as.character(i) == "1998-10-06"){our_value <- (col_val[which(col_date == i)])}
                 }
                   return(our_value)}
                 

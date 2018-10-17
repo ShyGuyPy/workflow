@@ -812,13 +812,13 @@ print(typeof(my_data_p$date[1]))
 print(typeof(my_data_p$date[2]))
 
 
-todays_date = "1998-10-05"
+todays_date = "10/5/1998"#"1998-10-05"
 
 
 date_func <- function(col_date, col_val, date_today ){
   our_value <- 0
   for(i in col_date){
-    if(as.character(i) == as.character(date_today)){our_value <- (col_val[which(col_date == i)])}
+    if(i == as.character(date_today)){our_value <- (col_val[which(col_date == i)])}
   }
   return(our_value)}
 

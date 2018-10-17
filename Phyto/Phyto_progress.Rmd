@@ -12,10 +12,10 @@ Done:
 -read through the majority of pibi_notebook
 -learn ggplot basics
 -test use of custom function clean_up()
-
+-take a look at scripts in project folder on Zach's old computer(up to date)
 
 Doing: 
--take a look at scripts in project folder on Zach's old computer
+
 -download and work/play with virginia phytoplankton count and event data in Phyto
 -finish working through R For Data Science
 -evaluate ibi metric code to the point where you could effectively bug check it
