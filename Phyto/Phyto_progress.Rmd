@@ -15,12 +15,14 @@ Done:
 -take a look at scripts in project folder on Zach's old computer(up to date)
 
 Doing: 
+-generate a list of quests about data importing from CEDR to ask Mike Mallonee
+-download data through pibi_notebook script from url.root <- "http://datahub.chesapeakebay.net/api.JSON"
 
 -download and work/play with virginia phytoplankton count and event data in Phyto
 -finish working through R For Data Science
 -evaluate ibi metric code to the point where you could effectively bug check it
 -know the parts of MMIR package that are applicable to phyto
--do some exploratory data ananysis on phyto data to familiarize your self both with the data and the EDA process
+-do some exploratory data ananysis on phyto data to familiarize yourself both with the data and the EDA process
 
 
 understand steps:
