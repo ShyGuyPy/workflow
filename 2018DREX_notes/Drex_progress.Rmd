@@ -41,6 +41,8 @@ html/css feature integration, various reactive render types, andShiny in general
 -put the dummy input time series for the state data in 2018drex/input/ts/1929_1929prrism for now 
 
 Doing-
+-add state maps(choropleth map using leaflet?
+https://rstudio.github.io/leaflet/choropleths.html)
 -explore zoom tool for graphs
 -change default value of our_value variable to NA and default color to grey to match drought watch standard display
 -change presentatioon of squares to better mirror sate warning standards(for Md and Va)
