@@ -1,0 +1,44 @@
+---
+title: "leaflet_practice"
+author: "Luke Vawter"
+date: "October 18, 2018"
+output: html_document
+---
+
+a place to practice leaflet maps
+
+```{r}
+library(shiny)
+library(leaflet)
+library(dplyr)
+
+df = read.csv("./cedr_phyto_station.csv", stringsAsFactors = F)
+
+df$latitude <- as.numeric(df$latitude)
+df$longitude <- as.numeric(df$longitude)
+
+ui <- fluidPage(
+    leafletOutput("mymap", height = 1000)
+)
+
+server <- function(input, output, session){
+  
+data <- reactive({
+  x <- df
+})
+  
+output$mymap <- renderLeaflet({
+  m<-leaflet(data=df) %>%
+    addTiles() %>%
+    #setView(lng=73.935242, lat = 40.730610, zoom=10)
+    addMarkers(lng= ~ longitude,
+               lat= ~ latitude,
+               popup = paste("Station", df$station, "<br>",
+                             "Year:", df$stationdescription))
+  m
+})
+}
+
+shinyApp(ui = ui, server = server)
+```
+

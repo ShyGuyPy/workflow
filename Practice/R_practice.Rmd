@@ -826,3 +826,13 @@ date_func(my_data_p$date, my_data_p$p_percent_normal, todays_date)
 
 ```
 
+```{r}
+library(dplyr)
+
+df = read.csv("./cedr_phyto_station.csv", stringsAsFactors = F)
+print(df$latitude)
+
+df$latitude <- as.numeric(df$latitude)
+df$longitude <- as.numeric(df$longitude)
+```
+

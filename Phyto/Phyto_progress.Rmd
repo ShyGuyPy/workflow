@@ -15,7 +15,7 @@ Done:
 -take a look at scripts in project folder on Zach's old computer(up to date)
 
 Doing: 
--generate a list of quests about data importing from CEDR to ask Mike Mallonee
+-generate a list of questions about data importing from CEDR to ask Mike Mallonee
 -download data through pibi_notebook script from url.root <- "http://datahub.chesapeakebay.net/api.JSON"
 
 -download and work/play with virginia phytoplankton count and event data in Phyto

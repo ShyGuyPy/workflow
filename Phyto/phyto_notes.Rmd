@@ -279,12 +279,42 @@ print(clean_zone.nona %>%
 ```
 
 
+test of the initial step of phyto in which CEDR data is pulled:
 ```{r}
 library(readxl)
 library(dplyr)
+library(jsonlite)
 
+#link to datahub
+url.root <- "http://datahub.chesapeakebay.net/api.JSON"
+todays.date <- format(Sys.Date(), "%m-%d-%Y")
 
+#create station vector
+station.vec <- file.path(url.root,
+                       "LivingResources",
+                       "TidalPlankton",
+                       "Reported",
+                       "1-01-1970",
+                       todays.date,
+                       "17",
+                       "Station") %>% 
+  fromJSON() %>% 
+  pull(unique(MonitoringLocationId))
 
+#download phytoplankton data from CEDR API
+phyto.df <- file.path(url.root,
+                      "LivingResources",
+                      "TidalPlankton",
+                      "Reported",
+                      "1-01-1970",
+                      todays.date, 
+                      "17",
+                      "Station",
+                      paste(station.vec, collapse = ",")) %>%
+  fromJSON() %>% 
+  clean_up()
+
+print(phyto.df)
 
 ```
-
+it just seems to get hung up without any output.  Had some dependency issues so installed the required packages.  New error message is "subscript out of bounds".  It looks like it opens the connection and then this happens...

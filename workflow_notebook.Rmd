@@ -35,3 +35,9 @@ output: html_document
 ```{r child = 'practice/R_practice.Rmd',eval=TRUE}
 
 ```
+
+##leaflet
+```{r chold = 'practice/leaflet_preactice.Rmd', eval=TRUE}
+
+```
+
