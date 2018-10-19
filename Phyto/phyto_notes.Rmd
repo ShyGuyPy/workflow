@@ -339,7 +339,7 @@ print(typeof(phyto.df))
 print(phyto.df)
 
 ```
-it just seems to get hung up without any output.  Had some dependency issues so installed the required packages.  New error message is "subscript out of bounds".  It looks like it opens the connection and then this happens... was missing clean_string and clean_up
+it just seems to get hung up without any output.  Had some dependency issues so installed the required packages.  New error message is "subscript out of bounds".  It looks like it opens the connection and then this happens... was missing clean_string and clean_up... so now it just runs without returning an error.  It runs, just have to let it keep going for a while.  Going to check if there is a event logging happening in the rmd version(pibi_notebook).  Type is list btw.
 
 ```{r}
 print(phyto.df)
