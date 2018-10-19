@@ -42,3 +42,13 @@ output$mymap <- renderLeaflet({
 shinyApp(ui = ui, server = server)
 ```
 
+```{r}
+library(shiny)
+library(leaflet)
+library(dplyr)
+library(choroplethr)
+library(choroplethrMaps)
+
+
+```
+

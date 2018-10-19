@@ -41,6 +41,7 @@ html/css feature integration, various reactive render types, andShiny in general
 -put the dummy input time series for the state data in 2018drex/input/ts/1929_1929prrism for now 
 
 Doing-
+-add value input(or placeholder) for 'riverflow increase due to restriction'
 -add state maps(choropleth map using leaflet?
 https://rstudio.github.io/leaflet/choropleths.html)
 -explore zoom tool for graphs
@@ -56,11 +57,11 @@ https://rstudio.github.io/leaflet/choropleths.html)
 
 
 UI adjustments needed (after meeting Wed 9/12/18):
--tighten layout (adjust heighs)
+-tighten layout (adjust heighs)(icon size block further height adjustment)
 -remove "Flow at Point of Rocks Panel"
--move quadrant of graphs up
+x-move quadrant of graphs up(Cherie did this)
 -inscrease readabbility of large graph, simply small graphs
--tweak css until it pops
+x-tweak css until it pops(sorta did this)
 
 
 
