@@ -1,0 +1,12 @@
+---
+title: "GIS"
+author: "Luke Vawter"
+date: "October 22, 2018"
+output: html_document
+---
+Geographic Information Systems
+
+Note about Maryland drought layer/shapefile:
+"Note that these shapefiles lack a prj file, but the projection is Maryland State Plane NAD-83 meters."
+
+There are also supposed to be instructions for use of this...

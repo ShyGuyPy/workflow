@@ -48,7 +48,11 @@ library(leaflet)
 library(dplyr)
 library(choroplethr)
 library(choroplethrMaps)
+library(geojson)
+library(geojsonio)
 
+states <- geojsonio::geojson_read("json/us-states.geojson", what = "sp")
+#class(states)
 
 ```
 

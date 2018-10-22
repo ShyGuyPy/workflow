@@ -39,11 +39,14 @@ html/css feature integration, various reactive render types, andShiny in general
 -learn in office standard practice for csv to dataframe(look at DREX, use fread)
 -move my paths from global to paths.R, in 2018drex/config
 -put the dummy input time series for the state data in 2018drex/input/ts/1929_1929prrism for now 
+-add second square to Virginia panel
 
 Doing-
+
 -add value input(or placeholder) for 'riverflow increase due to restriction'
 -add state maps(choropleth map using leaflet?
 https://rstudio.github.io/leaflet/choropleths.html)
+-change presentatioon of squares to better mirror state warning standards(for Md and Va)
 -explore zoom tool for graphs
 -change default value of our_value variable to NA and default color to grey to match drought watch standard display
 -change presentatioon of squares to better mirror sate warning standards(for Md and Va)
