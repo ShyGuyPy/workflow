@@ -13,12 +13,13 @@ Done:
 -learn ggplot basics
 -test use of custom function clean_up()
 -take a look at scripts in project folder on Zach's old computer(up to date)
+-download and work/play with virginia phytoplankton count and event data in Phyto
 
 Doing: 
 -generate a list of questions about data importing from CEDR to ask Mike Mallonee
 -download data through pibi_notebook script from url.root <- "http://datahub.chesapeakebay.net/api.JSON"
 
--download and work/play with virginia phytoplankton count and event data in Phyto
+
 -finish working through R For Data Science
 -evaluate ibi metric code to the point where you could effectively bug check it
 -know the parts of MMIR package that are applicable to phyto

@@ -319,8 +319,8 @@ station.vec <- file.path(url.root,
   fromJSON() %>% 
   pull(unique(MonitoringLocationId))
 
-print(station.vec)
-print(typeof(station.vec))
+# print(station.vec)
+# print(typeof(station.vec))
 
 #download phytoplankton data from CEDR API
 phyto.df <- file.path(url.root,
@@ -335,13 +335,17 @@ phyto.df <- file.path(url.root,
   fromJSON() %>%
   clean_up()
 # 
-print(typeof(phyto.df))
-print(phyto.df)
+#print(typeof(phyto.df))
+#print(phyto.df)
 
+phyto.df <- phyto.df %>% 
+  filter(layer %in% c("ap", "wc"),
+         !is.na(reportingvalue)) %>% 
+  mutate(sampledate = as.Date(sampledate))
 ```
 it just seems to get hung up without any output.  Had some dependency issues so installed the required packages.  New error message is "subscript out of bounds".  It looks like it opens the connection and then this happens... was missing clean_string and clean_up... so now it just runs without returning an error.  It runs, just have to let it keep going for a while.  Going to check if there is a event logging happening in the rmd version(pibi_notebook).  Type is list btw.
 
 ```{r}
-print(phyto.df)
+
 ```
 
