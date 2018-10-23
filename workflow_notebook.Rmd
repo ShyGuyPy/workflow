@@ -37,7 +37,11 @@ output: html_document
 ```
 
 ##leaflet
-```{r chold = 'practice/leaflet_preactice.Rmd', eval=TRUE}
+```{r child = 'practice/leaflet_practice.Rmd', eval=TRUE}
 
 ```
 
+##GIS
+```{r child = 'practice/GIS.Rmd', eval=TRUE}
+
+```

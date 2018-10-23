@@ -319,10 +319,11 @@ station.vec <- file.path(url.root,
   fromJSON() %>% 
   pull(unique(MonitoringLocationId))
 
-# print(station.vec)
+#print(station.vec)
 # print(typeof(station.vec))
 
 #download phytoplankton data from CEDR API
+
 phyto.df <- file.path(url.root,
                       "LivingResources",
                       "TidalPlankton",
@@ -334,18 +335,59 @@ phyto.df <- file.path(url.root,
                       paste(station.vec, collapse = ",")) %>%
   fromJSON() %>%
   clean_up()
+
 # 
 #print(typeof(phyto.df))
 #print(phyto.df)
 
-phyto.df <- phyto.df %>% 
+phyto.df <- phyto.df %>%
   filter(layer %in% c("ap", "wc"),
-         !is.na(reportingvalue)) %>% 
+         !is.na(reportingvalue)) %>%
   mutate(sampledate = as.Date(sampledate))
 ```
 it just seems to get hung up without any output.  Had some dependency issues so installed the required packages.  New error message is "subscript out of bounds".  It looks like it opens the connection and then this happens... was missing clean_string and clean_up... so now it just runs without returning an error.  It runs, just have to let it keep going for a while.  Going to check if there is a event logging happening in the rmd version(pibi_notebook).  Type is list btw.
 
-```{r}
 
+
+attempt to grab and manip ODU data using Zach's code:
+```{r}
+library(readxl)
+library(dplyr)
+library(jsonlite)
+
+project.dir <- rprojroot::find_rstudio_root_file()
+
+clean_string <- function(x) {
+  x %>% 
+    stringr::str_trim() %>% 
+    tolower() %>% 
+    stringr::str_replace_all("\\s+", " ") %>% 
+    stringr::str_replace_all(" ", "_") %>%  
+    if_else(. == "", as.character(NA), .)
+}
+
+clean_up <- function(x) {
+  x %>% 
+    rename_all(clean_string) %>% 
+    mutate_if(is.character, funs(clean_string))%>% 
+    distinct()
+}
+
+#link to datahub which we aren't currently using here
+url.root <- "http://datahub.chesapeakebay.net/api.JSON"
+todays.date <- format(Sys.Date(), "%m-%d-%Y")
+
+phyto.test.df <- readxl::read_excel(file.path(project.dir, "data/Va_phyto_count_and_event/data-dev_2013_2016_ODU_Phyto_Reported_Data_05mar18.xlsx"))
+
+phyto.test.df <- phyto.test.df %>%
+  filter(Layer %in% c("AP", "WC"),
+         !is.na(ReportingValue)) %>%
+  mutate(SampleDate = as.Date(SampleDate))
+
+phyto.test.df %>% 
+  filter(TSN ==0)%>%
+  #distinct() %>%
+  select(LatinName, TSN)
+  print()
 ```
 

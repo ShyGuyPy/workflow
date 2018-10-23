@@ -18,6 +18,13 @@ Done:
 -do some exploratory data ananysis on phyto data to familiarize yourself both with the data and the EDA process
 -edit typos
 -send Claire pibi_notebook html by adding Pibi2 to H drive
+-figure out where files are being output with fwrite: 
+  1. "data/phytoplankton/cedr_phyto_taxa.csv"
+  2. "data/phytoplankton/cedr_phyto_event.csv"
+  3. "data/phytoplankton/cedr_phyto_station.csv"
+  4. "data/water_quality/cedr_wq.csv"
+  5. "data/itis/itis_hierarchy.csv"
+
 
 Doing: 
 
