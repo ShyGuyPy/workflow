@@ -379,15 +379,19 @@ todays.date <- format(Sys.Date(), "%m-%d-%Y")
 
 phyto.test.df <- readxl::read_excel(file.path(project.dir, "data/Va_phyto_count_and_event/data-dev_2013_2016_ODU_Phyto_Reported_Data_05mar18.xlsx"))
 
-phyto.test.df <- phyto.test.df %>%
-  filter(Layer %in% c("AP", "WC"),
-         !is.na(ReportingValue)) %>%
-  mutate(SampleDate = as.Date(SampleDate))
+phyto.test.df <- clean_up(phyto.test.df)
 
-phyto.test.df %>% 
-  filter(TSN ==0)%>%
+#print(phyto.test.df)
+
+phyto.test.df <- phyto.test.df %>%
+  filter(layer %in% c("ap", "wc"),
+         !is.na(reportingvalue)) %>%
+  mutate(sampledate = as.Date(sampledate))
+# 
+phyto.test.df %>%
+  filter(tsn ==0)%>%
+  select(latinname, tsn)
   #distinct() %>%
-  select(LatinName, TSN)
   print()
 ```
 
