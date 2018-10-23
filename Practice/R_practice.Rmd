@@ -846,3 +846,14 @@ ggplot(data = mpg) +
   coord_cartesian(xlim =c(5, 20), ylim = c(0, 50))
 ```
 
+use of str_detect:
+```{r}
+#required pacakge fro using str_detect
+library(stringr)
+
+my_str <- "orangeapplebananna"
+str_detect(my_str, "apple")
+str_detect(my_str, "pear")
+
+```
+

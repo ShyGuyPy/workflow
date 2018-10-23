@@ -14,21 +14,26 @@ Done:
 -test use of custom function clean_up()
 -take a look at scripts in project folder on Zach's old computer(up to date)
 -download and work/play with virginia phytoplankton count and event data in Phyto
+-download data through pibi_notebook script from url.root <- "http://datahub.chesapeakebay.net/api.JSON"
+-do some exploratory data ananysis on phyto data to familiarize yourself both with the data and the EDA process
+-edit typos
+-send Claire pibi_notebook html by adding Pibi2 to H drive
 
 Doing: 
+
 -generate a list of questions about data importing from CEDR to ask Mike Mallonee
--download data through pibi_notebook script from url.root <- "http://datahub.chesapeakebay.net/api.JSON"
+-produce an output (xls)
 
 
 -finish working through R For Data Science
 -evaluate ibi metric code to the point where you could effectively bug check it
 -know the parts of MMIR package that are applicable to phyto
--do some exploratory data ananysis on phyto data to familiarize yourself both with the data and the EDA process
+
 
 
 understand steps:
 
-downlaod data and dependencies
+download data and dependencies
 
 -downlaod CEDR data(from API, url.root <- "http://datahub.chesapeakebay.net/api.JSON"
 -install packages(including MMIR)
