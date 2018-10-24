@@ -42,17 +42,85 @@ output$mymap <- renderLeaflet({
 shinyApp(ui = ui, server = server)
 ```
 
+from a youtube tutorial
+https://www.youtube.com/watch?v=07UB1lfHV-o :
+```{r}
+library(leaflet)
+library(rgdal)
+
+project.dir <- rprojroot::find_rstudio_root_file()
+
+download.file("http://thematicmapping.org/downloads/TM_WORLD_BORDERS_SIMPL-0.3.zip",destfile = "TM_WORLD_BORDERS_SIMPL-0.3")
+
+unzip("TM_WORLD_BORDERS_SIMPL-0.3.zip")
+
+my_map = readOGR(dsn=getwd(), layer = "TM_WORLD_BORDERS_SIMPL-0.3")
+head(my_map)
+summary(my_map)
+```
+
 ```{r}
 library(shiny)
 library(leaflet)
 library(dplyr)
 library(choroplethr)
 library(choroplethrMaps)
-library(geojson)
-library(geojsonio)
 
-states <- geojsonio::geojson_read("json/us-states.geojson", what = "sp")
-#class(states)
+project.dir <- rprojroot::find_rstudio_root_file()
+
+# east.border <- readxl::read_excel(file.path(project.dir, "2018DREX_notes\data\Drought_Regions\eastern-region-border.shp"))
+
+
+#file.path(project.dir, "2018DREX_notes\data\Drought_Regions")
+
+
+erb = readOGR(dsn=getwd(), layer = "eastern-region-border")
+head(erb)
+sumary(erb)
+```
+
+
+
+```{r}
+library(shiny)
+library(leaflet)
+library(dplyr)
+library(choroplethr)
+library(choroplethrMaps)
+
+project.dir <- rprojroot::find_rstudio_root_file()
+
+east.border <- readxl::read_excel(file.path(project.dir, "2018DREX_notes\data\Drought_Regions\eastern-region-border.shp"))
+
+
+
+
+
+erb = readOGR(file.path(project.dir, "2018DREX_notes\data\Drought_Regions\eastern-region-border.shp"), layer = "eastern-region-border")
+
+
+
+ui <- fluidPage(
+    leafletOutput("mymap", height = 1000)
+)
+
+server <- function(input, output, session){
+  
+data <- reactive({
+  x <- df
+})
+  
+output$mymap <- renderLeaflet({
+  m<-leaflet(data=df) %>%
+    addTiles() %>%
+    #setView(lng=73.935242, lat = 40.730610, zoom=10)
+    addMarkers(lng= ~ longitude,
+               lat= ~ latitude,
+               popup = paste("Station", df$station, "<br>",
+                             "Year:", df$stationdescription))
+  m
+})
+}
 
 ```
 
