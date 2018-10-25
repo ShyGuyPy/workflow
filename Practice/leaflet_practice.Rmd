@@ -55,12 +55,21 @@ download.file("http://thematicmapping.org/downloads/TM_WORLD_BORDERS_SIMPL-0.3.z
 unzip("TM_WORLD_BORDERS_SIMPL-0.3.zip")
 
 my_map = readOGR(dsn=getwd(), layer = "TM_WORLD_BORDERS_SIMPL-0.3")
-head(my_map)
-summary(my_map)
+# head(my_map)
+# summary(my_map)
+# 
+# head(my_map$data)
 
-head(my_map$data)
+leaflet(data = my_map) %>%
+  addTiles() %>%
+  setView(lat = 10, lng = 0, zoom = 2) %>%
+  addPolygons(fillColor = "teal",
+              highlight= highlightOptions(weight = 5,
+                                          color="red",
+                                          fillOpacity = .7,
+                                          bringToFront = TRUE),
+              label=my_map$NAME)
 
-#...to be continued
 ```
 
 ```{r}
@@ -69,6 +78,7 @@ library(leaflet)
 library(dplyr)
 library(choroplethr)
 library(choroplethrMaps)
+library(rgdal)
 
 project.dir <- rprojroot::find_rstudio_root_file()
 
@@ -77,11 +87,52 @@ project.dir <- rprojroot::find_rstudio_root_file()
 
 #file.path(project.dir, "2018DREX_notes\data\Drought_Regions")
 
+map_path <- file.path(project.dir, "2018DREX_notes\\data\\Drought_Regions")
 
-erb = readOGR(dsn=getwd(), layer = "eastern-region-border")
-head(erb)
-sumary(erb)
+eastern_region = readOGR(dsn=map_path, layer = "eastern-region")
+#head(eastern_region)
+summary(eastern_region)
+head(eastern_region$data)
+
+#ereg <- spTransform(eastern_region, CRS("+init=epsg:4326"))
+
+leaflet() %>%
+  addTiles() %>%
+  setView(lng=-77.01293195597827, lat=38.987549813483675, zoom = 6) %>%
+  addPolygons(data = ereg,fillColor = "red",
+              highlight= highlightOptions(weight = 5,
+                                          color="blue",
+                                          fillOpacity = .7,
+                                          bringToFront = TRUE),
+              label=eastern_region$COUNTY
+)
+
 ```
+
+https://rstudio.github.io/leaflet/shapes.html:
+```{r}
+library(rgdal)
+
+download.file("https://www.census.gov/geo/maps-data/data/cbf/cbf_state.html",destfile = "cb_2017_us_state_500k.zip")
+
+unzip("cb_2017_us_state_500k.zip")
+
+# From https://www.census.gov/geo/maps-data/data/cbf/cbf_state.html
+states <- readOGR(dsn=getwd(), "shp/cb_2013_us_state_20m.shp",
+  layer = "cb_2013_us_state_20m", GDAL1_integer64_policy = TRUE)
+
+neStates <- subset(states, states$STUSPS %in% c(
+  "CT","ME","MA","NH","RI","VT","NY","NJ","PA"
+))
+
+leaflet(neStates) %>%
+  addPolygons(color = "#444444", weight = 1, smoothFactor = 0.5,
+    opacity = 1.0, fillOpacity = 0.5,
+    fillColor = ~colorQuantile("YlOrRd", ALAND)(ALAND),
+    highlightOptions = highlightOptions(color = "white", weight = 2,
+      bringToFront = TRUE))
+```
+
 
 
 working template, rough non-functional scratch paper at the moment:
