@@ -109,7 +109,8 @@ leaflet() %>%
 
 ```
 
-https://rstudio.github.io/leaflet/shapes.html:
+https://rstudio.github.io/leaflet/shapes.html
+currently broken... to be continued:
 ```{r}
 library(rgdal)
 
