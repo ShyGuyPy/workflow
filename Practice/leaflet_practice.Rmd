@@ -89,23 +89,38 @@ project.dir <- rprojroot::find_rstudio_root_file()
 
 map_path <- file.path(project.dir, "2018DREX_notes\\data\\Drought_Regions")
 
+if( .Platform$OS.type == "unix" ) {map_path <- file.path(project.dir, "2018DREX_notes/data/Drought_Regions")}
+
 eastern_region = readOGR(dsn=map_path, layer = "eastern-region")
 #head(eastern_region)
 summary(eastern_region)
-head(eastern_region$data)
+head(eastern_region$COUNTY)
 
 #ereg <- spTransform(eastern_region, CRS("+init=epsg:4326"))
 
-leaflet() %>%
-  addTiles() %>%
-  setView(lng=-77.01293195597827, lat=38.987549813483675, zoom = 6) %>%
-  addPolygons(data = ereg,fillColor = "red",
-              highlight= highlightOptions(weight = 5,
-                                          color="blue",
-                                          fillOpacity = .7,
-                                          bringToFront = TRUE),
-              label=eastern_region$COUNTY
-)
+# county <- subset(eastern_region, COUNTY %in% c(
+#   "CAROLINE","DORCHESTER","KENT","QUEEN ANNES","SOMERSET","TALBOT"
+# ))
+
+# leaflet(eastern_region) %>%
+#   addTiles() %>%
+#   setView(lng=-77.01293195597827, lat=38.987549813483675, zoom = 6) %>%
+#   addPolygons(fillColor = "red",
+#               highlight= highlightOptions(weight = 5,
+#                                           color="blue",
+#                                           fillOpacity = .7,
+#                                           bringToFront = TRUE)#,
+#               #label=eastern_region$COUNTY
+# )
+
+
+
+# leaflet(neStates) %>%
+#   addPolygons(color = "#444444", weight = 1, smoothFactor = 0.5,
+#     opacity = 1.0, fillOpacity = 0.5,
+#     fillColor = ~colorQuantile("YlOrRd", ALAND)(ALAND),
+#     highlightOptions = highlightOptions(color = "white", weight = 2,
+#       bringToFront = TRUE))
 
 ```
 
@@ -114,9 +129,11 @@ currently broken... to be continued:
 ```{r}
 library(rgdal)
 
-download.file("https://www.census.gov/geo/maps-data/data/cbf/cbf_state.html",destfile = "cb_2017_us_state_500k.zip")
+project.dir <- rprojroot::find_rstudio_root_file()
 
-unzip("cb_2017_us_state_500k.zip")
+download.file("https://www.census.gov/geo/maps-data/data/cbf/cbf_state.html",destfile = "shp/cb_2013_us_state_20m.shp")
+
+#unzip("cb_2017_us_state_500k.zip")
 
 # From https://www.census.gov/geo/maps-data/data/cbf/cbf_state.html
 states <- readOGR(dsn=getwd(), "shp/cb_2013_us_state_20m.shp",
@@ -178,5 +195,32 @@ output$mymap <- renderLeaflet({
 })
 }
 
+```
+
+inspection of easter-region shapefile:
+```{r}
+library(shiny)
+library(leaflet)
+library(dplyr)
+library(choroplethr)
+library(choroplethrMaps)
+library(rgdal)
+
+project.dir <- rprojroot::find_rstudio_root_file()
+
+
+
+map_path <- file.path(project.dir, "2018DREX_notes\\data\\Drought_Regions")
+
+if( .Platform$OS.type == "unix" ) {map_path <- file.path(project.dir, "2018DREX_notes/data/Drought_Regions")}
+
+eastern_region = readOGR(dsn=map_path, layer = "eastern-region")
+#head(eastern_region)
+# summary(eastern_region)
+# head(eastern_region$COUNTY)
+
+eastern_region %>%
+  select(COUNTY) %>%
+  print()
 ```
 
