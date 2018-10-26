@@ -40,6 +40,7 @@ html/css feature integration, various reactive render types, andShiny in general
 -move my paths from global to paths.R, in 2018drex/config
 -put the dummy input time series for the state data in 2018drex/input/ts/1929_1929prrism for now 
 -add second square to Virginia panel
+-replace infoboxes with css/html
 
 Doing-
 
