@@ -41,20 +41,29 @@ html/css feature integration, various reactive render types, andShiny in general
 -put the dummy input time series for the state data in 2018drex/input/ts/1929_1929prrism for now 
 -add second square to Virginia panel
 -replace infoboxes with css/html
+-add value input(or placeholder) for 'riverflow increase due to restriction'
+-add placeholder MD drought map
+-change presentatioon of squares to better mirror state warning standards(for Md and Va)
+-deep testing of extent of control added css has over DREX
+-change to P, GW, SW ,R and increase font size
+-change to lighter green
+-change "FLOW..." to header (display:block)
 
 Doing-
 
--add value input(or placeholder) for 'riverflow increase due to restriction'
+-fix FLOW positioning
+-change todays date from rendertext to renderUI and then adjust positioning
+
 -add state maps(choropleth map using leaflet?
 https://rstudio.github.io/leaflet/choropleths.html)
--change presentatioon of squares to better mirror state warning standards(for Md and Va)
+
 -explore zoom tool for graphs
 -change default value of our_value variable to NA and default color to grey to match drought watch standard display
--change presentatioon of squares to better mirror sate warning standards(for Md and Va)
+
 -fix "character string is not in a standard unambiguous format" issue
 -thorough bug testing of squares
 -write bool logic to replace current pseudo logic for precip, gw, reservoir(q), and stor
--deep testing of extent of control added css has over DREX
+
 -optimize design of DREX ui if/where able
 
 
