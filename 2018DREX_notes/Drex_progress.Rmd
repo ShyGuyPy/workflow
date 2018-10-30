@@ -48,10 +48,16 @@ html/css feature integration, various reactive render types, andShiny in general
 -change to P, GW, SW ,R and increase font size
 -change to lighter green
 -change "FLOW..." to header (display:block)
+-fix FLOW positioning
 
 Doing-
+-change text in colored box of custom infobox to black
+-colored box in custom infobox made longer
+-increase p3 custom class fon size
+-center P,GW,SW,R
+-increase size of titles (Maryland/VRGINIA DROUGHT STATUS)
+-right-align num in Flow Bene. MGD
 
--fix FLOW positioning
 -change todays date from rendertext to renderUI and then adjust positioning
 
 -add state maps(choropleth map using leaflet?
@@ -64,17 +70,17 @@ https://rstudio.github.io/leaflet/choropleths.html)
 -thorough bug testing of squares
 -write bool logic to replace current pseudo logic for precip, gw, reservoir(q), and stor
 
--optimize design of DREX ui if/where able
+-optimize design of DREX ui if/where able(ongoing)
 
 
 
 
 UI adjustments needed (after meeting Wed 9/12/18):
--tighten layout (adjust heighs)(icon size block further height adjustment)
--remove "Flow at Point of Rocks Panel"
-x-move quadrant of graphs up(Cherie did this)
+DONE-tighten layout (adjust heighs)(icon size block further height adjustment)
+DONE-remove "Flow at Point of Rocks Panel"
+DONE-move quadrant of graphs up(Cherie did this)
 -inscrease readabbility of large graph, simply small graphs
-x-tweak css until it pops(sorta did this)
+DONE-tweak css until it pops(sorta did this)
 
 
 
