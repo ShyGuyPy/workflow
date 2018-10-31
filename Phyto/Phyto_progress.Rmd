@@ -25,12 +25,15 @@ Done:
   4. "data/water_quality/cedr_wq.csv"
   5. "data/itis/itis_hierarchy.csv"
 -replace data_acquistion_cedr with data_input that pulls VA ODU data into phyto2
+-get all data in phyto2 going to the right input(done...I think)
+-ask Zach about 1) issue with dir.create when knitting pibi_notebook (also knit as start button?)
+-figure out why directory/excel is not being generated in workflow when using Zach's code snippet(code snippet works fine outside of r markdown)
 
 Doing: 
--ask Zach about 1) issue with dir.create when knitting pibi_notebook 2)also knit as start button?
-3)
--get all data in phyto2 going to the right input
--figure out why directory/excel is not being generated in workflow when using Zach's code snippet
+
+
+
+
 -get an output from phyto2
 -generate a list of questions about data importing from CEDR to ask Mike Mallonee
 -produce an output (xls)

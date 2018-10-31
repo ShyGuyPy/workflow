@@ -49,13 +49,17 @@ html/css feature integration, various reactive render types, andShiny in general
 -change to lighter green
 -change "FLOW..." to header (display:block)
 -fix FLOW positioning
-
-Doing-
 -change text in colored box of custom infobox to black
 -colored box in custom infobox made longer
 -increase p3 custom class fon size
+-increase size of titles (Maryland/VRGINIA DROUGHT STATUS) by changing them from titles to html p tags of custom class .title
+
+Doing-
+
+
+
 -center P,GW,SW,R
--increase size of titles (Maryland/VRGINIA DROUGHT STATUS)
+
 -right-align num in Flow Bene. MGD
 
 -change todays date from rendertext to renderUI and then adjust positioning

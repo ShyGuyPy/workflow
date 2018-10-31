@@ -567,3 +567,45 @@ wq.df <- readxl::read_excel(file.path(project.dir, "data/water_quality/cedr_wq.c
 
 ```
 
+
+having issues wiht fwrite:
+```{r}
+library(magrittr)
+library(dplyr)
+
+project.dir <- rprojroot::find_rstudio_root_file()
+
+phyto.df <- readxl::read_excel(file.path(project.dir, "data/Va_phyto_count_and_event/data-dev_2013_2016_ODU_Phyto_Reported_Data_05mar18.xlsx"))
+
+phyto.df <- clean_up(phyto.df)
+
+
+
+phyto.df <- phyto.df %>% 
+  filter(layer %in% c("ap", "wc"),
+         !is.na(reportingvalue)) %>% 
+  mutate(sampledate = as.Date(sampledate))
+
+
+
+dir.create(file.path(project.dir, "data/phytoplankton2/"),
+           recursive = TRUE, showWarnings = TRUE)
+phyto.df %>% 
+  mutate(reportingvalue = as.character(reportingvalue)) %>% 
+data.table::fwrite(file.path(project.dir, "data/phytoplankton2/", "VA_ODU_phyto_taxa.csv"))
+#"cedr_phyto_taxa.csv"
+
+
+
+event.df <- readxl::read_excel(file.path(project.dir, "data/Va_phyto_count_and_event/data-dev_2013_2016_ODU_Phyto_Events_05mar18.xlsx"))
+
+event.df <- clean_up(event.df)
+
+dir.create(file.path(project.dir,
+  #rprojroot::find_rstudio_root_file(), 
+  "data/phytoplankton2/"),
+           recursive = TRUE, showWarnings = TRUE)
+
+data.table::fwrite(event.df, file.path(project.dir, "data/phytoplankton2/", "VA_ODU_phyto_event.csv"))
+```
+
