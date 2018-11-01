@@ -1,0 +1,90 @@
+---
+title: "test"
+author: "Luke Vawter"
+date: "November 1, 2018"
+output: 
+  html_document:
+    df_print: paged
+    toc: yes
+    toc_depth: '6'
+    toc_float: yes
+---
+
+`r Sys.Date()`
+
+```{r}
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+library(purrr)
+library(stringr)
+library(leaflet)
+library(lubridate)
+library(readxl)
+library(httr)
+library(RCurl)
+library(data.table)
+library(jsonlite)
+library(rprojroot)
+library(ritis)
+
+library(mmir)
+
+sessionInfo()
+
+project.dir <- rprojroot::find_rstudio_root_file()
+
+
+clean_string <- function(x) {
+  x %>% 
+    stringr::str_trim() %>% 
+    tolower() %>% 
+    stringr::str_replace_all("\\s+", " ") %>% 
+    stringr::str_replace_all(" ", "_") %>%  
+    if_else(. == "", as.character(NA), .)
+}
+
+clean_up <- function(x) {
+  x %>% 
+    rename_all(clean_string) %>% 
+    mutate_if(is.character, funs(clean_string))%>% 
+    distinct()
+}
+
+
+url.root <- "http://datahub.chesapeakebay.net/api.JSON"
+todays.date <- format(Sys.Date(), "%m-%d-%Y")
+
+phyto.df <- readxl::read_excel(file.path(project.dir, "data/Va_phyto_count_and_event/data-dev_2013_2016_ODU_Phyto_Reported_Data_05mar18.xlsx"))
+
+phyto.df <- clean_up(phyto.df)
+
+
+
+phyto.df <- phyto.df %>% 
+  filter(layer %in% c("ap", "wc"),
+         !is.na(reportingvalue)) %>% 
+  mutate(sampledate = as.Date(sampledate))
+
+
+
+dir.create(file.path(project.dir, "data/phytoplankton2/"),
+           recursive = TRUE, showWarnings = TRUE)
+phyto.df %>% 
+  mutate(reportingvalue = as.character(reportingvalue)) %>% 
+data.table::fwrite(file.path(project.dir, "data/phytoplankton2/", "VA_ODU_phyto_taxa.csv"))
+#"cedr_phyto_taxa.csv"
+
+
+
+event.df <- readxl::read_excel(file.path(project.dir, "data/Va_phyto_count_and_event/data-dev_2013_2016_ODU_Phyto_Events_05mar18.xlsx"))
+
+event.df <- clean_up(event.df)
+
+dir.create(file.path(project.dir,
+  #rprojroot::find_rstudio_root_file(), 
+  "data/phytoplankton2/"),
+           recursive = TRUE, showWarnings = TRUE)
+
+data.table::fwrite(event.df, file.path(project.dir, "data/phytoplankton2/", "VA_ODU_phyto_event.csv"))
+```
