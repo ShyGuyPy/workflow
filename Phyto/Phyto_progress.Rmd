@@ -28,15 +28,18 @@ Done:
 -get all data in phyto2 going to the right input(done...I think)
 -ask Zach about 1) issue with dir.create when knitting pibi_notebook (also knit as start button?)
 -figure out why directory/excel is not being generated in workflow when using Zach's code snippet(code snippet works fine outside of r markdown)
+-produce an output (xls)
+-figure out that loss of salzone data is the problem and search through the pipeline to find out where it's happening(in event prep, salzone letter conversion code, more details in phyto_notes)
+-figure
 
 Doing: 
+-fix whatever is breaking the knit output with the modified sections
 
 
 
-
--get an output from phyto2
+-get an appendix output from phyto2
 -generate a list of questions about data importing from CEDR to ask Mike Mallonee
--produce an output (xls)
+
 
 
 -finish working through R For Data Science

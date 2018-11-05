@@ -857,3 +857,13 @@ str_detect(my_str, "pear")
 
 ```
 
+```{r}
+elements.vec <- c(1,2,3,8)
+current.vec <- c(2,4,5,6)
+
+if(any(!nums %in% unique(nums2))) {print(nums[!nums %in% unique(nums2)])}
+#if(any(!nums %in% nums2)){print(!nums)}
+
+
+
+```

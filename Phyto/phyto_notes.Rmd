@@ -609,3 +609,37 @@ dir.create(file.path(project.dir,
 data.table::fwrite(event.df, file.path(project.dir, "data/phytoplankton2/", "VA_ODU_phyto_event.csv"))
 ```
 
+issue resolved.  code chumk data_input wasn't evaluating because the wrong knitr header was at the top(was calling for cedr.api to eval). issue resolved.
+
+
+next issue is...I'm getting a custom warning from Zach and I need to unpack it.
+```{r}
+  if (any(!metric.vec %in% unique(metrics.sub$metric))) {
+    stop(paste("score_spring_f requires the following metric(s):",
+               paste(metric.vec[!metric.vec %in% unique(metrics.sub$metric)], collapse = ", "
+```
+
+this issue seems to go back through the pipeline. I followed a series of empty tibbles starting from metric.sub -> metric.vec -> metric.long -> bay.taxa. at bay.df the tibbles are no longer empty.  At that point the following code removes all rows in which the salzone isn't specified:
+```{r}
+bay.taxa %>%
+filter(!is.na(salzone)) 
+```
+...which currently is all of them, hence the empty dfs
+
+it seems the issue may be that salzone,phylum, and  species values are not being placed in.
+
+Dealing with salzone first which comes from data-dev_2013_2016_ODU_Phyto_Events_05mar18.  I need to track it to see where it's getting lost.
+
+below is where we lose our salzone values:
+```{r}
+events.df <- events.df %>% 
+  mutate(sampledate = as.Date(sampledate),
+         salzone = case_when(
+           salzone %in% c("tf", "fe") ~ "f",
+           salzone %in% c("m", "me") ~ "m",
+           salzone %in% c("o", "oe") ~ "o",
+           salzone %in% c("p", "pe") ~ "p",
+           TRUE ~ as.character(NA)
+         ))
+```
+
