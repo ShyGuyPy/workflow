@@ -607,6 +607,11 @@ dir.create(file.path(project.dir,
            recursive = TRUE, showWarnings = TRUE)
 
 data.table::fwrite(event.df, file.path(project.dir, "data/phytoplankton2/", "VA_ODU_phyto_event.csv"))
+
+event.df <- event.df %>% 
+  filter(salzone== "n") %>%
+  print()
+
 ```
 
 issue resolved.  code chumk data_input wasn't evaluating because the wrong knitr header was at the top(was calling for cedr.api to eval). issue resolved.

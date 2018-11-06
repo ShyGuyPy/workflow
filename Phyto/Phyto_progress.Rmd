@@ -30,19 +30,20 @@ Done:
 -figure out why directory/excel is not being generated in workflow when using Zach's code snippet(code snippet works fine outside of r markdown)
 -produce an output (xls)
 -figure out that loss of salzone data is the problem and search through the pipeline to find out where it's happening(in event prep, salzone letter conversion code, more details in phyto_notes)
--figure
+-fix whatever is breaking the knit output with the modified sections(was code that was turned into headers rather than fully commented out)
+-finish working through R For Data Science(through the parts relevant to phyto at least)
+-learn to use extract_notebook_scripts.R to steamline testing process
 
 Doing: 
--fix whatever is breaking the knit output with the modified sections
-
+-fix issue with 226 N salzone
+-fix issue with biomass ratio, etc not being where it should
+-look through r markdown the definitive guide
+-
 
 
 -get an appendix output from phyto2
 -generate a list of questions about data importing from CEDR to ask Mike Mallonee
 
-
-
--finish working through R For Data Science
 -evaluate ibi metric code to the point where you could effectively bug check it
 -know the parts of MMIR package that are applicable to phyto
 
