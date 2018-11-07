@@ -163,13 +163,13 @@ library(choroplethrMaps)
 
 project.dir <- rprojroot::find_rstudio_root_file()
 
-east.border <- readxl::read_excel(file.path(project.dir, "2018DREX_notes\data\Drought_Regions\eastern-region-border.shp"))
+# east.border <- readxl::read_excel(file.path(project.dir, "2018DREX_notes\\data\\Drought_Regions\\eastern-region-border.shp"))
 
 
 
 
 
-erb = readOGR(file.path(project.dir, "2018DREX_notes\data\Drought_Regions\eastern-region-border.shp"), layer = "eastern-region-border")
+erb = readOGR(file.path(project.dir, "2018DREX_notes\\data\\Drought_Regions\\eastern-region-border.shp"), layer = "eastern-region-border")
 
 
 
@@ -197,6 +197,8 @@ output$mymap <- renderLeaflet({
 
 ```
 
+using https://hautahi.com/rmaps to learn how to take a closer look at a shapefiles content.
+
 inspection of easter-region shapefile:
 ```{r}
 library(shiny)
@@ -215,12 +217,22 @@ map_path <- file.path(project.dir, "2018DREX_notes\\data\\Drought_Regions")
 if( .Platform$OS.type == "unix" ) {map_path <- file.path(project.dir, "2018DREX_notes/data/Drought_Regions")}
 
 eastern_region = readOGR(dsn=map_path, layer = "eastern-region")
-#head(eastern_region)
-# summary(eastern_region)
-# head(eastern_region$COUNTY)
 
+#eastern_region %>%
+  #select(COUNTY) %>%
+  #print()
+  
 eastern_region %>%
-  select(COUNTY) %>%
-  print()
+  #shows the bounding box which is the smallest rectangle that will hold all of the points
+  bbox() #%>%
+
+#this code prints the data( in dataframe) of the shapefile
+head(eastern_region@data)
+  
+#this prints values in COUNTY column in data
+print(eastern_region@data$COUNTY)
+
+#This plots the region polygon
+plot(eastern_region); title(main = list("Maryland eastern region "), cex=0.8)
 ```
 

@@ -53,14 +53,12 @@ html/css feature integration, various reactive render types, andShiny in general
 -colored box in custom infobox made longer
 -increase p3 custom class fon size
 -increase size of titles (Maryland/VRGINIA DROUGHT STATUS) by changing them from titles to html p tags of custom class .title
+-center P,GW,SW,R
+-right-align num in Flow Bene. MGD(actually looks better centered)
+-figure out how to plot drought status shapefiles
+-optimize design of DREX ui if/where able(ongoing)
 
 Doing-
-
-
-
--center P,GW,SW,R
-
--right-align num in Flow Bene. MGD
 
 -change todays date from rendertext to renderUI and then adjust positioning
 
@@ -74,7 +72,7 @@ https://rstudio.github.io/leaflet/choropleths.html)
 -thorough bug testing of squares
 -write bool logic to replace current pseudo logic for precip, gw, reservoir(q), and stor
 
--optimize design of DREX ui if/where able(ongoing)
+
 
 
 
