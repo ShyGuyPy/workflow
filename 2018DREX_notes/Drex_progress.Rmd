@@ -61,6 +61,7 @@ html/css feature integration, various reactive render types, andShiny in general
 Doing-
 -ask Cherie/Heidi about missing western region in shapefile
 -askCherie/Heidi about missing(?) instructions mentioned in email 
+-speak with Cherie/Sarah about coordiinate system issues(slot "coords": extraction of coordinates vs. GIS coordinate system change(but try changing coordinate system through R/leaflet a bit more first))
 
 -change todays date from rendertext to renderUI and then adjust positioning
 

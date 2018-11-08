@@ -287,7 +287,9 @@ map_path <- file.path(project.dir, "2018DREX_notes\\data\\Drought_Regions")
 
 eastern_region = readOGR(dsn=map_path, layer = "eastern-region")
 
+
 clipsouthern3 = readOGR(dsn=map_path, layer = "clipsouthern3")
+
 
 CRS(eastern_region)
 # proj4string(eastern_region)<-CRS("+init=epsg:4326")
@@ -299,7 +301,7 @@ CRS(eastern_region)
 ```
 
 
-so now that I know what I'm doing, let's try the census exercise again(spoiler: it worked):
+so now that I know what I'm doing, let's try the census exercise again. Got it working and also changed states to local states:
 ```{r}
 library(rgdal)
 
@@ -311,12 +313,84 @@ neStates <- subset(states, states$STUSPS %in% c(
   "CT","ME","MA","NH","RI","VT","NY","NJ","PA"
 ))
 
-leaflet(neStates) %>%
+oStates <- subset(states, states$STUSPS %in% c(
+  "MD","VA","WV","PA"
+))
+
+leaflet(oStates) %>%
   addPolygons(color = "#444444", weight = 1, smoothFactor = 0.5,
-    opacity = 1.0, fillOpacity = 0.5,
+    opacity = 1.0, fillOpacity = 1.0,#0.5,
     fillColor = ~colorQuantile("YlOrRd", ALAND)(ALAND),
     highlightOptions = highlightOptions(color = "white", weight = 2,
       bringToFront = TRUE))
+
+typeof(head(states@data$STUSPS))
+print(states)
 ```
 
+```{r}
+library(leaflet)
+library(rgdal)
+
+
+project.dir <- rprojroot::find_rstudio_root_file()
+
+map_path <- file.path(project.dir, "2018DREX_notes\\data\\Drought_Regions")
+
+eastern_region = readOGR(dsn=map_path, layer = "eastern-region")
+
+head(eastern_region@data)
+
+er_counties <- subset(eastern_region, eastern_region$REGION %in% c(
+  "Eastern"#"WICOMICO", "KENT"
+))
+
+leaflet(eastern_region) %>% #er_counties) %>%
+  addPolygons(color = "#444444", weight = 1, smoothFactor = 0.5,
+    opacity = 1.0, fillOpacity = 0.5,
+    #fillColor = ~colorQuantile("YlOrRd", CENSCNTY_I)(CENSCNTY_I),
+    highlightOptions = highlightOptions(color = "white", weight = 2,
+      bringToFront = TRUE))
+```
+```{r}
+library(leaflet)
+library(rgdal)
+
+
+project.dir <- rprojroot::find_rstudio_root_file()
+
+map_path <- file.path(project.dir, "2018DREX_notes\\data\\Drought_Regions")
+
+eastern_region = readOGR(dsn=map_path, layer = "eastern-region")
+
+clipcentral = readOGR(dsn=map_path, layer = "clipcentral")
+
+leaflet() %>%
+  addProviderTiles("CartoDB.Positron") %>%
+  addPolygons(data=eastern_region, fillOpacity = 0.7,weight = 1.2, color="RED") %>%
+  addPolygons(data=clipcentral, fillOpacity = 0.7,weight = 1.2, color="BLUE")
+```
+
+```{r}
+library(leaflet)
+library(rgdal)
+
+project.dir <- rprojroot::find_rstudio_root_file()
+
+map_path <- file.path(project.dir, "2018DREX_notes\\data\\Drought_Regions")
+
+eastern_region = readOGR(dsn=map_path, layer = "eastern-region")
+
+clipcentral = readOGR(dsn=map_path, layer = "clipcentral")
+
+plot(eastern_region)+
+  plot(clipcentral)
+
+#print(eastern_region)
+
+
+# eastern_region2 <- spTransform(eastern_region, CRS("+init=epsg:4326"))
+# 
+# leaflet(eastern_region2)
+```
 
