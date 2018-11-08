@@ -271,3 +271,52 @@ plot(clipsouthern_border); title(main = list("Maryland clipsouthern-border"), ce
 
 ```
 
+```{r}
+
+library(shiny)
+library(leaflet)
+library(dplyr)
+library(choroplethr)
+library(choroplethrMaps)
+library(rgdal)
+library(sp)
+
+project.dir <- rprojroot::find_rstudio_root_file()
+
+map_path <- file.path(project.dir, "2018DREX_notes\\data\\Drought_Regions")
+
+eastern_region = readOGR(dsn=map_path, layer = "eastern-region")
+
+clipsouthern3 = readOGR(dsn=map_path, layer = "clipsouthern3")
+
+CRS(eastern_region)
+# proj4string(eastern_region)<-CRS("+init=epsg:4326")
+
+#transform the projection of esatern_region
+# eastern_region <- spTransform(eastern_region, CRS("+init=epsg:4326"))
+
+#leaflet(eastern_region)
+```
+
+
+so now that I know what I'm doing, let's try the census exercise again(spoiler: it worked):
+```{r}
+library(rgdal)
+
+# From https://www.census.gov/geo/maps-data/data/cbf/cbf_state.html
+states <- readOGR("shp/cb_2013_us_state_20m.shp",
+  layer = "cb_2013_us_state_20m", GDAL1_integer64_policy = TRUE)
+
+neStates <- subset(states, states$STUSPS %in% c(
+  "CT","ME","MA","NH","RI","VT","NY","NJ","PA"
+))
+
+leaflet(neStates) %>%
+  addPolygons(color = "#444444", weight = 1, smoothFactor = 0.5,
+    opacity = 1.0, fillOpacity = 0.5,
+    fillColor = ~colorQuantile("YlOrRd", ALAND)(ALAND),
+    highlightOptions = highlightOptions(color = "white", weight = 2,
+      bringToFront = TRUE))
+```
+
+
