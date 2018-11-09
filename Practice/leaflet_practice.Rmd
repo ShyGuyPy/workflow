@@ -285,6 +285,8 @@ project.dir <- rprojroot::find_rstudio_root_file()
 
 map_path <- file.path(project.dir, "2018DREX_notes\\data\\Drought_Regions")
 
+if( .Platform$OS.type == "unix" ) {map_path <- file.path(project.dir, "2018DREX_notes/data/Drought_Regions")}
+
 eastern_region = readOGR(dsn=map_path, layer = "eastern-region")
 
 
@@ -337,6 +339,10 @@ project.dir <- rprojroot::find_rstudio_root_file()
 
 map_path <- file.path(project.dir, "2018DREX_notes\\data\\Drought_Regions")
 
+if( .Platform$OS.type == "unix" ) {map_path <- file.path(project.dir, "2018DREX_notes/data/Drought_Regions")}
+
+crs(eastern_region) <- CRS("+proj=longlat +datum=WGS84")
+
 eastern_region = readOGR(dsn=map_path, layer = "eastern-region")
 
 head(eastern_region@data)
@@ -352,6 +358,7 @@ leaflet(eastern_region) %>% #er_counties) %>%
     highlightOptions = highlightOptions(color = "white", weight = 2,
       bringToFront = TRUE))
 ```
+
 ```{r}
 library(leaflet)
 library(rgdal)
@@ -374,17 +381,20 @@ leaflet() %>%
 ```{r}
 library(leaflet)
 library(rgdal)
-
+library(raster)
 project.dir <- rprojroot::find_rstudio_root_file()
 
 map_path <- file.path(project.dir, "2018DREX_notes\\data\\Drought_Regions")
+
+if( .Platform$OS.type == "unix" ) {map_path <- file.path(project.dir, "2018DREX_notes/data/Drought_Regions")}
 
 eastern_region = readOGR(dsn=map_path, layer = "eastern-region")
 
 clipcentral = readOGR(dsn=map_path, layer = "clipcentral")
 
-plot(eastern_region)+
-  plot(clipcentral)
+crs(eastern_region)
+crs(eastern_region) <- CRS("+proj=longlat +datum=WGS84")
+crs(eastern_region)
 
 #print(eastern_region)
 
@@ -392,5 +402,17 @@ plot(eastern_region)+
 # eastern_region2 <- spTransform(eastern_region, CRS("+init=epsg:4326"))
 # 
 # leaflet(eastern_region2)
+```
+so we have an NA crs value :(s)
+
+
+http://rspatial.org/spatial/rst/6-crs.html
+this is how to find a projection for a given region:
+```{r}
+library(rgdal)
+epsg <- make_EPSG()
+i <- grep("Maryland", epsg$note, ignore.case=TRUE)
+
+epsg[i[1:3], ]
 ```
 
