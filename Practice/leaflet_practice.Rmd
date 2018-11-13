@@ -503,17 +503,74 @@ wssc_service2 <- wssc_service[,!(names(wssc_service) %in% drops)]
 
 baltimore_service2 <- baltimore_service[,!(names(baltimore_service) %in% drops)]
 
-head(eastern_region2@data)
-head(clipcentral2@data)
-head(wssc_service2@data)
-head(baltimore_service2@data)
-head(clipsouthern3_2@data)
+# head(eastern_region2@data)
+# head(clipcentral2@data)
+# head(wssc_service2@data)
+# head(baltimore_service2@data)
+# head(clipsouthern3_2@data)
 
 
 #joins regions into one file
 MD_regions <- rbind(eastern_region2,clipcentral2,baltimore_service2,wssc_service2,clipsouthern3_2)
 
 plot(MD_regions)
+summary(MD_regions)
 
+class(MD_regions)
+names(MD_regions)
+
+# m <- leaflet(MD_regions)
+
+# m <- leaflet(MD_regions) %>%
+#   setView(-96, 37.8, 4) %>%
+#   addProviderTiles("MapBox", options = providerTileOptions(
+#     id = "mapbox.light",
+#     accessToken = Sys.getenv('MAPBOX_ACCESS_TOKEN')))
+# m
 ```
- so we have a n output of the merged shapefiles(border files not currently included).  For some reason we have no western region shapefile(ask Cherie and Heidi).  We also may have the issue of not being able to easily chnage the background color of each region now that they are merged.  Also, plotting in leaflet rather than base R plot() function would be ideal.  Still, this is a start and gives us something to play with.  Difficulties with the shapefile include not knowing the crs, and its coords being in a slot: [x,y] structure rather than lat, long columns.  Other stuff I'm not thinking about as well.  The format's not ideal for what I'm trying to do, but I still think we cna find a way to make it work with more fiddling.  More to do, but a good way to end the week.
+ so we have an output of the merged shapefiles(border files not currently included).  For some reason we have no western region shapefile(ask Cherie and Heidi).  We also may have the issue of not being able to easily chnage the background color of each region now that they are merged.  Also, plotting in leaflet rather than base R plot() function would be ideal.  Still, this is a start and gives us something to play with.  Difficulties with the shapefile include not knowing the crs, and its coords being in a slot: [x,y] structure rather than lat, long columns.  Other stuff I'm not thinking about as well.  The format's not ideal for what I'm trying to do, but I still think we cna find a way to make it work with more fiddling.  More to do, but a good way to end the week.
+
+```{r}
+
+library(ggplot2)
+library(leaflet)
+library(rgdal)
+library(raster)
+
+#project directory, followed by path to shapefiles
+project.dir <- rprojroot::find_rstudio_root_file()
+
+map_path <- file.path(project.dir, "2018DREX_notes\\data\\Drought_Regions")
+
+if( .Platform$OS.type == "unix" ) {map_path <- file.path(project.dir, "2018DREX_notes/data/Drought_Regions")}
+
+eastern_region = readOGR(dsn=map_path, layer = "eastern-region")
+
+proj4string(eastern_region)
+proj4string(eastern_region)<-CRS("+init=epsg:2248")#26985")
+proj4string(eastern_region)
+plot(eastern_region)
+
+m <- leaflet(data = eastern_region)
+ 
+m
+```
+
+```{r}
+library(geojsonio)
+library(geojson)
+library(sp)
+library(jsonlite)
+library(leaflet)
+
+
+
+states <- geojsonio::geojson_read("json/us-states.geojson", what = "sp")
+
+
+m <- leaflet(states) %>%
+  setView(-96, 37.8, 4) %>%
+  addProviderTiles("MapBox", options = providerTileOptions(
+    id = "mapbox.light",
+    accessToken = Sys.getenv('MAPBOX_ACCESS_TOKEN')))
+```

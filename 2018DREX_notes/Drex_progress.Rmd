@@ -57,13 +57,17 @@ html/css feature integration, various reactive render types, andShiny in general
 -right-align num in Flow Bene. MGD(actually looks better centered)
 -figure out how to plot drought status shapefiles
 -optimize design of DREX ui if/where able(ongoing)
+-map projection is "Maryland State Plane NAD-83" which looks to be ESPG:26985
+-email John about missing western region in shapefile
 
 Doing-
--ask Cherie/Heidi about missing western region in shapefile
--askCherie/Heidi about missing(?) instructions mentioned in email 
--speak with Cherie/Sarah about coordiinate system issues(slot "coords": extraction of coordinates vs. GIS coordinate system change(but try changing coordinate system through R/leaflet a bit more first))
 
 -change todays date from rendertext to renderUI and then adjust positioning
+-switch position of infox output and text
+-make Shen and Nova font bigger
+-link squares to toy code
+-link Flows number to toy code
+-space quadrants out a bit
 
 -add state maps(choropleth map using leaflet?
 https://rstudio.github.io/leaflet/choropleths.html)

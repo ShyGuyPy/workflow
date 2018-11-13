@@ -10,3 +10,7 @@ Note about Maryland drought layer/shapefile:
 "Note that these shapefiles lack a prj file, but the projection is Maryland State Plane NAD-83 meters."
 
 There are also supposed to be instructions for use of this...
+
+So we seem to be mising the western region of the maryland map as well as the instructions.
+
+What we  know now is that we are using a cartesian coordinate system rather than a spherical lat/long system.  We are using cartesian because State Palen Coordinates use cartesian(x,y).  The shapefiles do not have an assigned proj4string/epsg, so the appropriate label must be assigned.  Likely 2248 or could be 26985.  I've tried both and neither generated a leaflet output, so don't know at this point.
