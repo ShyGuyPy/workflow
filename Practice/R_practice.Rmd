@@ -867,3 +867,13 @@ if(any(!nums %in% unique(nums2))) {print(nums[!nums %in% unique(nums2)])}
 
 
 ```
+
+```{r}
+library(stringr)
+p = "today's date is"
+m = "10/10/1910"
+#str_c(p,m, sep= " ")
+str_pad(str_c("today's date is",m, sep= " "), width = 30, side = "right", pad= " ")
+
+
+```
