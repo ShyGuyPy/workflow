@@ -60,12 +60,13 @@ html/css feature integration, various reactive render types, andShiny in general
 -map projection is "Maryland State Plane NAD-83" which looks to be ESPG:26985
 -email John about missing western region in shapefile
 -switch position of infox output and text
+-make Shen and Nova font bigger
 
 Doing-
-
+-better document your code within DREX 2018 or you will regret it
 -change todays date from rendertext to renderUI and then adjust positioning
 
--make Shen and Nova font bigger
+
 -link squares to toy code
 -link Flows number to toy code
 -space quadrants out a bit
