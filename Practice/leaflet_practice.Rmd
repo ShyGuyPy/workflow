@@ -574,3 +574,46 @@ m <- leaflet(states) %>%
     id = "mapbox.light",
     accessToken = Sys.getenv('MAPBOX_ACCESS_TOKEN')))
 ```
+
+
+
+https://blog.exploratory.io/creating-geojson-out-of-shapefile-in-r-40bc0005857d:
+```{r}
+library(rgdal)
+library(spdplyr)
+library(geojsonio)
+library(rmapshaper)
+library(leaflet)
+library(jsonlite)
+
+project.dir <- rprojroot::find_rstudio_root_file()
+
+map_path <- file.path(project.dir, "2018DREX_notes\\data\\Drought_Regions")
+
+if( .Platform$OS.type == "unix" ) {map_path <- file.path(project.dir, "2018DREX_notes/data/Drought_Regions")}
+
+
+eastern_region = readOGR(dsn=map_path, layer = "eastern-region")
+
+head(eastern_region@data )
+
+#this code uses spdplyr, an amazing package which allows you to manipulate spatial dataframes like any other dataframe in R
+eastern_region_modified <- eastern_region %>%
+  select(AREA, PERIMETER)
+  
+eastern_region_modified
+
+
+
+eastern_region_modified.json <- geojson_json(eastern_region_modified)
+
+leaflet() %>% addGeoJSON(eastern_region_modified.json)
+#leaflet(data=eastern_region_modified.json)
+
+#print(paste("geojson data: ", eastern_region_modified.json))
+
+erm_json_simplified <- ms_simplify(eastern_region_modified.json)
+
+
+```
+
