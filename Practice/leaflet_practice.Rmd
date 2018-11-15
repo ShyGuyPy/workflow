@@ -617,3 +617,26 @@ erm_json_simplified <- ms_simplify(eastern_region_modified.json)
 
 ```
 
+```{r}
+library(geojsonio)
+project.dir <- rprojroot::find_rstudio_root_file()
+
+map_path <- file.path(project.dir, "Practice//")
+
+if( .Platform$OS.type == "unix" ) {map_path <- file.path(project.dir, "Practice/")}
+
+
+allcounties <- geojsonio::geojson_read(paste0(map_path,"gz_2010_us_050_00_500k.json"), #"json/nycounties.geojson",
+  what = "sp")
+
+pal <- colorNumeric("viridis", NULL)
+
+leaflet(allcounties)
+  # addTiles() %>%
+  # addPolygons(stroke = FALSE, smoothFactor = 0.3, fillOpacity = 1,
+  #   fillColor = "red") #~pal(log10(pop)),
+  #   label = ~paste0(county, ": ", formatC(pop, big.mark = ","))) %>%
+  # addLegend(pal = pal, values = ~log10(pop), opacity = 1.0,
+  #   labFormat = labelFormat(transform = function(x) round(10^x)))
+```
+

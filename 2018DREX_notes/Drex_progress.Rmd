@@ -61,13 +61,14 @@ html/css feature integration, various reactive render types, andShiny in general
 -email John about missing western region in shapefile
 -switch position of infox output and text
 -make Shen and Nova font bigger
+-link squares to toy code
 
 Doing-
 -better document your code within DREX 2018 or you will regret it
 -change todays date from rendertext to renderUI and then adjust positioning
 
 
--link squares to toy code
+
 -link Flows number to toy code
 -space quadrants out a bit
 
