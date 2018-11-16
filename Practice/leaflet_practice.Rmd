@@ -536,6 +536,8 @@ library(ggplot2)
 library(leaflet)
 library(rgdal)
 library(raster)
+library(sp)
+library(spdplyr)
 
 #project directory, followed by path to shapefiles
 project.dir <- rprojroot::find_rstudio_root_file()
@@ -544,17 +546,58 @@ map_path <- file.path(project.dir, "2018DREX_notes\\data\\Drought_Regions")
 
 if( .Platform$OS.type == "unix" ) {map_path <- file.path(project.dir, "2018DREX_notes/data/Drought_Regions")}
 
-eastern_region = readOGR(dsn=map_path, layer = "eastern-region")
+western_central = readOGR(dsn=map_path, layer = "western_central")
 
-proj4string(eastern_region)
-proj4string(eastern_region)<-CRS("+init=epsg:2248")#26985")
-proj4string(eastern_region)
-plot(eastern_region)
+clipcentral = readOGR(dsn=map_path, layer = "clipcentral")
 
-m <- leaflet(data = eastern_region)
- 
+western_dslv = readOGR(dsn=map_path, layer = "western_dslv")
+
+# proj4string(western_central)
+# # proj4string(western_central)<-CRS("+init=epsg:2248")#26985")
+# # proj4string(western_central)
+# plot(western_central)
+
+western_central_t <- spTransform(western_central, CRS("+init=epsg:4326"))
+
+clipcentral_t <- spTransform(clipcentral, CRS("+init=epsg:4326"))
+
+western_region_t <- spTransform(western_dslv, CRS("+init=epsg:4326"))
+
+head(western_central)
+summary(western_central)
+head(western_central)
+
+# western_central_t <- western_central_t %>%
+#   select(western_central_t$REGION[0])
+
+c_color="blue"
+w_color="red"
+
+m <- leaflet() %>%
+  # addPolygons(data = western_central_t, color=color) #%>%
+  
+  addPolygons(data = clipcentral_t, color="black", fillColor = c_color, opacity = 1) %>%
+  addPolygons(data = western_region_t, color="black", fillColor = w_color, opacity = 1)
+
+  # fillColor = ~pal(density),
+  # weight = 2,
+  # opacity = 1,
+  # color = "white",
+  # dashArray = "3",
+  # fillOpacity = 0.7)
+
 m
+
+
 ```
+
+Data attributes:
+     REGION 
+ Central:1  
+ Western:1  
+   REGION
+0 Western
+1 Central
 
 ```{r}
 library(geojsonio)
@@ -574,3 +617,6 @@ m <- leaflet(states) %>%
     id = "mapbox.light",
     accessToken = Sys.getenv('MAPBOX_ACCESS_TOKEN')))
 ```
+
+
+
