@@ -62,15 +62,21 @@ html/css feature integration, various reactive render types, andShiny in general
 -switch position of infox output and text
 -make Shen and Nova font bigger
 -link squares to toy code
+-better document your code within DREX 2018 or you will regret it
+-link Flows number to toy code
 
 Doing-
--better document your code within DREX 2018 or you will regret it
--change todays date from rendertext to renderUI and then adjust positioning
 
-
-
--link Flows number to toy code
+-restore visibility of MD flow benfit
 -space quadrants out a bit
+-map larger(remove zoom control)
+-move flow benefit over
+-MD color key(small)
+-Virginia color key P GW SW R
+-slightly expand inforbox right box (maybe 10%)
+
+
+-change todays date from rendertext to renderUI and then adjust positioning
 
 -put our app on shiny.io(publish)
 
