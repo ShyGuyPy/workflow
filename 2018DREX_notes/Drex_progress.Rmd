@@ -70,7 +70,7 @@ Doing-
 -restore visibility of MD flow benfit
 -space quadrants out a bit
 -map larger(remove zoom control)
--move flow benefit over
+-move flow benefit over to the right
 -MD color key(small)
 -Virginia color key P GW SW R
 -slightly expand inforbox right box (maybe 10%)
