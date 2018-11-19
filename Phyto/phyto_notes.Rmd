@@ -635,16 +635,22 @@ it seems the issue may be that salzone,phylum, and  species values are not being
 
 Dealing with salzone first which comes from data-dev_2013_2016_ODU_Phyto_Events_05mar18.  I need to track it to see where it's getting lost.
 
-below is where we lose our salzone values:
-```{r}
-events.df <- events.df %>% 
-  mutate(sampledate = as.Date(sampledate),
-         salzone = case_when(
-           salzone %in% c("tf", "fe") ~ "f",
-           salzone %in% c("m", "me") ~ "m",
-           salzone %in% c("o", "oe") ~ "o",
-           salzone %in% c("p", "pe") ~ "p",
-           TRUE ~ as.character(NA)
-         ))
-```
+<!-- this is false -->
+<!-- below is where we lose our salzone values: -->
+<!-- ```{r} -->
+<!-- events.df <- events.df %>%  -->
+<!--   mutate(sampledate = as.Date(sampledate), -->
+<!--          salzone = case_when( -->
+<!--            salzone %in% c("tf", "fe") ~ "f", -->
+<!--            salzone %in% c("m", "me") ~ "m", -->
+<!--            salzone %in% c("o", "oe") ~ "o", -->
+<!--            salzone %in% c("p", "pe") ~ "p", -->
+<!--            TRUE ~ as.character(NA) -->
+<!--          )) -->
+<!-- ``` -->
+
+this code is where we seem to be losing salzones:
+events.sub <- inner_join(events.sub, old.salzone, by = c("station", "sampledate"))
+
+according to Claire: this code is meant to override salzone values with values from Jackie's data that were best guesses os salzone for missing data.  It's in prep_events.Rmd on line 123
 
