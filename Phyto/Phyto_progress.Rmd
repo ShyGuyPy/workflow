@@ -33,10 +33,11 @@ Done:
 -fix whatever is breaking the knit output with the modified sections(was code that was turned into headers rather than fully commented out)
 -finish working through R For Data Science(through the parts relevant to phyto at least)
 -learn to use extract_notebook_scripts.R to steamline testing process
+-figure out where salzones are being lost(prep_events line 123)
 
 Doing: 
--fix issue with 226 N salzone
--fix issue with biomass ratio, etc not being where it should
+-resolve issue with code on line 123 of prep_events
+
 -look through r markdown the definitive guide
 -
 
