@@ -64,14 +64,19 @@ html/css feature integration, various reactive render types, andShiny in general
 -link squares to toy code
 -better document your code within DREX 2018 or you will regret it
 -link Flows number to toy code
+-map larger(remove zoom control)
+-space quadrants out a bit
+-move flow benefit over to the right
 
 Doing-
 
 -restore visibility of MD flow benfit
--space quadrants out a bit
--map larger(remove zoom control)
--move flow benefit over to the right
--MD color key(small)
+
+
+-could the VA labels be bigger?
+-could we have MD labels too? - either above or below the map (Western and Central)
+-add title_stage varaible in place of infor box titles that can change based on your bools
+-MD color key(small)...add grey for no value
 -Virginia color key P GW SW R
 -slightly expand inforbox right box (maybe 10%)
 
