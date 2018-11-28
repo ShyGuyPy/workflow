@@ -40,6 +40,7 @@ Doing:
 
 -look through r markdown the definitive guide
 -print out results of mmir/taxa_abund
+-take a year of cedr data 1990 and put it through the pipeline
 
 
 -get an appendix output from phyto2
