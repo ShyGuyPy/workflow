@@ -34,6 +34,7 @@ Done:
 -finish working through R For Data Science(through the parts relevant to phyto at least)
 -learn to use extract_notebook_scripts.R to steamline testing process
 -figure out where salzones are being lost(prep_events line 123)
+-taxa_abund function is in mmir/R/composition.R
 
 Doing: 
 -resolve issue with code on line 123 of prep_events
