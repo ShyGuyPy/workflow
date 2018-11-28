@@ -654,3 +654,6 @@ events.sub <- inner_join(events.sub, old.salzone, by = c("station", "sampledate"
 
 according to Claire: this code is meant to override salzone values with values from Jackie's data that were best guesses os salzone for missing data.  It's in prep_events.Rmd on line 123
 
+
+
+there is an assigned biomass value at the end of prep carbon

@@ -39,7 +39,7 @@ Doing:
 -resolve issue with code on line 123 of prep_events
 
 -look through r markdown the definitive guide
--
+-print out results of mmir/taxa_abund
 
 
 -get an appendix output from phyto2
