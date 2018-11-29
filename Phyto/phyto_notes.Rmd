@@ -659,3 +659,7 @@ according to Claire: this code is meant to override salzone values with values f
 there is an assigned biomass value at the end of prep carbon
 
 
+
+thankfully the issue is not in mmir and is mercifully simple:  The VA ODU data doesn't include salzones of freshwater or oligohaline.  Therefore the spring.f function was failing to create the metric.sub dataframe and Zach's internal test for the presence of those 6 metrics was failing. 
+
+ For now I've commented the problematic code out but I would like to re-write the code so that it checks for the presence of f/o salzones and then proceeds accordingly, when time allows.
