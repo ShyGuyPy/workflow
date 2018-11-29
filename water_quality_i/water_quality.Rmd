@@ -1,0 +1,16 @@
+---
+title: "water_inventory"
+author: "Luke Vawter"
+date: "November 29, 2018"
+output: html_document
+---
+
+working with Erfaneh on this
+
+progress:
+-line 28 in module /leaflet_output uncomment "autowidth"
+
+
+note:
+look at line 20-30
+dt package

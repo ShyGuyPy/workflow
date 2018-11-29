@@ -35,6 +35,7 @@ Done:
 -learn to use extract_notebook_scripts.R to steamline testing process
 -figure out where salzones are being lost(prep_events line 123)
 -taxa_abund function is in mmir/R/composition.R
+-add line in extract script at line 22 to create itit object
 
 Doing: 
 -resolve issue with code on line 123 of prep_events
@@ -42,6 +43,7 @@ Doing:
 -look through r markdown the definitive guide
 -print out results of mmir/taxa_abund
 -take a year of cedr data 1990 and put it through the pipeline
+
 
 
 -get an appendix output from phyto2
