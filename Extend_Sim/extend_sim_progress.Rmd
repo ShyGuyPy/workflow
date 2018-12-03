@@ -1,0 +1,13 @@
+---
+title: "extend_sim_progress"
+author: "Luke Vawter"
+date: "December 3, 2018"
+output: html_document
+---
+
+note on /12/3/18:
+this is a continuation of a project I began over my summer internship(May)
+
+Done:
+
+Doing:

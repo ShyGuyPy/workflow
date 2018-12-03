@@ -36,21 +36,20 @@ Done:
 -figure out where salzones are being lost(prep_events line 123)
 -taxa_abund function is in mmir/R/composition.R
 -add line in extract script at line 22 to create itit object
+-resolve issue with code on line 123 of prep_events(commented out code that was meant to deal with salzone differences...)
+-get an ibi score output for VA_ODU data :)
+-evaluate ibi metric code to the point where you could effectively bug check it(excluding appendix, I think we can call this one done)
 
 Doing: 
--resolve issue with code on line 123 of prep_events
+-touch up VA_ODU r markdown comments and save to H drive(H/Projects/Phytoplankton IBI)
+
+-re-write/fix any code that was non-functional with VA ODU data where possible
+
 
 -look through r markdown the definitive guide
--print out results of mmir/taxa_abund
 -take a year of cedr data 1990 and put it through the pipeline
 
-
-
--get an appendix output from phyto2
--generate a list of questions about data importing from CEDR to ask Mike Mallonee
-
--evaluate ibi metric code to the point where you could effectively bug check it
--know the parts of MMIR package that are applicable to phyto
+-know the parts of MMIR package that are applicable to phyto and chessi_bibi
 
 
 
