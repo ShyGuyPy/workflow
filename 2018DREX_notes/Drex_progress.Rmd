@@ -71,17 +71,15 @@ html/css feature integration, various reactive render types, andShiny in general
 -add text_stage2 variable for additional info for LFAA status
 -could the VA labels be bigger?(made them bolder instead)
 -fix alignment of Virginia title being pushed right by leaflet output height above 140px
+-add MD labels Wsetern and Central
+-MD color key(small)...add grey for no value
+-Virginia color key P GW SW R
 
 Doing-
 
 -remove scrolling (handle grab) option in map
 -adjust map position so that upper boarder is closer to upper edge of leafletContainer(move it up)
 
-
--could we have MD labels too? - either above or below the map (Western and Central)
-
--MD color key(small)...add grey for no value
--Virginia color key P GW SW R
 -slightly expand inforbox right box (maybe 10%)
 
 

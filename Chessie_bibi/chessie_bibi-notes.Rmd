@@ -6,3 +6,5 @@ output: html_document
 ---
 working with Rikke on chessie bibi
 
+MMIR package may be causing issues
+

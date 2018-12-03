@@ -11,3 +11,6 @@ this is a continuation of a project I began over my summer internship(May)
 Done:
 
 Doing:
+-read extend sim 10 developer documentation
+-brush up on cpp and rcpp
+-consider project structure
