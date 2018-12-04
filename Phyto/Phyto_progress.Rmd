@@ -39,17 +39,31 @@ Done:
 -resolve issue with code on line 123 of prep_events(commented out code that was meant to deal with salzone differences...)
 -get an ibi score output for VA_ODU data :)
 -evaluate ibi metric code to the point where you could effectively bug check it(excluding appendix, I think we can call this one done)
+-output ibi.df
+
+-track phyto.df to ibi.df:
+   -phyto.df
+   -bay.df(bay.sub)
+   -bay.taxa
+   -metrics.df
+   -metrics.long(metrics.sub)
+   -score_spring_p, score_spring_m, etc.
+   -scores.df
+   -ratings.df
+   -ibi.df
+   
 
 Doing: 
--touch up VA_ODU r markdown comments and save to H drive(H/Projects/Phytoplankton IBI)
+-write/rewrite VA_ODU r markdown comments and save to H drive(H/Projects/Phytoplankton IBI)
+-resolve station issue...may be losing station data at 3-day window code(bay.sub)
 
 -re-write/fix any code that was non-functional with VA ODU data where possible
 
-
+-look through Hadley Wickham's Advanced R guide
 -look through r markdown the definitive guide
 -take a year of cedr data 1990 and put it through the pipeline
 
--know the parts of MMIR package that are applicable to phyto and chessi_bibi
+-know the parts of MMIR and BIBI packages that are applicable to phyto and chessi_bibi
 
 
 

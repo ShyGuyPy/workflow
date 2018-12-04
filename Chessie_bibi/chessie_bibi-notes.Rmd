@@ -8,3 +8,8 @@ working with Rikke on chessie bibi
 
 MMIR package may be causing issues
 
+BIBI package will need to be examined as well
+
+-read through appropriate secitons of 
+https://www.potomacriver.org/focus-areas/aquatic-life/chessie-bibi-stream-health-indicator/
+-read Rikke's notes on chessie_bibi blueprint
