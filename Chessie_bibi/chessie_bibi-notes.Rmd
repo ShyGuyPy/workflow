@@ -13,3 +13,7 @@ BIBI package will need to be examined as well
 -read through appropriate secitons of 
 https://www.potomacriver.org/focus-areas/aquatic-life/chessie-bibi-stream-health-indicator/
 -read Rikke's notes on chessie_bibi blueprint
+
+prob_rarefaction() in mmir/r/rarefaction is a function in mmir that has been problematic
+
+ungrouping resolved that issue but taxa_div is now returning a custom error

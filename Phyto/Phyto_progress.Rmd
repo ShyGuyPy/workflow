@@ -41,7 +41,7 @@ Done:
 -evaluate ibi metric code to the point where you could effectively bug check it(excluding appendix, I think we can call this one done)
 -output ibi.df
 
--track phyto.df to ibi.df:
+-track phyto.df to ibi.df(the primary dataframes throughout phyto):
    -phyto.df
    -bay.df(bay.sub)
    -bay.taxa
@@ -55,13 +55,16 @@ Done:
 
 Doing: 
 -write/rewrite VA_ODU r markdown comments and save to H drive(H/Projects/Phytoplankton IBI)
--resolve station issue...may be losing station data at 3-day window code(bay.sub)
+-resolve station issue...may be losing station data at 3-day window code(bay.sub)---nope, they are being labelled NA
+-re-work/re-build preprocessing section(pdepth not pycnocline)
+-figure out why lat and long values in ibi.df output are varying with each output(so weird)
+
 
 -re-write/fix any code that was non-functional with VA ODU data where possible
 
 -look through Hadley Wickham's Advanced R guide
 -look through r markdown the definitive guide
--take a year of cedr data 1990 and put it through the pipeline
+-take a year of cedr data 1990 and run it through the pipeline
 
 -know the parts of MMIR and BIBI packages that are applicable to phyto and chessi_bibi
 
