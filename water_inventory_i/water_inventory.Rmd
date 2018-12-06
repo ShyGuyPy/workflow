@@ -8,9 +8,18 @@ output: html_document
 working with Erfaneh on this
 
 progress:
+Done:
+
+Doing:
+-take WQ_inventory master data and save a csv for metadata sheet and a csv for latitude, longitude and source no. into a data folder (check to make sure Zach ahsn't done this already.)
+
+
+
+
 -line 28 in module /leaflet_output uncomment "autowidth"
 
 
 note:
 look at line 20-30
 dt package
+
