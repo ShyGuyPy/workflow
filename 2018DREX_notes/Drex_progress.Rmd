@@ -80,7 +80,7 @@ Doing-
 -remove scrolling (handle grab) option in map
 -adjust map position so that upper boarder is closer to upper edge of leafletContainer(move it up)
 
--slightly expand inforbox right box (maybe 10%)
+-slightly expand infobox right box (maybe 10%)
 
 
 -change todays date from rendertext to renderUI and then adjust positioning

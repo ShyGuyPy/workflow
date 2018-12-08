@@ -890,7 +890,11 @@ library(data.table)
 
 project.dir <- rprojroot::find_rstudio_root_file()
 
-phyto_practice.df <- data.table::fread(file.path(project.dir, "data/phytoplankton2/VA_ODU_phyto_event.csv"),
+print(project.dir)
+
+
+phyto_practice.df <- data.table::fread(file.path(project.dir, 
+                                                 "data/phytoplankton2/VA_ODU_phyto_event.csv"),
                             data.table = FALSE,
                             #colClasses = col.class.vec,
                             na.strings = "")
@@ -905,6 +909,31 @@ pp_changed.df <- pp.df %>%
   arrange(desc(pdepth)) %>%
   mutate(deep_p = pdepth >=20)
 
+#https://www.youtube.com/watch?v=f0U74ZvLfQo
 
+# make the item at row 2 column 2 NA
+pp_changed.df[2,2]<-NA
+
+final.df <- pp_changed.df%>%
+  summarize(measurevalue = mean(pdepth, na.rm=TRUE))
+
+
+```
+
+
+
+https://www.datacamp.com/community/tutorials/r-tutorial-apply-family
+```{r}
+apple <- matrix(rnorm(18), nrow = 3, ncol = 6)
+#print(apple)
+
+
+#to apply mean calculation to each set of column values
+apply(apple, 2, mean)
+
+#to apply mean calculation to each set of row values
+apply(apple, 1, mean)
+
+#trimmed <- apply(apple[,-c(1,2)],2,mean)
 ```
 
