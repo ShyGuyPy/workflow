@@ -937,3 +937,37 @@ apply(apple, 1, mean)
 #trimmed <- apply(apple[,-c(1,2)],2,mean)
 ```
 
+to test RET,TF,LE station issue fix
+```{r}
+library(dplyr)
+library(readxl)
+library(data.table)
+
+project.dir <- rprojroot::find_rstudio_root_file()
+
+events_test.df <- data.table::fread(file.path(project.dir, 
+                                                 "data/phytoplankton2/VA_ODU_phyto_event.csv"),
+                            data.table = FALSE,
+                            #colClasses = col.class.vec,
+                            na.strings = "")
+
+stations_test.df <- events_test.df %>%
+  select(station) %>%
+  distinct()
+
+events_test.df <- events_test.df%>%
+
+mutate(salzone_test = case_when(
+    events_test.df$station %in% c("tf3.3","tf4.2","tf5.5")~ "F",
+    #events_test.df$station == starts_with("cb")~ "good",
+    events_test.df$station %in% c("ret3.1","ret4.3","ret3.1")~ "O",
+    events_test.df$station %in% c("le3.6","le5.2","le5.4","le5.5-w")~ "P",
+    TRUE~"bogus"
+
+  )
+  )
+
+    
+
+```
+
