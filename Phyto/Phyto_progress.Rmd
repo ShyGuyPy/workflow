@@ -52,15 +52,16 @@ Done:
    -ratings.df
    -ibi.df
    
+-write/rewrite VA_ODU r markdown comments and save to H drive(H/Projects/Phytoplankton IBI)
+-after outputting ibi Calire determined that the field crews where listing N for salzone at TF, RET and two LE stations. salzones can't be trusted and need to be recalculated
+
+-figure out why lat and long values in ibi.df output are varying with each output(was jitter being applied by code for leaflet display so points don't fall directly on top of each other)
 
 Doing: 
--write/rewrite VA_ODU r markdown comments and save to H drive(H/Projects/Phytoplankton IBI)
--resolve station issue...may be losing station data at 3-day window code(bay.sub)---nope, they are being labelled NA
+-recalculate salzones
 -re-work/re-build preprocessing section(pdepth not pycnocline)
--figure out why lat and long values in ibi.df output are varying with each output(so weird)
 
-
--re-write/fix any code that was non-functional with VA ODU data where possible
+-re-write/fix any code that was non-functional with VA ODU data where possible(ongoing)
 
 -look through Hadley Wickham's Advanced R guide
 -look through r markdown the definitive guide
@@ -78,3 +79,92 @@ download data and dependencies
 -install packages(including MMIR)
 -create vesctor for station data
 -download all of the phytoplankton data from the CEDR API
+
+
+better understanding steps
+note:all inputs are case and whitesapce formatted using clean_up before use
+
+DOWNLOAD STATION VECTOR
+-create station vector
+
+-Read VA ODU event data to phyto.df
+
+-Filter out data below pycnocline 
+or data without taxanomic count	
+
+-using case_when add update to
+problematic taxa
+
+-output phyto.df to va odu taxa csv
+
+DOWNLOAD MONITORING EVENT
+
+-download va odu event data to event.df 
+and output to csv 
+
+DOWNLOAD STATION INFORMATION
+
+-download station data from cedr api
+to station.df and output to csv
+
+DOWNLOAD WATER QUALITY
+
+-download water quality data from cedr 
+api to wq.df and output to csv
+data is limited to the 3 day window based 
+off of dates in phyto.df
+
+PREPARE TXANOMIC HIERARCHY
+TAXANOMIC DATA
+
+-taxanomic data uses col.class.vec assigns character type 
+to samplenumber, tsn, and speccode
+
+-then assigns taxa csv to taxa.raw
+
+-filter out na and below pycno values
+same as was done for events.df
+
+-check for spring and summer months and assigns 
+"spring" or "summer" to month
+
+-deal with multiple taxa (I still
+don't fully understand this code)
+
+-filter for "ph" in method using grepl
+(might be usable)
+
+-also clears taxa deadwood
+
+TAXANOMIC HEIRARCHY
+
+-itis data is read to csv
+called hier.wide
+
+-joins hier.wide with bay.df(more 
+detail would be nice here)
+-is Zach building a unique id out
+of the concatination of station,layer, 
+samplenumber, sampledate?
+
+-most taxa fixes follow this structure:
+if latainname == the string, assign 
+second string to the variable at the 
+beginning of the statement, otherwise
+
+-removes col.class.vec from environmetn
+assign final variable to first
+
+PREPARE CARBON ASSIGNMENTS
+
+-carbon.df is created by reading 
+data/carbon/carbon_list_2014
+
+-some cool standardization of data
+using str_detect and str_replace_all
+(this might be usable)
+
+-carbon.dups is created to hold
+taxon that have more than one carbon
+value..but carbon.dups is never refereneced 
+again(so this is a dead end)
