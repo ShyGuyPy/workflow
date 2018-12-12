@@ -57,8 +57,12 @@ Done:
 
 -figure out why lat and long values in ibi.df output are varying with each output(was jitter being applied by code for leaflet display so points don't fall directly on top of each other)
 
+-know the parts of MMIR and BIBI packages that are applicable to phyto and chessi_bibi(sure)
+-recalculate salzones(this part works but now need 3 day window sooner and on event not taxa)
+
 Doing: 
--recalculate salzones
+-get 3 day window working on event
+-maybe learn parallel package as needed
 -re-work/re-build preprocessing section(pdepth not pycnocline)
 
 -re-write/fix any code that was non-functional with VA ODU data where possible(ongoing)
@@ -67,7 +71,7 @@ Doing:
 -look through r markdown the definitive guide
 -take a year of cedr data 1990 and run it through the pipeline
 
--know the parts of MMIR and BIBI packages that are applicable to phyto and chessi_bibi
+
 
 
 
@@ -113,6 +117,9 @@ DOWNLOAD WATER QUALITY
 api to wq.df and output to csv
 data is limited to the 3 day window based 
 off of dates in phyto.df
+the code for the 3 day window grab looks like this:
+format(min(phyto.df$sampledate) - days(3), "%m-%d-%Y"),
+format(max(phyto.df$sampledate) + days(3), "%m-%d-%Y"), 
 
 PREPARE TXANOMIC HIERARCHY
 TAXANOMIC DATA
