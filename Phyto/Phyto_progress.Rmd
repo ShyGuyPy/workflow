@@ -114,8 +114,9 @@ to station.df and output to csv
 DOWNLOAD WATER QUALITY
 
 -download water quality data from cedr 
-api to wq.df and output to csv
-data is limited to the 3 day window based 
+api to wq.df and output to csv.
+data puuled is limited to the 3 day window 
+(on each side so 7 day total) based 
 off of dates in phyto.df
 the code for the 3 day window grab looks like this:
 format(min(phyto.df$sampledate) - days(3), "%m-%d-%Y"),
