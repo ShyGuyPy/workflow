@@ -59,11 +59,16 @@ Done:
 
 -know the parts of MMIR and BIBI packages that are applicable to phyto and chessi_bibi(sure)
 -recalculate salzones(this part works but now need 3 day window sooner and on event not taxa)
-
-Doing: 
 -get 3 day window working on event
 -maybe learn parallel package as needed
 -re-work/re-build preprocessing section(pdepth not pycnocline)
+
+Doing: 
+
+-layer to depth test
+-pdepth not available for all entries, apply 3 day window before?
+-resolve depth <= pdepth code causing rounding of values
+
 
 -re-write/fix any code that was non-functional with VA ODU data where possible(ongoing)
 
