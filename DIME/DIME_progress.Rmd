@@ -1,0 +1,14 @@
+---
+title: "DIME_progress"
+author: "Luke Vawter"
+date: "December 18, 2018"
+output: html_document
+---
+done-
+
+doing-
+-explore water quality portal, water quality explorer
+-explore my _sql vs postgres_sql
+-explore http://datahub.chesapeakebay.net/WaterQuality 
+and other api's(find a simple api and a set of data to pull with limited overhead)
+-

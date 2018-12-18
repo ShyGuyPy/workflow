@@ -66,8 +66,9 @@ Done:
 Doing: 
 
 -layer to depth test
--pdepth not available for all entries, apply 3 day window before?
--resolve depth <= pdepth code causing rounding of values
+-pdepth not available for all entries, apply 3 day window before
+-resolve depth <= pdepth code and 3 day window  causing rounding of values
+-rewrite 3 day window code?
 
 
 -re-write/fix any code that was non-functional with VA ODU data where possible(ongoing)
