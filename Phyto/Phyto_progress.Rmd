@@ -194,3 +194,38 @@ converted to NA
  match in carbon.df (using anti_join)
  
  -partial.match...
+
+
+Claire's notes:
+
+X 1) Load necessary R packages into the environment...
+X 2) Be sure the necessary reference tables (the count-to-biomass conversion factores, Jackie's historic salzone designations) are available
+3) At this point make it possible to choose how to load data, either from CEDR or directly as a csv(or Excel?)file - create a path for eachway but X for now focus on CEDR pathway
+
+X From CEDR, you first need to download phytoplankton count data, picophytoplankton count data, and phytoplankton event file.
+X The event file will contain P_depth(bottom sample depth). 
+? The combination of station, date and p_depth[?] from the event file are later used to download the corresponding water quality data.
+
+From csv or xlsx files, need to ensure provider's dataset structure and format match CEDR format recognized by program> (Mike Malonee counld help, I think)
+```{r}
+# code that looks something like this should work if tidyverse doesn't have a better alternative
+pseudocode~
+  cleanup(.df)
+  
+  vector = colname(.df)%>%
+  check=TRUE
+  for item in vector if item !in check_vector, check = FALSE 
+
+  case_when item == "pdepth", if typeof(itme) != double, check=FALSE
+  .... 
+  ....
+
+if check == TRUE{proceed}
+else if check == FALSE {halt, print"issue with" item "not in proper format"}
+  
+
+```
+
+4) Data prepatory steps for water quality:
+
+Use the station 
