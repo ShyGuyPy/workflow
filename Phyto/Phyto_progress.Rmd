@@ -228,4 +228,4 @@ else if check == FALSE {halt, print"issue with" item "not in proper format"}
 
 4) Data prepatory steps for water quality:
 
-Use the station 
+Use the station, date and p_depth in the phytoplankton event file

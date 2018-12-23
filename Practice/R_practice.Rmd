@@ -1250,3 +1250,26 @@ bay.sub <- bay.df %>%
          upper_date = sampledate + lubridate::days(3))
 ```
 
+```{r}
+library(dplyr)
+library(readxl)
+library(data.table)
+library(tidyr)
+
+project.dir <- rprojroot::find_rstudio_root_file()
+
+event.df <- data.table::fread(file.path(project.dir, "data/phytoplankton2/VA_ODU_phyto_event.csv"
+                                         ),
+                            data.table = FALSE,
+                            na.strings = "")
+
+
+test.df <- lapply(1:nrow(event.df), function(row.i)) {
+  
+}
+
+```
+
+
+
+
