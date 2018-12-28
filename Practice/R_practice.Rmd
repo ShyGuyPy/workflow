@@ -1250,3 +1250,39 @@ bay.sub <- bay.df %>%
          upper_date = sampledate + lubridate::days(3))
 ```
 
+```{r}
+foo <- local({x <- 10
+             y <- 200
+             x +y})
+
+foo
+
+x <- 4
+
+z <- rlang::expr(y <- x * 10)
+eval(z)
+y
+
+
+```
+
+```{r}
+
+library(dplyr)
+
+
+prop_count <- function(df, ...){
+  vars_col <- quos(...)
+  
+  print(vars_col)
+  
+  df %>% 
+    count(!!!vars_col, sort = T) %>% 
+    mutate(prop_n = prop.table(n)) %>% 
+    mutate(cumsum_n = cumsum(prop_n)) 
+}
+
+dplyr::starwars %>% 
+  prop_count(homeworld, species)
+```
+
