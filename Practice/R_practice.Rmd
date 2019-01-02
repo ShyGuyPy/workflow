@@ -1251,6 +1251,7 @@ bay.sub <- bay.df %>%
 ```
 
 ```{r}
+<<<<<<< HEAD
 foo <- local({x <- 10
              y <- 200
              x +y})
@@ -1302,4 +1303,27 @@ df_test = df %>%
   rowwise() %>%
   mutate(pop=sample(0:1, 1, replace=TRUE))
 ```
+=======
+library(dplyr)
+library(readxl)
+library(data.table)
+library(tidyr)
+
+project.dir <- rprojroot::find_rstudio_root_file()
+
+event.df <- data.table::fread(file.path(project.dir, "data/phytoplankton2/VA_ODU_phyto_event.csv"
+                                         ),
+                            data.table = FALSE,
+                            na.strings = "")
+
+
+test.df <- lapply(1:nrow(event.df), function(row.i)) {
+  
+}
+
+```
+
+
+
+>>>>>>> 6f8e3cec0c1e7e030a630c30d4b543e4c755c83c
 
