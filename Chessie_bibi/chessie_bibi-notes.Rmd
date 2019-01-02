@@ -17,3 +17,166 @@ https://www.potomacriver.org/focus-areas/aquatic-life/chessie-bibi-stream-health
 prob_rarefaction() in mmir/r/rarefaction is a function in mmir that has been problematic
 
 ungrouping resolved that issue but taxa_div is now returning a custom error
+
+
+
+
+test run :
+
+```{r}
+library(tidyverse)
+library(stringr)
+library(lubridate)
+library(devtools)
+library(mmir) 
+library(bibi2.0) 
+library(odbc) # For Windows 64-bit; see 1.2
+library(RODBC) # For Windows 32-bit; see 1.2
+library(DBI)
+library(magrittr)
+library(vegan)
+library(ggplot2)
+```
+
+```{r}
+channel <- dbConnect(odbc(), "CBIBI_2017")
+
+tab.vec <- c("TAB_EVENT", 
+             "TAB_STATIONS",
+             "TAB_PROJECT",
+             "TAB_WQ_DATA",
+             "TAB_HABITAT_ASSESSMENT",
+             "TAB_TAXONOMIC_COUNT",
+             "TAB_HUC_12",
+             "TAB_MASTER_TAXA_LIST")
+
+ tab.list <- purrr::map(tab.vec, function(tab.i) {
+  dbReadTable(channel, tab.i, stringsAsFactors = FALSE) %>% 
+    clean_df()
+}) %>% 
+  set_names(tolower(tab.vec))
+
+dbDisconnect(channel)
+```
+
+```{r}
+ tab.list$tab_taxonomic_count <- tab.list$tab_taxonomic_count %>% 
+   dplyr::mutate(tsn_final = str_replace_all(tsn_final, "(?<![0-9])0+", "")) %>% 
+   left_join(tab.list$tab_master_taxa_list, by = "tsn_final") %>% 
+   prep_taxa() 
+```
+
+```{r}
+prep.df <- prep_data(tab.list$tab_taxonomic_count,
+                     tab.list$tab_wq_data,
+                     tab.list$tab_habitat_assessment,
+                     tab.list$tab_event,
+                     tab.list$tab_stations,
+                     tab.list$tab_project,
+                     tab.list$tab_huc_12,
+                     development = FALSE)
+
+rm(tab.list)
+```
+
+```{r}
+prep.df2 <-
+    dplyr::mutate(prep.df, ffg = case_when(
+    is.na(bibi_ffg) | bibi_ffg == "" ~ as.character(NA),
+    bibi_ffg == "cg" ~ "gather",
+    bibi_ffg == "pr" ~ "predator",
+    bibi_ffg == "sc" ~ "scrape",
+    bibi_ffg == "cf" ~ "filter",
+    bibi_ffg == "sh" ~ "shred",
+    bibi_ffg == "om" ~ "omnivore",
+    bibi_ffg == "pa" ~ "parasite",
+    bibi_ffg %in% c("pc", "pi") ~ "pierce",
+    TRUE ~ "ERROR"
+  ),
+  habit = case_when(
+    is.na(bibi_habit) | bibi_habit == "" ~ as.character(NA),
+    bibi_habit == "sp" ~ "sprawl",
+    bibi_habit == "cn" ~ "cling",
+    bibi_habit == "cb" ~ "climb",
+    bibi_habit == "bu" ~ "burrow",
+    bibi_habit == "sw" ~ "swim",
+    bibi_habit == "sk" ~ "skate",
+    TRUE ~ "ERROR"
+  )
+)
+```
+
+```{r}
+taxa.df <- prep.df2 %>% 
+  ungroup() %>% 
+  select(unique_id, icprb_bioregion_id, reporting_value,
+         final_id, 
+         phylum, subphylum, class, subclass,
+         order, suborder, family, subfamily, tribe, genus, habit, ffg, bibi_tv) %>%   
+  group_by_at(vars(-reporting_value)) %>% 
+  summarize(reporting_value = sum(reporting_value)) %>% 
+  ungroup() %>% 
+  fill_taxa(final_id, phylum:genus) %>% 
+  mutate(final_id = genus) %>% 
+  group_by_at(vars(-reporting_value)) %>% 
+  summarize(reporting_value = sum(reporting_value)) %>% 
+  ungroup()
+```
+
+
+```{r}
+# taxa.df <- prob_rarefaction(taxa.df, unique_id, reporting_value, genus, 100)
+```
+
+```{r}
+taxa_test.df <- taxa.df %>% 
+  group_by(unique_id) %>%
+  mutate(total_sum = sum(reporting_value)) %>%
+  mutate(ratio = 100*(reporting_value/total_sum)) %>%
+  mutate(ratio = ifelse(ratio >= 1, round(ratio), as.integer(ratio))) %>%
+  mutate(cumulative = ifelse(ratio >= 1, sum(ratio), 0)) %>%
+  mutate(sum_cum = ifelse(ratio >= 1, 100-cumulative, 100-(max(cumulative)))) %>%
+  mutate(count = n()) %>%
+  rowwise() %>%
+  mutate(rc_test =(ifelse(cumulative == 0, sample(0:1, 1, replace=TRUE), ratio))) %>%
+  ungroup()
+
+taxa_test.df <- taxa_test.df %>% 
+  group_by(unique_id) %>%
+  mutate(rc_total = sum(rc_test)) #%>%
+  # #for (n()) {
+  #   for (sum_cum)}
+  # #for cum_sum (mutate(elseif()))
+  # summarise(rand = sample_n(.,5))
+  
+  #mutate(rare_count =ifelse(sum_cum != 100, sample_n(sum_cum), ratio))
+```
+
+
+rowwise() is a stop-gap and not a great one.  This method doesn't work because of that but even if it did it's a brute force and sloppy.
+```{r}
+taxa_test.df <- taxa.df %>% 
+  group_by(unique_id) %>%
+  mutate(total_sum = sum(reporting_value)) %>%
+  mutate(ratio = 100*(reporting_value/total_sum)) %>%
+  mutate(ratio = ifelse(ratio >= 1, round(ratio), as.integer(ratio))) %>%
+  mutate(cumulative = ifelse(ratio >= 1, sum(ratio), 0)) %>%
+  mutate(sum_cum = ifelse(ratio >= 1, 100-cumulative, 100-(max(cumulative)))) %>%
+  mutate(count = n()) %>%
+  rowwise() %>%
+  mutate(rc_test =(ifelse(cumulative == 0, sample(0:1, 1, replace=TRUE), ratio))) %>%
+  ungroup()
+  
+taxa_test.df <- taxa_test.df %>%
+  mutate(rc_total = sum(rc_test)) %>%
+  while (rc_total != 100) {  
+    rowwise() %>%
+    lapply(mutate(rc_test =(ifelse(cumulative == 0, sample(0:1, 1, replace=TRUE), ratio)))) %>%
+    mutate(rc_total = sum(rc_test))
+    
+  }
+
+
+
+```
+
