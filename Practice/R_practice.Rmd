@@ -1251,7 +1251,6 @@ bay.sub <- bay.df %>%
 ```
 
 ```{r}
-<<<<<<< HEAD
 foo <- local({x <- 10
              y <- 200
              x +y})
@@ -1303,27 +1302,69 @@ df_test = df %>%
   rowwise() %>%
   mutate(pop=sample(0:1, 1, replace=TRUE))
 ```
-=======
+
+```{r}
+# library(dplyr)
+# library(readxl)
+# library(data.table)
+# library(tidyr)
+# 
+# project.dir <- rprojroot::find_rstudio_root_file()
+# 
+# event.df <- data.table::fread(file.path(project.dir, "data/phytoplankton2/VA_ODU_phyto_event.csv"
+#                                          ),
+#                             data.table = FALSE,
+#                             na.strings = "")
+# 
+# 
+# test.df <- lapply(1:nrow(event.df), function(row.i)) {
+#   
+# }
+
+```
+
+```{r}
 library(dplyr)
-library(readxl)
-library(data.table)
-library(tidyr)
 
-project.dir <- rprojroot::find_rstudio_root_file()
+count_var <-  97
 
-event.df <- data.table::fread(file.path(project.dir, "data/phytoplankton2/VA_ODU_phyto_event.csv"
-                                         ),
-                            data.table = FALSE,
-                            na.strings = "")
+id_df <- c(1,2,3,4,5)
+var_df <- c(0,0,0,0,0)
+my_var <-  c(97,97,97,97,97)
+#my_var <- c(100,100,100,100,100)
+value_df <- c(0,1,0,1,1)
+data.df <- data.frame(id_df,my_var, value_df)
 
 
-test.df <- lapply(1:nrow(event.df), function(row.i)) {
-  
+###########  this is it
+while((sum(subset(data.df$my_var,value_df !=0)) / as.numeric(nrow(subset(data.df,value_df >0))))<100){
+
+data.df <-data.df %>%
+mutate(my_var = case_when( my_var < 100 & value_df >0 ~my_var + 1, TRUE ~ my_var))
 }
+###########
+
+# rows <-  as.numeric(nrow(subset(data.df,value_df >0)))
+# total <- (sum(data.df$my_var) / nrow(data.df - as.numeric(nrow(subset(data.df,value_df >0)))))
+# 
+# # while((sum(data.df$my_var) / nrow(data.df - nrow(data.df$value.df==0))) <100) {
+# apple <- sum(subset(data.df$my_var,value_df !=0)) / as.numeric(nrow(subset(data.df,value_df >0)))# - as.numeric(sum(subset(data.df$my_var,value_df ==0))))
+# 
+# while((sum(subset(data.df$my_var,value_df !=0)) / as.numeric(nrow(subset(data.df,value_df >0))))<100){
+# 
+# data.df <-data.df %>%
+# mutate(my_var = case_when( my_var < 100 & value_df >0 ~my_var + 1, TRUE ~ my_var))
+# }
+#while((sum(data.df$my_var) / nrow(data.df - as.numeric(nrow(subset(data.df,value_df ==0))))) <100) {
+    # my_var <- my_var + 1
+    # print("one more time")
+    
+    # mutate(my_var = my_var + value_df, count_var <- countvar + case_when(value_df > 0~, TRUE <- 0))
+    
+
+
 
 ```
 
 
-
->>>>>>> 6f8e3cec0c1e7e030a630c30d4b543e4c755c83c
 
