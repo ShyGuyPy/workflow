@@ -1344,6 +1344,8 @@ mutate(my_var = case_when( my_var < 100 & value_df >0 ~my_var + 1, TRUE ~ my_var
 }
 ###########
 
+
+
 # rows <-  as.numeric(nrow(subset(data.df,value_df >0)))
 # total <- (sum(data.df$my_var) / nrow(data.df - as.numeric(nrow(subset(data.df,value_df >0)))))
 # 
@@ -1367,4 +1369,80 @@ mutate(my_var = case_when( my_var < 100 & value_df >0 ~my_var + 1, TRUE ~ my_var
 ```
 
 
+```{r}
+library(dplyr)
+library(ggplot2)
+
+project.dir <- rprojroot::find_rstudio_root_file()
+
+dir.create(file.path(project.dir, "data/"),
+           recursive = TRUE, showWarnings = FALSE)
+
+#fill in blank with dataframe name
+#data.table::fwrite(__________, file.path(project.dir, "data/", "SprBIBI.csv"))
+
+
+
+BIBI_plot.df <- data.table::fread(file.path(project.dir, 
+                                                 "data/SprBIBI.csv"),
+                            data.table = FALSE,
+                            #colClasses = col.class.vec,
+                            na.strings = "")
+
+BIBI_plot.df <- BIBI_plot.df %>%
+  mutate(SITE = as.character(SITE))
+
+
+
+plot_df <-BIBI_plot.df %>% group_by(LOCATION) %>%
+  do(
+    plots =ggplot(data = .) + aes(x = SITE, y = BIBI) +
+      geom_boxplot() + ggtitle(.$LOCATION)
+  )
+
+plot_df$plots
+
+###############################
+counter = 0
+for(item in plot_df$plots) {
+  counter = counter + 1
+  ggsave(filename = paste0("plot",counter), plot = p[[counter]], device= "pdf")
+  print(item)
+}
+##############################
+
+p <- plot_df$plots
+
+p[[1]]
+ggsave(filename = paste0("plot",counter), plot = p[[1]], device= "pdf")
+
+
+#myplot <- ggplot(mtcars, aes(wt, mpg)) + geom_point()
+# print(myplot)
+# dev.off()
+
+#pdf("plot_df", width = 10)
+
+# 
+# BIBI_plot.df <- BIBI_plot.df %>%
+#   group_by(LOCATION, SITE) %>%
+#   do(ggplot(data = BIBI_plot.df, aes(SITE,BIBI, group = LOCATION))) %>%
+#   ungroup()
+# 
+# ggplot(data = BIBI_plot.df, aes(SITE,BIBI, group = SITE, LOCATION))
+
+
+
+
+
+# 
+# require(reshape2)
+# 
+# df.m <- melt(plot_df, LOCATION = "Label")
+
+
+
+
+
+```
 
