@@ -161,20 +161,37 @@ taxa_test.df <- taxa.df %>%
   mutate(ratio = 100*(reporting_value/total_sum)) %>%
   mutate(ratio = ifelse(ratio >= 1, round(ratio), as.integer(ratio))) %>%
   mutate(cumulative = ifelse(ratio >= 1, sum(ratio), 0)) %>%
-  mutate(sum_cum = ifelse(ratio >= 1, 100-cumulative, 100-(max(cumulative)))) %>%
-  mutate(count = n()) %>%
-  rowwise() %>%
-  mutate(rc_test =(ifelse(cumulative == 0, sample(0:1, 1, replace=TRUE), ratio))) %>%
-  ungroup()
+  mutate(sum_cum = ifelse(ratio >= 1, 100-cumulative, 100-(max(cumulative)))) #%>%
+```
+
+
+```{r}
+taxa_while_test.df <- taxa_test.df
+
+while((sum(subset(taxa_while_test.df$cumulative,taxa_while_test.df$ratio <1)) / as.numeric(nrow(subset(taxa_while_test.df,taxa_while_test.df$ratio <1))))<100){
+
+taxa_while_test.df <- taxa_while_test.df %>%
+mutate(cumulative = case_when( cumulative < 100 & ratio <1 ~cumulative + 1, TRUE ~ cumulative))
+}
+```
+
+
+
+```{r}
   
-taxa_test.df <- taxa_test.df %>%
-  mutate(rc_total = sum(rc_test)) %>%
-  while (rc_total != 100) {  
-    rowwise() %>%
-    lapply(mutate(rc_test =(ifelse(cumulative == 0, sample(0:1, 1, replace=TRUE), ratio)))) %>%
-    mutate(rc_total = sum(rc_test))
-    
-  }
+#   mutate(count = n()) %>%
+#   rowwise() %>%
+#   mutate(rc_test =(ifelse(cumulative == 0, sample(0:1, 1, replace=TRUE), ratio))) %>%
+#   ungroup()
+#   
+# taxa_test.df <- taxa_test.df %>%
+#   mutate(rc_total = sum(rc_test)) %>%
+#   while (rc_total != 100) {  
+#     rowwise() %>%
+#     lapply(mutate(rc_test =(ifelse(cumulative == 0, sample(0:1, 1, replace=TRUE), ratio)))) %>%
+#     mutate(rc_total = sum(rc_test))
+#     
+#   }
 
 
 

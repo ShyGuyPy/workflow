@@ -1445,4 +1445,78 @@ ggsave(filename = paste0("plot",counter), plot = p[[1]], device= "pdf")
 
 
 ```
+this sis close to a working version but the random id(iva ave func snippet) is being assigned to values with cumulative above 1.  Don't want that.
+```{r}
+library(dplyr)
+
+
+id_df <- c(1,1,1,1,1,2,2,2,2,2)
+#var_df <- c(0,0,0,0,0)
+cumulative <-  c(66,32,0,0,0,50,48,0,0,0)
+#my_var <- c(100,100,100,100,100)
+track_order <- c(1:10)
+data.df <- data.frame(id_df,cumulative, track_order)
+
+
+data.df <- data.df %>%
+  group_by(id_df) %>%
+  mutate(cum_sum = sum(cumulative)) %>%
+  mutate(cum_minus_sum = 100-cumulative) %>%
+  
+  mutate(row_count = n()) %>%
+  
+  #generates a random id for each member of a grouping
+  mutate(g_id = ave(row_count, id_df, FUN=function(x) {sample.int(length(x))})) %>%
+  arrange(g_id) %>% #, .by_group = TRUE) %>%
+  mutate(value = case_when(g_id <= 100 -cum_sum & cumulative <1 ~1))
+
+
+
+```
+
+this is the ongoing attempt to fix the issue
+```{r}
+library(dplyr)
+
+#count_var <-  97
+
+id_df <- c(1,1,1,1,1,2,2,2,2,2)
+#var_df <- c(0,0,0,0,0)
+cumulative <-  c(66,32,0,0,0,50,48,0,0,0)
+#my_var <- c(100,100,100,100,100)
+track_order <- c(1:10)
+data.df <- data.frame(id_df,cumulative, track_order)
+
+
+data.df <- data.df %>%
+  group_by(id_df) %>%
+  mutate(cum_sum = sum(cumulative)) %>%
+  mutate(cum_minus_sum = 100-cumulative) %>%
+  
+  mutate(row_count = n()) %>%
+  
+  #generates a random id for each member of a grouping
+  mutate(ss_test =subset(data.df$cumulative, cumulative == 0))
+  #this part needs to apply unique ids to only the subset of the group in which cumulative  == 0, or apply
+  #the unique id in a way that differentiates between cum==0 and cum!=0 in a way that makes them iterable
+  mutate(g_id = ave(subset(data.df$cumulative, cumulative == 0) , id_df, FUN=function(x) {sample.int(length(x))})) %>%
+  arrange(g_id) %>% #, .by_group = TRUE) %>%
+  mutate(value = case_when(g_id <= 100 -cum_sum & cumulative <1 ~1))
+
+  
+  
+
+
+
+```
+```{r}
+taxa_test.df <- taxa.df %>% 
+  group_by(unique_id) %>%
+  mutate(total_sum = sum(reporting_value)) %>%
+  mutate(ratio = 100*(reporting_value/total_sum)) %>%
+  mutate(ratio = ifelse(ratio >= 1, round(ratio), as.integer(ratio))) %>%
+  mutate(cumulative = ifelse(ratio >= 1, sum(ratio), 0)) %>%
+  mutate(sum_cum = ifelse(ratio >= 1, 100-cumulative, 100-(max(cumulative)))) %>%
+  mutate(count = n()) %>%
+```
 
