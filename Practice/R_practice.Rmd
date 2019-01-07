@@ -1494,21 +1494,26 @@ data.df <- data.df %>%
   mutate(cum_minus_sum = 100-cumulative) %>%
   
   mutate(row_count = n()) %>%
-  
+  ungroup()
+
+data_subset.df <- data.df %>%
+  filter(cumulative == 0)
   #generates a random id for each member of a grouping
-  mutate(ss_test =subset(data.df$cumulative, cumulative == 0))
+  
+  #mutate(ss_test =subset(data.df$cumulative, cumulative == 0))
+  
   #this part needs to apply unique ids to only the subset of the group in which cumulative  == 0, or apply
   #the unique id in a way that differentiates between cum==0 and cum!=0 in a way that makes them iterable
-  mutate(g_id = ave(subset(data.df$cumulative, cumulative == 0) , id_df, FUN=function(x) {sample.int(length(x))})) %>%
+  mutate(g_id = ave(subset(data_subset.df$cumulative, cumulative == 0) , id_df, FUN=function(x) {sample.int(length(x))})) %>%
   arrange(g_id) %>% #, .by_group = TRUE) %>%
   mutate(value = case_when(g_id <= 100 -cum_sum & cumulative <1 ~1))
 
+data_final.df <- left_join(data.df, data_subset.df, by= "unique_id")
   
-  
-
-
+########
 
 ```
+
 ```{r}
 taxa_test.df <- taxa.df %>% 
   group_by(unique_id) %>%
