@@ -2,7 +2,12 @@
 title: "Chessie-bibi-notes"
 author: "Luke Vawter"
 date: "September 10, 2018"
-output: html_document
+output: 
+  html_document:
+    df_print: paged
+    toc: yes
+    toc_depth: '6'
+    toc_float: yes
 ---
 working with Rikke on chessie bibi
 
@@ -36,8 +41,8 @@ library(odbc) # For Windows 64-bit; see 1.2
 library(RODBC) # For Windows 32-bit; see 1.2
 library(DBI)
 library(magrittr)
-library(vegan)
 library(ggplot2)
+library(benthos)
 ```
 
 ```{r}
@@ -54,7 +59,7 @@ tab.vec <- c("TAB_EVENT",
 
  tab.list <- purrr::map(tab.vec, function(tab.i) {
   dbReadTable(channel, tab.i, stringsAsFactors = FALSE) %>% 
-    clean_df()
+    clean_data_frame()
 }) %>% 
   set_names(tolower(tab.vec))
 
@@ -170,275 +175,287 @@ non_rare <- prep.df2 %>%
 
 # If you had exported the rarefied data as a CSV above, read it in at this time using: read.csv("name_of_file.csv")
 rare <- taxa.df %>%
-   arrange(unique_id) %>%
-   ungroup()
+ arrange(unique_id) %>%
+ ungroup()
   
 # Create the metrics.key data frame.
- metrics.key <- non_rare %>%              
-  select(unique_id, icprb_bioregion_id, event_latitude, event_longitude, huc_12) %>%
-  unique() %>%
-  arrange(unique_id) 
+metrics.key <- non_rare %>%              
+ select(unique_id, icprb_bioregion_id, event_latitude, event_longitude, huc_12) %>%
+ unique() %>%
+ arrange(unique_id) 
 
-# Calculate the metrics. Use long.df to specify which data frame to use (non-rarefied or rarefied. First, the non-rarefied data will be used.)
-  metrics.key$aspt_mod <- taxa_tol_index( 
-  long.df = non_rare,
-  unique.id.col = unique_id,
-  count.col = reporting_value,
-  tol.col = aspt)
+## CALCULATE THE METRICS ##
+# Calculate how many individuals are in each unique_id (unique sampling event)
+sample_sum <- non_rare %>%
+ group_by(unique_id) %>%
+ summarise(sample_sum = sum(reporting_value)) 
+   
+# ASPT_mod  
+aspt_mod <- non_rare %>%
+ group_by(unique_id) %>%
+ filter(!is.na(bibi_tv)) %>%
+ summarise(aspt_mod = mean(bibi_tv))
+ metrics.key$aspt_mod <- aspt_mod$aspt_mod
+
+# pct_gastro_oligo 
+pct_gastro_oligo <- non_rare %>%
+ group_by(unique_id) %>%
+ filter(!is.na(class)) %>% 
+ summarise(sum = sum(reporting_value[class %in% c("gastropoda", "oligochatea")]))  
+ metrics.key$pct_gastro_oligo <- (pct_gastro_oligo$sum / sample_sum$sample_sum )*100
+
+# pct_diptera
+pct_diptera <- non_rare %>%
+ group_by(unique_id) %>%
+ filter(!is.na(order)) %>% 
+ summarise(sum = sum(reporting_value[order %in% c("diptera")]))  
+ metrics.key$pct_diptera <- (pct_diptera$sum / sample_sum$sample_sum)*100
+
+# GOLD  
+metrics.key$gold <- 100 - (metrics.key$pct_gastro_oligo + metrics.key$pct_diptera) 
+
+# HBI    
+hbi_multiplier <- non_rare %>%
+ group_by(unique_id) %>%
+ filter(!is.na(bibi_tv)) %>% 
+ summarise(multiplier = sum(reporting_value*bibi_tv)) 
+
+hbi_divisor <- non_rare %>%
+ group_by(unique_id) %>%
+ filter(!is.na(bibi_tv)) %>% 
+ summarise(divisor = sum(reporting_value))
+
+metrics.key$hbi <- hbi_multiplier$multiplier / hbi_divisor$divisor
+
+# pct_arthropoda      
+pct_arthropoda <- non_rare %>%
+ group_by(unique_id) %>%
+ filter(!is.na(phylum)) %>% 
+ summarise(sum = sum(reporting_value[phylum %in% c("arthropoda")]))  
+ metrics.key$pct_arthropoda <- (pct_arthropoda$sum / sample_sum$sample_sum )*100
+
+# pct_burrow    
+pct_burrow <- non_rare %>%
+ group_by(unique_id) %>%
+ filter(!is.na(habit)) %>% 
+ summarise(sum = sum(reporting_value[habit %in% c("burrow")]))  
+ metrics.key$pct_burrow <- (pct_burrow$sum / sample_sum$sample_sum )*100
+ 
+# pct_chironomidae   
+pct_chironomidae <- non_rare %>%
+ group_by(unique_id) %>%
+ filter(!is.na(family)) %>% 
+ summarise(sum = sum(reporting_value[family %in% c("chironomidae")]))  
+ metrics.key$pct_chironomidae <- (pct_chironomidae$sum / sample_sum$sample_sum )*100
+
+# pct_cling  
+pct_cling <- non_rare %>%
+ group_by(unique_id) %>%
+ filter(!is.na(habit)) %>% 
+ summarise(sum = sum(reporting_value[habit %in% c("cling")]))  
+ metrics.key$pct_cling <- (pct_cling$sum / sample_sum$sample_sum )*100  
+
+# pct_burrow
+pct_burrow <- non_rare %>%
+ group_by(unique_id) %>%
+ filter(!is.na(habit)) %>% 
+ summarise(sum = sum(reporting_value[habit %in% c("burrow")]))  
+ metrics.key$pct_burrow <- (pct_burrow$sum / sample_sum$sample_sum )*100  
+
+#pct_collect 
+pct_collect <- non_rare %>%
+ group_by(unique_id) %>%
+ filter(!is.na(ffg)) %>% 
+ summarise(sum = sum(reporting_value[ffg %in% c("filter", "gather")]))  
+ metrics.key$pct_collect <- (pct_collect$sum / sample_sum$sample_sum )*100    
+
+# pct_cote    
+pct_cote <- non_rare %>%
+ group_by(unique_id) %>%
+ filter(!is.na(order)) %>% 
+ summarise(sum = sum(reporting_value[order %in% c("coleoptera", "trichoptera", "ephemeroptera", "odonata")]))  
+ metrics.key$pct_cote <- (pct_cote$sum / sample_sum$sample_sum )*100
+
+# pct_ephemeroptera    
+pct_ephemeroptera <- non_rare %>%
+ group_by(unique_id) %>%
+ filter(!is.na(order)) %>% 
+ summarise(sum = sum(reporting_value[order %in% c("ephemeroptera")]))  
+ metrics.key$pct_ephemeroptera <- (pct_ephemeroptera$sum / sample_sum$sample_sum )*100
+
+# pct_baetidae    
+pct_baetidae <- non_rare %>%
+ group_by(unique_id) %>%
+ filter(!is.na(family)) %>% 
+ summarise(sum = sum(reporting_value[family %in% c("baetidae")]))  
+ metrics.key$pct_baetidae <- (pct_baetidae$sum / sample_sum$sample_sum )*100
+ 
+# pct_ephemeroptera_no_baetid       
+metrics.key$pct_ephemeroptera_no_baetid <- metrics.key$pct_ephemeroptera - metrics.key$pct_baetidae
+
+# pct_ept  
+pct_ept <- non_rare %>%
+ group_by(unique_id) %>%
+ filter(!is.na(order)) %>% 
+ summarise(sum = sum(reporting_value[order %in% c("ephemeroptera", "plecoptera", "trichoptera")]))  
+ metrics.key$pct_ept <- (pct_ept$sum / sample_sum$sample_sum )*100
   
-  metrics.key$pct_gastro_oligo <- taxa_pct(
-  long.df = non_rare,
-  unique.id.col = unique_id,
-  count.col = reporting_value,
-  taxon.col = class,
-  taxon = c("gastropoda", "oligochatea"))
+# pct_hydropsychidae    
+pct_hydropsychidae <- non_rare %>%
+ group_by(unique_id) %>%
+ filter(!is.na(family)) %>% 
+ summarise(sum = sum(reporting_value[family %in% c("hydropsychidae")]))  
+ metrics.key$pct_hydropsychidae <- (pct_hydropsychidae$sum / sample_sum$sample_sum )*100
+
+# pct_ept_no_hydro    
+metrics.key$pct_ept_no_hydro <- metrics.key$pct_ept - metrics.key$pct_hydropsychidae
+
+# pct_euholognatha  
+pct_euholognatha <- non_rare %>%
+ group_by(unique_id) %>%
+ filter(!is.na(suborder)) %>% 
+ summarise(sum = sum(reporting_value[suborder %in% c("euholognatha")]))  
+ metrics.key$pct_euholognatha <- (pct_euholognatha$sum / sample_sum$sample_sum )*100
   
-  metrics.key$pct_diptera <- taxa_pct(
-  long.df = non_rare,
-  unique.id.col = unique_id,
-  count.col = reporting_value,
-  taxon.col = order,
-  taxon = "diptera")
+# pct_filter    
+pct_filter <- non_rare %>%
+ group_by(unique_id) %>%
+ filter(!is.na(ffg)) %>% 
+ summarise(sum = sum(reporting_value[ffg %in% c("filter")]))  
+ metrics.key$pct_filter <- (pct_filter$sum / sample_sum$sample_sum )*100
+
+# pct_heptageniidae    
+pct_heptageniidae <- non_rare %>%
+ group_by(unique_id) %>%
+ filter(!is.na(family)) %>% 
+ summarise(sum = sum(reporting_value[family %in% c("heptageniidae")]))  
+ metrics.key$pct_heptageniidae <- (pct_heptageniidae$sum / sample_sum$sample_sum )*100
+
+# pct_hexapoda    
+pct_hexapoda <- non_rare %>%
+ group_by(unique_id) %>%
+ filter(!is.na(subphylum)) %>% 
+ summarise(sum = sum(reporting_value[subphylum %in% c("hexapoda")]))  
+ metrics.key$pct_hexapoda <- (pct_hexapoda$sum / sample_sum$sample_sum )*100
+
+# pct_hydro_ept    
+metrics.key$pct_hydro_ept <- ifelse(metrics.key$pct_ept == 0, 0, (metrics.key$pct_hydropsychidae / metrics.key$pct_ept) * 100)
+
+# pct_intol_0_3    
+pct_intol_0_3 <- non_rare %>%
+ group_by(unique_id) %>%
+ filter(!is.na(bibi_tv)) %>% 
+ summarise(sum = sum(reporting_value[bibi_tv %in% c("0", "1", "2", "3")]))  
+ metrics.key$pct_intol_0_3 <- (pct_intol_0_3$sum / sample_sum$sample_sum )*100
   
-  metrics.key$gold <- 100 - (metrics.key$pct_gastro_oligo + metrics.key$pct_diptera) 
+# pct_intol_0_4   
+pct_intol_0_4 <- non_rare %>%
+ group_by(unique_id) %>%
+ filter(!is.na(bibi_tv)) %>% 
+ summarise(sum = sum(reporting_value[bibi_tv %in% c("0", "1", "2", "3", "4")]))  
+ metrics.key$pct_intol_0_4 <- (pct_intol_0_4$sum / sample_sum$sample_sum )*100
+
+# pct_amph_iso  
+pct_amph_iso <- non_rare %>%
+ group_by(unique_id) %>%
+ filter(!is.na(order)) %>% 
+ summarise(sum = sum(reporting_value[order %in% c("amphipoda", "isopoda")]))  
+ metrics.key$pct_amph_iso <- (pct_amph_iso$sum / sample_sum$sample_sum )*100  
+
+# pct_ephemerellidae  
+pct_ephemerellidae <- non_rare %>%
+ group_by(unique_id) %>%
+ filter(!is.na(family)) %>% 
+ summarise(sum = sum(reporting_value[family %in% c("ephemerellidae")]))  
+ metrics.key$pct_ephemerellidae <- (pct_ephemerellidae$sum / sample_sum$sample_sum )*100  
+
+# pct_limestone    
+metrics.key$pct_limestone <- metrics.key$pct_amph_iso + metrics.key$pct_ephemerellidae
+
+# pct_mod_tol_4_6 
+pct_mod_tol_4_6 <- non_rare %>%
+ group_by(unique_id) %>%
+ filter(!is.na(bibi_tv)) %>% 
+ summarise(sum = sum(reporting_value[bibi_tv %in% c("4", "5", "6")]))  
+ metrics.key$pct_mod_tol_4_6 <- (pct_mod_tol_4_6$sum / sample_sum$sample_sum )*100  
+
+# pct_trichoptera    
+pct_trichoptera <- non_rare %>%
+ group_by(unique_id) %>%
+ filter(!is.na(order)) %>% 
+ summarise(sum = sum(reporting_value[order %in% c("trichoptera")]))  
+ metrics.key$pct_trichoptera <- (pct_trichoptera$sum / sample_sum$sample_sum )*100  
+
+# pct_non_hydrop_trichoptera  
+metrics.key$pct_non_hydrop_trichoptera <- metrics.key$pct_trichoptera - metrics.key$pct_hydropsychidae
+
+# pct_odonata  
+pct_odonata <- non_rare %>%
+ group_by(unique_id) %>%
+ filter(!is.na(order)) %>% 
+ summarise(sum = sum(reporting_value[order %in% c("odonata")]))  
+ metrics.key$pct_odonata <- (pct_odonata$sum / sample_sum$sample_sum )*100  
   
-  metrics.key$hbi <- taxa_tol_index(
-  long.df = non_rare,
-  unique.id.col = unique_id,
-  count.col = reporting_value,
-  tol.col = bibi_tv)
+# pct_pisciforma  
+pct_pisciforma <- non_rare %>%
+ group_by(unique_id) %>%
+ filter(!is.na(suborder)) %>% 
+ summarise(sum = sum(reporting_value[suborder %in% c("pisciforma")]))  
+ metrics.key$pct_pisciforma <- (pct_pisciforma$sum / sample_sum$sample_sum )*100  
+
+# pct_predator  
+pct_predator <- non_rare %>%
+ group_by(unique_id) %>%
+ filter(!is.na(ffg)) %>% 
+ summarise(sum = sum(reporting_value[ffg %in% c("predator")]))  
+ metrics.key$pct_predator <- (pct_predator$sum / sample_sum$sample_sum )*100  
   
-  metrics.key$pct_arthropoda <- taxa_pct(
-  long.df = non_rare,
-  unique.id.col = unique_id,
-  count.col = reporting_value,
-  taxon.col = phylum,
-  taxon = "arthropoda") 
-  
-  metrics.key$pct_burrow <- taxa_pct(
-  long.df = non_rare,
-  unique.id.col = unique_id,
-  count.col = reporting_value,
-  taxon.col = habit, 
-  taxon = "burrow")
+# pct_pterygota  
+pct_pterygota <- non_rare %>%
+ group_by(unique_id) %>%
+ filter(!is.na(subclass)) %>% 
+ summarise(sum = sum(reporting_value[subclass %in% c("pterygota")]))  
+ metrics.key$pct_pterygota <- (pct_pterygota$sum / sample_sum$sample_sum )*100 
 
-  metrics.key$pct_chironomidae <- taxa_pct(
-  long.df = non_rare,
-  unique.id.col = unique_id,
-  count.col = reporting_value,
-  taxon.col = family,
-  taxon = "chironomidae")
+# pct_retreat_caddisfly  
+pct_retreat_caddisfly <- non_rare %>%
+ group_by(unique_id) %>%
+ filter(!is.na(suborder)) %>% 
+ summarise(sum = sum(reporting_value[suborder %in% c("annulipalpia")]))  
+ metrics.key$pct_retreat_caddisfly <- (pct_retreat_caddisfly$sum / sample_sum$sample_sum )*100 
 
-  metrics.key$pct_cling <- taxa_pct(
-  long.df = non_rare,
-  unique.id.col = unique_id,
-  count.col = reporting_value,
-  taxon.col = habit,
-  taxon = "cling")  
+# pct_scrape   
+pct_scrape <- non_rare %>%
+ group_by(unique_id) %>%
+ filter(!is.na(ffg)) %>% 
+ summarise(sum = sum(reporting_value[ffg %in% c("scrape")]))  
+ metrics.key$pct_scrape <- (pct_scrape$sum / sample_sum$sample_sum )*100 
+   
+# pct_sprawl   
+pct_sprawl <- non_rare %>%
+ group_by(unique_id) %>%
+ filter(!is.na(habit)) %>% 
+ summarise(sum = sum(reporting_value[habit %in% c("sprawl")]))  
+ metrics.key$pct_sprawl <- (pct_sprawl$sum / sample_sum$sample_sum )*100 
 
-  metrics.key$pct_burrow <- taxa_pct(
-  long.df = non_rare,
-  unique.id.col = unique_id,
-  count.col = reporting_value,
-  taxon.col = habit,
-  taxon = "burrow") 
+# pct_systellognatha   
+pct_systellognatha <- non_rare %>%
+ group_by(unique_id) %>%
+ filter(!is.na(suborder)) %>% 
+ summarise(sum = sum(reporting_value[suborder %in% c("systellognatha")]))  
+ metrics.key$pct_systellognatha <- (pct_systellognatha$sum / sample_sum$sample_sum )*100 
 
-  metrics.key$pct_collect <- taxa_pct(
-  long.df = non_rare,
-  unique.id.col = unique_id,
-  count.col = reporting_value,
-  taxon.col = ffg,
-  taxon = c("filter", "gather"))
-
-  metrics.key$pct_cote <- taxa_pct(
-  long.df = non_rare,
-  unique.id.col = unique_id,
-  count.col = reporting_value,
-  taxon.col = order,
-  taxon = c("coleoptera",
-            "odonata",
-            "trichoptera",
-            "ephemeroptera"))
-
-  metrics.key$pct_ephemeroptera <- taxa_pct(
-  long.df = non_rare,
-  unique.id.col = unique_id,
-  count.col = reporting_value,
-  taxon.col = order,
-  taxon = "ephemeroptera")
-
-  metrics.key$pct_baetidae <- taxa_pct(
-  long.df = non_rare,
-  unique.id.col = unique_id,
-  count.col = reporting_value,
-  taxon.col = family,
-  taxon = "baetidae")
-
-  metrics.key$pct_ephemeroptera_no_baetid <- metrics.key$pct_ephemeroptera - metrics.key$pct_baetidae
-
-  metrics.key$pct_ept <- taxa_pct(
-  long.df = non_rare,
-  unique.id.col = unique_id,
-  count.col = reporting_value,
-  taxon.col = order,
-  taxon = c("ephemeroptera",
-            "plecoptera",
-            "trichoptera"))
-
-  metrics.key$pct_hydropsychidae <- taxa_pct(
-  long.df = non_rare,
-  unique.id.col = unique_id,
-  count.col = reporting_value,
-  taxon.col = family,
-  taxon = "hydropsychidae")
-
-  metrics.key$pct_ept_no_hydro <- metrics.key$pct_ept - metrics.key$pct_hydropsychidae
-
-  metrics.key$pct_euholognatha <- taxa_pct(
-  long.df = non_rare,
-  unique.id.col = unique_id,
-  count.col = reporting_value,
-  taxon.col = suborder,
-  taxon = "euholognatha")
-
-  metrics.key$pct_filter <- taxa_pct(
-  long.df = non_rare,
-  unique.id.col = unique_id,
-  count.col = reporting_value,
-  taxon.col = ffg,
-  taxon = "filter")  
-
-  metrics.key$pct_heptageniidae <- taxa_pct(
-  long.df = non_rare,
-  unique.id.col = unique_id,
-  count.col = reporting_value,
-  taxon.col = family,
-  taxon = "heptageniidae")
-
-  metrics.key$pct_hexapoda <- taxa_pct(
-  long.df = non_rare,
-  unique.id.col = unique_id,
-  count.col = reporting_value,
-  taxon.col = subphylum,
-  taxon = "hexapoda")
-
-  metrics.key$pct_hydro_ept <- ifelse(metrics.key$pct_ept == 0, 0, (metrics.key$pct_hydropsychidae / metrics.key$pct_ept) * 100)
-  
-  metrics.key$pct_intol_0_3 <- taxa_pct(
-  long.df = non_rare,
-  unique.id.col = unique_id,
-  count.col = reporting_value,
-  taxon.col = bibi_tv,
-  taxon = 0:3)
-
-  metrics.key$pct_intol_0_4 <- taxa_pct(
-  long.df = non_rare,
-  unique.id.col = unique_id,
-  count.col = reporting_value,
-  taxon.col = bibi_tv,
-  taxon = 0:4)
-
-  metrics.key$pct_amph_iso <- taxa_pct(
-  long.df = non_rare,
-  unique.id.col = unique_id,
-  count.col = reporting_value,
-  taxon.col = order,
-  taxon = c("amphipoda", "isopoda"))
-
-  metrics.key$pct_ephemerellidae <- taxa_pct(
-  long.df = non_rare,
-  unique.id.col = unique_id,
-  count.col = reporting_value,
-  taxon.col = family,
-  taxon = "ephemerellidae")
-
-  metrics.key$pct_limestone <- metrics.key$pct_amph_iso + metrics.key$pct_ephemerellidae
-
-  metrics.key$pct_mod_tol_4_6 <- taxa_pct(
-  long.df = non_rare,
-  unique.id.col = unique_id,
-  count.col = reporting_value,
-  taxon.col = bibi_tv,
-  taxon = 4:6)
-
-  metrics.key$pct_trichoptera <- taxa_pct(
-  long.df = non_rare,
-  unique.id.col = unique_id,
-  count.col = reporting_value,
-  taxon.col = order,
-  taxon = "trichoptera")
-
-  metrics.key$pct_non_hydrop_trichoptera <- metrics.key$pct_trichoptera - metrics.key$pct_hydropsychidae
-
-  metrics.key$pct_odonata <- taxa_pct(
-  long.df = non_rare,
-  unique.id.col = unique_id,
-  count.col = reporting_value,
-  taxon.col = order,
-  taxon = "odonata")
-
-  metrics.key$pct_pisciforma <- taxa_pct(
-  long.df = non_rare,
-  unique.id.col = unique_id,
-  count.col = reporting_value,
-  taxon.col = suborder,
-  taxon = "pisciforma")
-
-  metrics.key$pct_predator <- taxa_pct(
-  long.df = non_rare,
-  unique.id.col = unique_id,
-  count.col = reporting_value,
-  taxon.col = ffg,
-  taxon = "predator") 
-
-  metrics.key$pct_pterygota <- taxa_pct(
-  long.df = non_rare,
-  unique.id.col = unique_id,
-  count.col = reporting_value,
-  taxon.col = subclass,
-  taxon = "pterygota")
-
-  metrics.key$pct_retreat_caddisfly <- taxa_pct(
-  long.df = non_rare,
-  unique.id.col = unique_id,
-  count.col = reporting_value,
-  taxon.col = suborder,
-  taxon = "annulipalpia")
-
-  metrics.key$pct_scrape = taxa_pct(
-  long.df = non_rare,
-  unique.id.col = unique_id,
-  count.col = reporting_value,
-  taxon.col = ffg,
-  taxon = "scrape") 
-
-  metrics.key$pct_sprawl <- taxa_pct(
-  long.df = non_rare,
-  unique.id.col = unique_id,
-  count.col = reporting_value,
-  taxon.col = habit,
-  taxon = "sprawl")  
-
-  metrics.key$pct_systellognatha <- taxa_pct(
-  long.df = non_rare,
-  unique.id.col = unique_id,
-  count.col = reporting_value,
-  taxon.col = suborder,
-  taxon = "systellognatha")
-
-  metrics.key$pct_tolerant_7_10 <- taxa_pct(
-  long.df = non_rare,
-  unique.id.col = unique_id,
-  count.col = reporting_value,
-  taxon.col = bibi_tv,
-  taxon = 7:10)
-
-  metrics.key$pct_urban_intol <- taxa_pct(
-  long.df = non_rare,
-  unique.id.col = unique_id,
-  count.col = reporting_value,
-  taxon.col = family,
-  taxon = c(
+# pct_tolerant_7_10   
+pct_tolerant_7_10 <- non_rare %>%
+ group_by(unique_id) %>%
+ filter(!is.na(bibi_tv)) %>% 
+ summarise(sum = sum(reporting_value[bibi_tv %in% c("7", "8", "9", "10")]))  
+ metrics.key$pct_tolerant_7_10 <- (pct_tolerant_7_10$sum / sample_sum$sample_sum )*100 
+# pct_urban_intol   
+pct_urban_intol <- non_rare %>%
+ group_by(unique_id) %>%
+ filter(!is.na(family)) %>% 
+ summarise(sum = sum(reporting_value[family %in% c(
     "aeshnidae",
     "ameletidae",
     "asellidae",
@@ -491,155 +508,1650 @@ rare <- taxa.df %>%
     "taeniopterygidae",
     "tipulidae",
     "uenoidae",
-    "viviparidae"))
+    "viviparidae")]))  
+  metrics.key$pct_urban_intol <- (pct_urban_intol$sum / sample_sum$sample_sum )*100 
+
+# Richness/Diversity metrics require rarefied data
+# Calculate family-level taxa richness for each unique_id
+family_richness <- rare %>%
+ group_by(unique_id) %>%
+ summarise(family_richness = n_distinct(family)) 
+
+# Margalefs
+margalefs_numerator <- family_richness %>%
+ mutate(family_richness = family_richness - 1)
+
+margalefs_denominator <- rare %>%
+ group_by(unique_id) %>%
+ summarise(sample_sum = log(sum(rare_count)))
+
+metrics.key$margalefs <- margalefs_numerator$family_richness / margalefs_denominator$sample_sum
+
+# pct_ept_rich
+pct_ept_rich <- rare %>%
+ group_by(unique_id) %>%
+ filter(!is.na(order)) %>%
+ filter(!is.na(bibi_tv)) %>%
+ filter(order %in% c("ephemeroptera", "plecoptera", "trichoptera")) %>%
+ summarise(rich_ept = n_distinct(family))
+ pct_ept_rich2 <- merge(pct_ept_rich, family_richness, by= "unique_id", all=TRUE)
+ pct_ept_rich2[is.na(pct_ept_rich2)] <- 0
+ metrics.key$pct_ept_rich <- (pct_ept_rich2$rich_ept / pct_ept_rich2$family_richness)*100
+    
+# pct_ept_rich_no_tol    
+pct_ept_rich_no_tol <- rare %>%
+ group_by(unique_id) %>%
+ filter(!is.na(order)) %>%
+ filter(!is.na(bibi_tv)) %>%
+ filter(order %in% c("ephemeroptera", "plecoptera", "trichoptera")) %>%
+ filter(bibi_tv %in% c("0","1","2","3","4","5","6")) %>%
+ summarise(rich_ept_no_tol = n_distinct(family))
+ pct_ept_rich_no_tol2 <- merge(pct_ept_rich_no_tol, family_richness, by= "unique_id", all=TRUE)
+ pct_ept_rich_no_tol2[is.na(pct_ept_rich_no_tol2)] <- 0
+ metrics.key$pct_ept_rich_no_tol <- (pct_ept_rich_no_tol2$rich_ept_no_tol / pct_ept_rich_no_tol2$family_richness)*100  
+
+# Pielou
+pielou_shannon <- rare %>%
+ group_by(unique_id) %>%
+ summarise(shannon = shannon(taxon = family, count= rare_count))
+
+pielou_taxa_rich <- family_richness %>%
+ mutate(family_richness = log(family_richness))
+
+metrics.key$pielou <- pielou_shannon$shannon / pielou_taxa_rich$family_richness
   
-# Richness/Diversity metrics require rarefied data, so switch the long.df from non_rare to rare.
+# rich_burrow  
+rich_burrow <- rare  %>%
+ group_by(unique_id) %>%
+ filter(!is.na(habit)) %>%
+ filter(habit %in% c("burrow")) %>%
+ summarise(rich_burrow = n_distinct(family)) %>%
+ select(unique_id, rich_burrow) 
+ metrics.key <- merge(metrics.key, rich_burrow, by="unique_id", all=TRUE)
+ metrics.key$rich_burrow[is.na(metrics.key$rich_burrow)] <- 0
   
-  metrics.key$margalefs = taxa_div(
-  long.df = rare,
-  unique.id.col = unique_id,
-  count.col = rare_count, 
-  high.taxa.col = family,
-  job = "margalef")
+# rich_climb
+rich_climb <- rare  %>%
+ group_by(unique_id) %>%
+ filter(!is.na(habit)) %>%
+ filter(habit %in% c("climb")) %>%
+ summarise(rich_climb = n_distinct(family)) %>%
+ select(unique_id, rich_climb) 
+ metrics.key <- merge(metrics.key, rich_climb, by="unique_id", all=TRUE)
+ metrics.key$rich_climb[is.na(metrics.key$rich_climb)] <- 0
   
-  taxa_count <- rare %>%
-    group_by(unique_id) %>%
-     filter(!is.na(bibi_tv)) %>%
-      count(unique_id) 
-    ept_count <- rare %>%
-      group_by(unique_id) %>%
-       filter(!is.na(bibi_tv)) %>% 
-        tally(order %in% c("ephemeroptera", "plecoptera", "trichoptera"))
-    metrics.key$pct_ept_rich <- (ept_count$n / taxa_count$n)*100
+# rich_cling 
+rich_cling <- rare  %>%
+ group_by(unique_id) %>%
+ filter(!is.na(habit)) %>%
+ filter(habit %in% c("cling")) %>%
+ summarise(rich_cling = n_distinct(family)) %>%
+ select(unique_id, rich_cling) 
+ metrics.key <- merge(metrics.key, rich_cling, by="unique_id", all=TRUE)
+ metrics.key$rich_cling[is.na(metrics.key$rich_cling)] <- 0
+ 
+# rich_collect_filter    
+rich_collect_filter <- rare  %>%
+ group_by(unique_id) %>%
+ filter(!is.na(ffg)) %>%
+ filter(ffg %in% c("filter")) %>%
+ summarise(rich_collect_filter = n_distinct(family)) %>%
+ select(unique_id, rich_collect_filter)
+ 
+rich_collect_gather <- rare  %>%
+ group_by(unique_id) %>%
+ filter(!is.na(ffg)) %>%
+ filter(ffg %in% c("gather")) %>%
+ summarise(rich_collect_gather = n_distinct(family)) %>%
+ select(unique_id, rich_collect_gather)
+ rich_collect <- merge(rich_collect_filter, rich_collect_gather, by = "unique_id", all=TRUE)
+ rich_collect[is.na(rich_collect)] <- 0  
+ rich_collect$rich_collect <- rich_collect$rich_collect_filter + rich_collect$rich_collect_gather
+ rich_collect$rich_collect_gather <- NULL
+ rich_collect$rich_collect_filter <- NULL
+ metrics.key <- merge(metrics.key, rich_collect, by = "unique_id", all=TRUE)
+   
+# rich_ephemeroptera     
+rich_ephemeroptera <- rare  %>%
+ group_by(unique_id) %>%
+ filter(!is.na(order)) %>%
+ filter(order %in% c("ephemeroptera")) %>%
+ summarise(rich_ephemeroptera = n_distinct(family)) %>%
+ select(unique_id, rich_ephemeroptera) 
+ metrics.key <- merge(metrics.key, rich_ephemeroptera, by = "unique_id", all=TRUE)
+ metrics.key[is.na(metrics.key)] <- 0
+     
+# rich_ept    
+rich_ept <- rare  %>%
+ group_by(unique_id) %>%
+ filter(!is.na(order)) %>%
+ filter(order %in% c("ephemeroptera", "plecoptera", "trichoptera")) %>%
+ summarise(rich_ept = n_distinct(family)) %>%
+ select(unique_id, rich_ept) 
+ metrics.key <- merge(metrics.key, rich_ept, by = "unique_id", all=TRUE)
+ metrics.key[is.na(metrics.key)] <- 0   
+ 
+# rich_filter    
+rich_filter <- rare  %>%
+ group_by(unique_id) %>%
+ filter(!is.na(ffg)) %>%
+ filter(ffg %in% c("filter")) %>%
+ summarise(rich_filter = n_distinct(family)) %>%
+ select(unique_id, rich_filter) 
+ metrics.key <- merge(metrics.key, rich_filter, by = "unique_id", all=TRUE)
+ metrics.key[is.na(metrics.key)] <- 0   
+
+# rich_gather    
+rich_gather <- rare  %>%
+ group_by(unique_id) %>%
+ filter(!is.na(ffg)) %>%
+ filter(ffg %in% c("gather")) %>%
+ summarise(rich_gather = n_distinct(family)) %>%
+ select(unique_id, rich_gather) 
+ metrics.key <- merge(metrics.key, rich_gather, by = "unique_id", all=TRUE)
+ metrics.key[is.na(metrics.key)] <- 0   
+
+# rich_intol 
+rich_intol0 <- rare  %>%
+ group_by(unique_id) %>%
+ filter(!is.na(bibi_tv)) %>%
+ filter(bibi_tv %in% c("0")) %>%
+ summarise(rich_intol0 = n_distinct(family)) %>%
+ select(unique_id, rich_intol0)
+
+rich_intol1 <- rare  %>%
+ group_by(unique_id) %>%
+ filter(!is.na(bibi_tv)) %>%
+ filter(bibi_tv %in% c("1")) %>%
+ summarise(rich_intol1 = n_distinct(family)) %>%
+ select(unique_id, rich_intol1)
+
+rich_intol2 <- rare  %>%
+ group_by(unique_id) %>%
+ filter(!is.na(bibi_tv)) %>%
+ filter(bibi_tv %in% c("2")) %>%
+ summarise(rich_intol2 = n_distinct(family)) %>%
+ select(unique_id, rich_intol2)
+
+rich_intol3 <- rare  %>%
+ group_by(unique_id) %>%
+ filter(!is.na(bibi_tv)) %>%
+ filter(bibi_tv %in% c("3")) %>%
+ summarise(rich_intol3 = n_distinct(family)) %>%
+ select(unique_id, rich_intol3)
+ rich_intol01 <- merge(rich_intol0, rich_intol1, by= "unique_id", all=TRUE)
+ rich_intol01[is.na(rich_intol01)] <- 0
+ rich_intol012 <- merge(rich_intol01, rich_intol2, by= "unique_id", all=TRUE)
+ rich_intol012[is.na(rich_intol012)] <- 0
+ rich_intol0123 <- merge(rich_intol012, rich_intol3, by= "unique_id", all=TRUE)
+ rich_intol0123[is.na(rich_intol0123)] <- 0
+ rich_intol0123$rich_intol <- rich_intol0123$rich_intol0 + rich_intol0123$rich_intol1 + rich_intol0123$rich_intol2 + rich_intol0123$rich_intol3
+ 
+rich_intol0123 <- rich_intol0123 %>%
+ select(unique_id, rich_intol)
+ metrics.key <- merge(metrics.key, rich_intol0123, by = "unique_id", all=TRUE)
+ metrics.key[is.na(metrics.key)] <- 0   
+
+# rich_modtol  
+rich_modtol4 <- rare  %>%
+ group_by(unique_id) %>%
+ filter(!is.na(bibi_tv)) %>%
+ filter(bibi_tv %in% c("4")) %>%
+ summarise(rich_modtol4 = n_distinct(family)) %>%
+ select(unique_id, rich_modtol4)
+
+rich_modtol5 <- rare  %>%
+ group_by(unique_id) %>%
+ filter(!is.na(bibi_tv)) %>%
+ filter(bibi_tv %in% c("5")) %>%
+ summarise(rich_modtol5 = n_distinct(family)) %>%
+ select(unique_id, rich_modtol5)
+
+rich_modtol6 <- rare  %>%
+ group_by(unique_id) %>%
+ filter(!is.na(bibi_tv)) %>%
+ filter(bibi_tv %in% c("6")) %>%
+ summarise(rich_modtol6 = n_distinct(family)) %>%
+ select(unique_id, rich_modtol6)
+ rich_modtol45 <- merge(rich_modtol4, rich_modtol5, by= "unique_id", all=TRUE)
+ rich_modtol45[is.na(rich_modtol45)] <- 0
+ rich_modtol456 <- merge(rich_modtol45, rich_modtol6, by= "unique_id", all=TRUE)
+ rich_modtol456[is.na(rich_modtol456)] <- 0
+ rich_modtol456$rich_modtol <- rich_modtol456$rich_modtol4 + rich_modtol456$rich_modtol5 + rich_modtol456$rich_modtol6
+ 
+ rich_modtol456 <- rich_modtol456 %>%
+ select(unique_id, rich_modtol)
+ metrics.key <- merge(metrics.key, rich_modtol456, by = "unique_id", all=TRUE)
+ metrics.key[is.na(metrics.key)] <- 0  
   
-  ept_no_tol_count <- rare %>%
-    group_by(unique_id) %>%
-     filter(!is.na(bibi_tv)) %>% 
-      tally(order %in% c("ephemeroptera", "plecoptera", "trichoptera") & bibi_tv %in% c("0","1","2","3","4","5","6"))
-    metrics.key$pct_ept_rich_no_tol <- (ept_no_tol_count$n/taxa_count$n)*100
-  
-  metrics.key$pielou <- taxa_div(
-  long.df = rare,
-  unique.id.col = unique_id,
-  count.col = rare_count, 
-  high.taxa.col = family,
-  job = "pielou")
-  
-  metrics.key$rich_burrow <- taxa_rich(
-  long.df = rare,
-  unique.id.col = unique_id,
-  count.col = rare_count,
-  low.res.taxa.col = habit,
-  high.res.taxa.col = family,
-  taxon.col = "burrow")  
+# rich_plecoptera  
+rich_plecoptera <- rare  %>%
+ group_by(unique_id) %>%
+ filter(!is.na(order)) %>%
+ filter(order %in% c("plecoptera")) %>%
+ summarise(rich_plecoptera = n_distinct(family)) %>%
+ select(unique_id, rich_plecoptera) 
+ metrics.key <- merge(metrics.key, rich_plecoptera, by = "unique_id", all=TRUE)
+ metrics.key[is.na(metrics.key)] <- 0  
 
-  metrics.key$rich_climb <- taxa_rich(
-  long.df = rare,
-  unique.id.col = unique_id,
-  low.taxa.col = habit,
-  high.taxa.col = family,
-  taxon = "climb")  
+# rich_predator    
+rich_predator <- rare  %>%
+ group_by(unique_id) %>%
+ filter(!is.na(ffg)) %>%
+ filter(ffg %in% c("predator")) %>%
+ summarise(rich_predator = n_distinct(family)) %>%
+ select(unique_id, rich_predator) 
+ metrics.key <- merge(metrics.key, rich_predator, by = "unique_id", all=TRUE)
+ metrics.key[is.na(metrics.key)] <- 0 
+ 
+# rich_shred    
+rich_shred <- rare  %>%
+ group_by(unique_id) %>%
+ filter(!is.na(ffg)) %>%
+ filter(ffg %in% c("shred")) %>%
+ summarise(rich_shred = n_distinct(family)) %>%
+ select(unique_id, rich_shred) 
+ metrics.key <- merge(metrics.key, rich_shred, by = "unique_id", all=TRUE)
+ metrics.key[is.na(metrics.key)] <- 0 
 
-  metrics.key$rich_cling <- taxa_rich(
-  long.df = rare,
-  unique.id.col = unique_id,
-  low.taxa.col = habit,
-  high.taxa.col = family,
-  taxon = "cling")  
+# rich_sprawl    
+rich_sprawl <- rare  %>%
+ group_by(unique_id) %>%
+ filter(!is.na(habit)) %>%
+ filter(habit %in% c("sprawl")) %>%
+ summarise(rich_sprawl = n_distinct(family)) %>%
+ select(unique_id, rich_sprawl) 
+ metrics.key <- merge(metrics.key, rich_sprawl, by = "unique_id", all=TRUE)
+ metrics.key[is.na(metrics.key)] <- 0 
+    
+# rich_tol    
+rich_tol7 <- rare  %>%
+ group_by(unique_id) %>%
+ filter(!is.na(bibi_tv)) %>%
+ filter(bibi_tv %in% c("7")) %>%
+ summarise(rich_tol7 = n_distinct(family)) %>%
+ select(unique_id, rich_tol7)
 
-  metrics.key$rich_collect <- taxa_rich(
-  long.df = rare,
-  unique.id.col = unique_id,
-  low.taxa.col = ffg,
-  high.taxa.col = family,
-  taxon = c("filter", "gather"))
+rich_tol8 <- rare  %>%
+ group_by(unique_id) %>%
+ filter(!is.na(bibi_tv)) %>%
+ filter(bibi_tv %in% c("8")) %>%
+ summarise(rich_tol8 = n_distinct(family)) %>%
+ select(unique_id, rich_tol8)
 
-  metrics.key$rich_ephemeroptera <- taxa_rich(
-  long.df = rare,
-  unique.id.col = unique_id,
-  low.taxa.col = order,
-  high.taxa.col = family,
-  taxon = "ephemeroptera")
+rich_tol9 <- rare  %>%
+ group_by(unique_id) %>%
+ filter(!is.na(bibi_tv)) %>%
+ filter(bibi_tv %in% c("9")) %>%
+ summarise(rich_tol9 = n_distinct(family)) %>%
+ select(unique_id, rich_tol9)
 
-  metrics.key$rich_ept <- taxa_rich(
-  long.df = rare,
-  unique.id.col = unique_id,
-  low.taxa.col = order,
-  high.taxa.col = family, 
-  taxon = c("ephemeroptera", "plecoptera", "trichoptera"))
-
-  metrics.key$rich_filter <- taxa_rich(
-  long.df = rare,
-  unique.id.col = unique_id,
-  low.taxa.col = ffg,
-  high.taxa.col = family,
-  taxon = "filter")
-
-  metrics.key$rich_gather <- taxa_rich(
-  long.df = rare,
-  unique.id.col = unique_id,
-  low.taxa.col = ffg,
-  high.taxa.col = family,
-  taxon = "gather") 
-
-  metrics.key$rich_intol <- taxa_rich(
-  long.df = rare,
-  unique.id.col = unique_id,
-  low.taxa.col = bibi_tv,
-  high.taxa.col = family,
-  taxon = 0:3)
-
-  metrics.key$rich_modtol <- taxa_rich(
-  long.df = rare,
-  unique.id.col = unique_id,
-  low.taxa.col = bibi_tv,
-  high.taxa.col = family,
-  taxon = 4:6)
-
-  metrics.key$rich_plecoptera <- taxa_rich(
-  long.df = rare,
-  unique.id.col = unique_id,
-  low.taxa.col = order,
-  high.taxa.col = family,
-  taxon = "plecoptera")
-
-  metrics.key$rich_predator <- taxa_rich(
-  long.df = rare,
-  unique.id.col = unique_id,
-  low.taxa.col = ffg,
-  high.taxa.col = family,
-  taxon = "predator")  
-
-  metrics.key$rich_shred <- taxa_rich(
-  long.df = rare,
-  unique.id.col = unique_id,
-  low.taxa.col = ffg,
-  high.taxa.col = family,
-  taxon = "shred")   
-
-  metrics.key$rich_sprawl <- taxa_rich(
-  long.df = rare,
-  unique.id.col = unique_id,
-  low.taxa.col = habit,
-  high.taxa.col = family,
-  taxon = "sprawl")  
-
-  metrics.key$rich_tol <- taxa_rich(
-  long.df = rare,
-  unique.id.col = unique_id,
-  low.taxa.col = bibi_tv,
-  high.taxa.col = family,
-  taxon = 7:10)
-
-  metrics.key$rich_trichoptera <- taxa_rich(
-  long.df = rare,
-  unique.id.col = unique_id,
-  low.taxa.col = order,
-  high.taxa.col = family,
-  taxon = "trichoptera")
+rich_tol10 <- rare  %>%
+ group_by(unique_id) %>%
+ filter(!is.na(bibi_tv)) %>%
+ filter(bibi_tv %in% c("10")) %>%
+ summarise(rich_tol10 = n_distinct(family)) %>%
+ select(unique_id, rich_tol10)
+ rich_tol78 <- merge(rich_tol7, rich_tol8, by= "unique_id", all=TRUE)
+ rich_tol78[is.na(rich_tol78)] <- 0
+ rich_tol789 <- merge(rich_tol78, rich_tol9, by= "unique_id", all=TRUE)
+ rich_tol789[is.na(rich_tol789)] <- 0
+ rich_tol78910 <- merge(rich_tol789, rich_tol10, by= "unique_id", all=TRUE)
+ rich_tol78910[is.na(rich_tol78910)] <- 0
+ rich_tol78910$rich_tol <- rich_tol78910$rich_tol7 + rich_tol78910$rich_tol8 + rich_tol78910$rich_tol9 + rich_tol78910$rich_tol10
+ 
+rich_tol78910 <- rich_tol78910 %>%
+ select(unique_id, rich_tol)
+ metrics.key <- merge(metrics.key, rich_tol78910, by = "unique_id", all=TRUE)
+ metrics.key[is.na(metrics.key)] <- 0   
+    
+# rich_trichoptera  
+rich_trichoptera <- rare  %>%
+ group_by(unique_id) %>%
+ filter(!is.na(order)) %>%
+ filter(order %in% c("trichoptera")) %>%
+ summarise(rich_trichoptera = n_distinct(family)) %>%
+ select(unique_id, rich_trichoptera) 
+ metrics.key <- merge(metrics.key, rich_trichoptera, by = "unique_id", all=TRUE)
+ metrics.key[is.na(metrics.key)] <- 0 
 ```
 
 ```{r}
 write.csv(metrics.key, file= "metrics.csv")
 ```
+
+```{r}
+NAPU <- metrics.key %>% filter(icprb_bioregion_id == "napu")
+NCA <- metrics.key %>% filter(icprb_bioregion_id == "nca")
+CA <- metrics.key %>% filter(icprb_bioregion_id == "ca")
+MAC<- metrics.key %>% filter(icprb_bioregion_id == "mac")
+SEP <- metrics.key %>% filter(icprb_bioregion_id == "sep")
+BLUE <- metrics.key %>% filter(icprb_bioregion_id == "blue")
+NRV <- metrics.key %>% filter(icprb_bioregion_id == "nrv")
+SRV <- metrics.key %>% filter(icprb_bioregion_id == "srv")
+UNP <- metrics.key %>% filter(icprb_bioregion_id == "unp")
+SGV <- metrics.key %>% filter(icprb_bioregion_id == "sgv")
+LNP <- metrics.key %>% filter(icprb_bioregion_id == "lnp")
+PIED <- metrics.key %>% filter(icprb_bioregion_id == "pied")
+```
+
+```{r}
+#Northern Appalachian Plateau and Uplands (NAPU)
+NAPU_score <- NAPU %>%
+  select(
+  "unique_id",
+  "event_latitude",
+  "event_longitude",
+  "huc_12",
+  "icprb_bioregion_id",
+  "margalefs", 
+  "pct_cling",
+  "pct_collect",
+  "pct_ephemeroptera",
+  "pct_ept",
+  "pct_ept_no_hydro",
+  "pct_ept_rich_no_tol",
+  "pct_filter",
+  "pct_intol_0_3",
+  "pct_non_hydrop_trichoptera",
+  "pct_scrape",
+  "pielou",
+  "rich_burrow",
+  "rich_cling",
+  "rich_gather",
+  "rich_modtol",
+  "rich_plecoptera",
+  "rich_shred",
+  "rich_sprawl")
+       
+# North Central Appalachians (NCA)
+NCA_score <- NCA %>%
+  select(
+    "unique_id",
+    "event_latitude",
+    "event_longitude",
+    "huc_12",
+    "icprb_bioregion_id",
+    "aspt_mod",
+    "pct_cote",
+    "pct_ephemeroptera",
+    "pct_heptageniidae",
+    "pct_limestone",
+    "rich_cling",
+    "rich_ephemeroptera",
+    "rich_ept",
+    "rich_plecoptera")
+
+# Central Appalachians (CA)
+CA_score <- CA %>%
+  select(
+    "unique_id",
+    "event_latitude",
+    "event_longitude",
+    "huc_12",
+    "icprb_bioregion_id",
+    "pct_ept_rich",
+    "pct_euholognatha",
+    "pct_heptageniidae",
+    "pct_hydro_ept",
+    "pct_mod_tol_4_6",
+    "pct_non_hydrop_trichoptera",
+    "pct_pisciforma",
+    "pct_systellognatha",
+    "rich_burrow",
+    "rich_collect",
+    "rich_filter",
+    "rich_plecoptera",
+    "rich_predator")
+
+# Middle Atlantic Coastal Plain (MAC)
+MAC_score <- MAC %>%
+  select(
+    "unique_id",
+    "event_latitude",
+    "event_longitude",
+    "huc_12",
+    "icprb_bioregion_id",
+    "aspt_mod",
+    "gold",
+    "pct_arthropoda",
+    "pct_chironomidae",
+    "pct_collect",
+    "pct_mod_tol_4_6",
+    "pct_odonata",
+    "pct_predator",
+    "pct_scrape",
+    "pct_urban_intol",
+    "rich_climb",
+    "rich_tol")
+
+# Southeastern Plains (SEP)
+SEP_score <- SEP %>%
+  select(
+    "unique_id",
+    "event_latitude",
+    "event_longitude",
+    "huc_12",
+    "icprb_bioregion_id",
+    "aspt_mod",
+    "gold",
+    "hbi",
+    "pct_cling",
+    "pct_cote",
+    "pct_ept_rich_no_tol",
+    "rich_cling",
+    "rich_collect",
+    "rich_ephemeroptera",
+    "rich_filter",
+    "rich_trichoptera")
+
+# Blue Ridge (BLUE)
+BLUE_score <- BLUE %>% 
+  select(
+    "unique_id",
+    "event_latitude",
+    "event_longitude",
+    "huc_12",
+    "icprb_bioregion_id",
+    "pct_burrow",
+    "pct_ept_rich_no_tol",
+    "pct_scrape",
+    "pct_systellognatha",
+    "rich_ephemeroptera")
+
+# Northern Ridge and Valley (NRV)
+NRV_score <- NRV %>%
+  select(
+    "unique_id",
+    "event_latitude",
+    "event_longitude",
+    "huc_12",
+    "icprb_bioregion_id",
+    "aspt_mod",
+    "pct_ephemeroptera_no_baetid",
+    "pct_ept_rich",
+    "rich_collect",
+    "rich_ephemeroptera",
+    "rich_predator",
+    "rich_shred",
+    "rich_trichoptera")
+
+# Southern Ridge and Valley (SRV)
+SRV_score <- SRV %>%
+  select(
+    "unique_id",
+    "event_latitude",
+    "event_longitude",
+    "huc_12",
+    "icprb_bioregion_id",
+    "aspt_mod",
+    "pct_burrow",
+    "pct_cling",
+    "pct_cote",
+    "pct_ephemeroptera_no_baetid",
+    "pct_ept_rich_no_tol",
+    "pct_predator",
+    "pct_scrape",
+    "rich_cling",
+    "rich_collect",
+    "rich_ephemeroptera",
+    "rich_intol",
+    "rich_plecoptera",
+    "rich_predator",
+    "rich_trichoptera")
+
+# Upper Northern Piedmont (UNP)
+UNP_score <- UNP %>%
+  select(
+    "unique_id",
+    "event_latitude",
+    "event_longitude",
+    "huc_12",
+    "icprb_bioregion_id",
+    "hbi",
+    "pct_collect",
+    "pct_ept_rich_no_tol",
+    "pct_filter",
+    "pct_hexapoda",
+    "pct_pisciforma",
+    "pct_retreat_caddisfly",
+    "pct_scrape",
+    "pct_urban_intol",
+    "rich_ephemeroptera",
+    "rich_plecoptera",
+    "rich_trichoptera")
+
+# Southern Great Valley (SGV)
+SGV_score <- SGV %>%
+  select(
+    "unique_id",
+    "event_latitude",
+    "event_longitude",
+    "huc_12",
+    "icprb_bioregion_id",
+    "aspt_mod",
+    "gold",
+    "pct_cling",
+    "pct_collect",
+    "pct_ephemeroptera_no_baetid",
+    "pct_ept_no_hydro",
+    "pct_ept_rich_no_tol",
+    "pct_filter",
+    "pct_heptageniidae",
+    "pct_mod_tol_4_6",
+    "pct_non_hydrop_trichoptera",
+    "pct_pisciforma",
+    "pct_predator",
+    "pct_pterygota",
+    "pct_scrape",
+    "pct_sprawl",
+    "pct_tolerant_7_10",
+    "rich_collect",
+    "rich_ephemeroptera",
+    "rich_filter",
+    "rich_trichoptera")
+
+# Lower Northern Piedmont (LNP)
+LNP_score <- LNP %>%
+  select(
+    "unique_id",
+    "event_latitude",
+    "event_longitude",
+    "huc_12",
+    "icprb_bioregion_id",
+    "aspt_mod",
+    "pct_cling",
+    "pct_collect",
+    "pct_ept_rich",
+    "pct_mod_tol_4_6",
+    "pct_predator",
+    "pct_pterygota",
+    "rich_cling",
+    "rich_ephemeroptera")
+
+# Piedmont (PIED)
+PIED_score <- PIED %>%
+  select(
+    "unique_id",
+    "event_latitude",
+    "event_longitude",
+    "huc_12",
+    "icprb_bioregion_id",
+    "pct_cling",
+    "pct_ept_rich",
+    "pct_intol_0_4",
+    "pct_tolerant_7_10",
+    "pct_urban_intol",
+    "rich_cling",
+    "rich_ephemeroptera",
+    "rich_trichoptera")
+```
+
+```{r}
+NAPU_score$score_margalefs <- 
+  case_when(
+    NAPU_score$margalefs > 2.83 ~ 100,
+    NAPU_score$margalefs < 2.74 ~ 0,
+    TRUE ~ ((NAPU_score$margalefs - 2.74)/(2.83-2.74))*100)
+
+NAPU_score$score_pct_cling <- 
+  case_when(
+    NAPU_score$pct_cling > 59.19 ~ 100,
+    NAPU_score$pct_cling < 50.98 ~ 0,
+    TRUE ~ ((NAPU_score$pct_cling-50.98)/(59.19-50.98))*100)
+
+NAPU_score$score_pct_collect <- 
+   case_when(
+     NAPU_score$pct_collect < 71.84 ~ 100,
+     NAPU_score$pct_collect > 82.8 ~ 0,
+     TRUE ~ ((82.8-NAPU_score$pct_collect)/(82.8-71.84))*100)
+
+NAPU_score$score_pct_ephemeroptera <- 
+  case_when(
+    NAPU_score$pct_ephemeroptera > 31.47 ~ 100,
+    NAPU_score$pct_ephemeroptera < 19.62 ~ 0,
+    TRUE ~ ((NAPU_score$pct_ephemeroptera-19.62)/(31.47-19.62))*100)
+
+NAPU_score$score_pct_ept <- 
+  case_when(
+    NAPU_score$pct_ept > 62.26 ~ 100,
+    NAPU_score$pct_ept < 54.08 ~ 0,
+    TRUE ~ ((NAPU_score$pct_ept-54.08)/(62.26-54.08))*100)
+
+NAPU_score$score_pct_ept_no_hydro <- 
+  case_when(
+    NAPU_score$pct_ept_no_hydro > 87.96 ~ 100,
+    NAPU_score$pct_ept_no_hydro < 70.51 ~ 0,
+    TRUE ~ ((NAPU_score$pct_ept_no_hydro-70.51)/(87.96-70.51))*100)
+
+NAPU_score$score_pct_ept_rich_no_tol <- 
+  case_when(
+    NAPU_score$pct_ept_rich_no_tol > 45.32 ~ 100,
+    NAPU_score$pct_ept_rich_no_tol < 32.85 ~ 0,
+    TRUE ~ ((NAPU_score$pct_ept_rich_no_tol-32.85)/(45.32-32.85))*100)
+
+NAPU_score$score_pct_filter <- 
+  case_when(
+    NAPU_score$pct_filter < 15.51 ~ 100,
+    NAPU_score$pct_filter > 22.62 ~ 0,
+    TRUE ~ ((22.62-NAPU_score$pct_filter)/(22.62-15.51))*100)
+
+NAPU_score$score_pct_intol_0_3 <- 
+  case_when(
+    NAPU_score$pct_intol_0_3 > 44.7 ~ 100,
+    NAPU_score$pct_intol_0_3 < 24.22 ~ 0,
+    TRUE ~ ((NAPU_score$pct_intol_0_3-24.22)/(44.7-24.22))*100)
+
+NAPU_score$score_pct_non_hydrop_trichoptera <-
+  case_when(
+    NAPU_score$pct_non_hydrop_trichoptera > 45.08 ~ 100,
+    NAPU_score$pct_non_hydrop_trichoptera < 20.6 ~ 0,
+    TRUE ~ ((NAPU_score$pct_non_hydrop_trichoptera-20.6)/(45.08-20.6))*100)
+
+NAPU_score$score_pct_scrape <- 
+  case_when(
+    NAPU_score$pct_scrape > 9.36 ~ 100,
+    NAPU_score$pct_scrape < 6.89 ~ 0,
+    TRUE ~ ((NAPU_score$pct_scrape-6.89)/(9.36-6.89))*100)
+
+NAPU_score$score_pielou <- 
+  case_when(
+    NAPU_score$pielou < 0.79 ~ 100,
+    NAPU_score$pielou > 0.80 ~ 0,
+    TRUE ~ ((0.80-NAPU_score$pielou)/(0.80-0.79))*100)
+
+NAPU_score$score_rich_burrow <- 
+  case_when(
+    NAPU_score$rich_burrow > 2.95 ~ 100,
+    NAPU_score$rich_burrow < 1.93 ~ 0,
+    TRUE ~ ((NAPU_score$rich_burrow-1.93)/(2.95-1.93))*100)
+
+NAPU_score$score_rich_cling <- 
+  case_when(
+    NAPU_score$rich_cling > 8.0 ~ 100,
+    NAPU_score$rich_cling < 6.77 ~ 0,
+    TRUE ~ ((NAPU_score$rich_cling-6.77)/(8.0-6.77))*100)
+
+NAPU_score$score_rich_gather <- 
+  case_when(
+    NAPU_score$rich_gather < 5.0 ~ 100,
+    NAPU_score$rich_gather > 6.01 ~ 0,
+    TRUE ~ ((6.01-NAPU_score$rich_gather)/(6.01-5.0))*100)
+
+NAPU_score$score_rich_modtol <- 
+  case_when(
+     NAPU_score$rich_modtol < 6.0 ~ 100,
+     NAPU_score$rich_modtol > 7.03 ~ 0,
+     TRUE ~ ((7.03-NAPU_score$rich_modtol)/(7.03-6.0))*100)
+
+NAPU_score$score_rich_plecoptera <- 
+  case_when(
+    NAPU_score$rich_plecoptera > 2.13 ~ 100,
+    NAPU_score$rich_plecoptera < 0.70 ~ 0,
+    TRUE ~ ((NAPU_score$rich_plecoptera-0.70)/(2.13-0.70))*100)
+
+NAPU_score$score_rich_shred <- 
+  case_when(
+    NAPU_score$rich_shred > 2.0 ~ 100,
+    NAPU_score$rich_shred < 0.84 ~ 0,
+    TRUE ~ ((NAPU_score$rich_shred-0.84)/(2.0-0.84))*100)
+
+NAPU_score$score_rich_sprawl <- 
+  case_when(
+    NAPU_score$rich_sprawl < 1.0 ~ 100,
+    NAPU_score$rich_sprawl > 2.3 ~ 0,
+    TRUE ~ ((2.3-NAPU_score$rich_sprawl)/(2.3-1.0))*100)
+```
+
+```{r}
+NCA_score$score_aspt_mod <-
+  case_when(
+    NCA_score$aspt_mod > 7.54 ~ 100,
+    NCA_score$aspt_mod < 6.67 ~ 0,
+    TRUE ~ ((NCA_score$aspt_mod - 6.67)/(7.54-6.67))*100)
+  
+NCA_score$score_pct_cote <-
+  case_when(
+    NCA_score$pct_cote > 63.95 ~ 100,
+    NCA_score$pct_cote < 47.71 ~ 0,
+    TRUE ~ ((NCA_score$pct_cote - 47.71)/(63.95-47.71))*100)
+
+NCA_score$score_pct_ephemeroptera <-
+  case_when(
+    NCA_score$pct_ephemeroptera > 40.73 ~ 100,
+    NCA_score$pct_ephemeroptera < 9.02 ~ 0,
+    TRUE ~ ((NCA_score$pct_ephemeroptera - 9.02)/(40.73-9.02))*100)
+
+NCA_score$score_pct_heptageniidae <-
+  case_when(
+   NCA_score$pct_heptageniidae > 13.72 ~ 100,
+   NCA_score$pct_heptageniidae  < 0 ~ 0,
+   TRUE ~ ((NCA_score$pct_heptageniidae - 0)/(13.72-0))*100)
+
+NCA_score$score_pct_limestone <-
+  case_when(
+    NCA_score$pct_limestone > 8.93 ~ 100,
+    NCA_score$pct_limestone < 0 ~ 0,
+    TRUE ~ ((NCA_score$pct_limestone - 0)/(8.93-0))*100)
+
+NCA_score$score_rich_cling <-
+  case_when(
+    NCA_score$rich_cling > 10.0 ~ 100,
+    NCA_score$rich_cling < 7.75 ~ 0,
+    TRUE ~ ((NCA_score$rich_cling-7.75)/(10.0-7.75))*100)
+
+NCA_score$score_rich_ephemeroptera <- 
+  case_when(
+    NCA_score$rich_ephemeroptera > 4.0 ~ 100,
+    NCA_score$rich_ephemeroptera < 3.83 ~ 0,
+    TRUE ~ ((NCA_score$rich_ephemeroptera - 3.83)/(4.0-3.83))*100)
+
+NCA_score$score_rich_ept <-
+  case_when(
+    NCA_score$rich_ept > 12.0 ~ 100,
+    NCA_score$rich_ept < 8.02 ~ 0,
+    TRUE ~ ((NCA_score$rich_ept-8.02)/(12.0-8.02))*100)
+
+NCA_score$score_rich_plecoptera <-
+  case_when(
+    NCA_score$rich_plecoptera > 4.04 ~ 100,
+    NCA_score$rich_plecoptera < 3.45 ~ 0,
+    TRUE ~ ((NCA_score$rich_plecoptera - 3.45)/(4.04-3.45))*100)
+```
+
+```{r}
+CA_score$score_pct_ept_rich <-
+  case_when(
+    CA_score$pct_ept_rich > 66.82 ~ 100,
+    CA_score$pct_ept_rich < 56.82 ~ 0,
+    TRUE ~ ((CA_score$pct_ept_rich-56.82)/(66.82-56.82))*100)
+
+CA_score$score_pct_euholognatha <-
+  case_when(
+    CA_score$pct_euholognatha > 17.98 ~ 100,
+    CA_score$pct_euholognatha < 0.23 ~ 0,
+    TRUE ~ ((CA_score$pct_euholognatha-0.23)/(17.98-0.23))*100)
+
+CA_score$score_pct_heptageniidae <-
+  case_when(
+    CA_score$pct_heptageniidae > 6.69 ~ 100,
+    CA_score$pct_heptageniidae < 0 ~ 0,
+    TRUE ~ ((CA_score$pct_heptageniidae-0)/(6.69-0))*100)
+
+CA_score$score_pct_hydro_ept <-
+  case_when(
+    CA_score$pct_hydro_ept < 12.5 ~ 100,
+    CA_score$pct_hydro_ept > 21.73 ~ 0,
+    TRUE ~ ((21.73-CA_score$pct_hydro_ept)/(21.73-12.5))*100)
+
+CA_score$score_pct_mod_tol_4_6 <- 
+  case_when(
+    CA_score$pct_mod_tol_4_6 < 43.04 ~ 100,
+    CA_score$pct_mod_tol_4_6 > 57.26 ~ 0,
+    TRUE ~ ((57.26-CA_score$pct_mod_tol_4_6)/(57.26-43.04))*100)
+
+CA_score$score_pct_non_hydrop_trichoptera <-
+  case_when(
+    CA_score$pct_non_hydrop_trichoptera > 40.4 ~ 100,
+    CA_score$pct_non_hydrop_trichoptera < 25.02 ~ 0,
+    TRUE ~ ((CA_score$pct_non_hydrop_trichoptera - 25.02)/(40.4-25.02))*100)
+
+CA_score$score_pct_pisciforma <-
+  case_when(
+    CA_score$pct_pisciforma > 12.33 ~ 100,
+    CA_score$pct_pisciforma < 5.49 ~ 0,
+    TRUE ~ ((CA_score$pct_pisciforma-5.49)/(12.33-5.49))*100)
+
+CA_score$score_pct_systellognatha <-
+  case_when(
+    CA_score$pct_systellognatha > 5.44 ~ 100,
+    CA_score$pct_systellognatha < 0.08 ~ 0,
+    TRUE ~ ((CA_score$pct_systellognatha-0.08)/(5.44-0.08))*100)
+
+CA_score$score_rich_burrow <- 
+  case_when(
+    CA_score$rich_burrow > 3.0 ~ 100,
+    CA_score$rich_burrow < 1.4 ~ 0,
+    TRUE ~ ((CA_score$rich_burrow-1.4)/(3.0-1.4))*100)
+
+CA_score$score_rich_collect <- 
+  case_when(
+    CA_score$rich_collect > 7.0 ~ 100,
+    CA_score$rich_collect < 5.13 ~ 0,
+    TRUE ~ ((CA_score$rich_collect-5.13)/(7.0-5.13))*100)
+
+CA_score$score_rich_filter <-
+  case_when(
+    CA_score$rich_filter > 2.91 ~ 100,
+    CA_score$rich_filter < 1.38 ~ 0,
+    TRUE ~ ((CA_score$rich_filter-1.38)/(2.91-1.38))*100)
+
+CA_score$score_rich_plecoptera <-
+  case_when(
+    CA_score$rich_plecoptera > 4.0 ~ 100,
+    CA_score$rich_plecoptera < 0.47 ~ 0,
+    TRUE ~ ((CA_score$rich_plecoptera-0.47)/(4.0-0.47))*100)
+
+CA_score$score_rich_predator <- 
+  case_when(
+    CA_score$rich_predator > 3.0 ~ 100,
+    CA_score$rich_predator < 1.44 ~ 0,
+    TRUE ~ ((CA_score$rich_predator-1.44)/(3.0-1.44))*100)
+```
+
+```{r}
+MAC_score$score_aspt_mod <-
+  case_when(
+    MAC_score$aspt_mod > 3.27 ~ 100,
+    MAC_score$aspt_mod < 2.9 ~ 0,
+    TRUE ~ ((MAC_score$aspt_mod-2.9)/(3.27-2.9))*100)
+
+MAC_score$score_gold <-
+  case_when(
+    MAC_score$gold > 58.96 ~ 100,
+    MAC_score$gold < 33.91 ~ 0,
+    TRUE ~ ((MAC_score$gold-33.91)/(58.96-33.91))*100)
+
+MAC_score$score_pct_arthropoda <-
+  case_when(
+    MAC_score$pct_arthropoda < 74.01 ~ 100,
+    MAC_score$pct_arthropoda > 95.38 ~ 0,
+    TRUE ~ ((95.38-MAC_score$pct_arthropoda)/(95.38-74.01))*100)
+
+MAC_score$score_pct_chironomidae <-
+  case_when(
+    MAC_score$pct_chironomidae < 23.01 ~ 100,
+    MAC_score$pct_chironomidae > 42.68 ~ 0,
+    TRUE ~ ((42.68-MAC_score$pct_chironomidae)/(42.68-23.01))*100)
+  
+MAC_score$score_pct_collect <-
+  case_when(
+    MAC_score$pct_collect < 73.25 ~ 100,
+    MAC_score$pct_collect > 96.19 ~ 0,
+    TRUE ~ ((96.19 - MAC_score$pct_collect)/(96.19-73.25))*100)
+
+MAC_score$score_pct_mod_tol_4_6 <-
+  case_when(
+    MAC_score$pct_mod_tol_4_6 < 52.49 ~ 100,
+    MAC_score$pct_mod_tol_4_6 > 75.48 ~ 0,
+    TRUE ~ ((75.48-MAC_score$pct_mod_tol_4_6)/(75.48-52.49))*100)
+
+MAC_score$score_pct_odonata <-
+  case_when(
+    MAC_score$pct_odonata > 1.82 ~ 100,
+    MAC_score$pct_odonata < 0.43 ~ 0,
+    TRUE ~ ((MAC_score$pct_odonata - 0.43)/(1.82-0.43))*100)
+
+MAC_score$score_pct_predator <-
+  case_when(
+    MAC_score$pct_predator > 5.16 ~ 100,
+    MAC_score$pct_predator < 4.01 ~ 0,
+    TRUE ~ ((MAC_score$pct_predator - 4.01)/(5.16-4.01))*100)
+
+MAC_score$score_pct_scrape <-
+  case_when(
+    MAC_score$pct_scrape > 12.07 ~ 100,
+    MAC_score$pct_scrape < 0 ~ 0,
+    TRUE ~ ((MAC_score$pct_scrape-0)/(12.07-0))*100)
+
+MAC_score$score_pct_urban_intol <-
+  case_when(
+    MAC_score$pct_urban_intol < 65.28 ~ 100,
+    MAC_score$pct_urban_intol > 71.78 ~ 0,
+    TRUE ~ ((71.78-MAC_score$pct_urban_intol)/(71.78-65.28))*100)
+
+MAC_score$score_rich_climb <-
+  case_when(
+    MAC_score$rich_climb > 2.45 ~ 100,
+    MAC_score$rich_climb < 0 ~ 0,
+    TRUE ~ ((MAC_score$rich_climb-0)/(2.45-0))*100)
+
+MAC_score$score_rich_tol <-
+  case_when(
+    MAC_score$rich_tol > 4.0 ~ 100,
+    MAC_score$rich_tol < 2.16 ~ 0,
+    TRUE ~ ((MAC_score$rich_tol-2.16)/(4.0-2.16))*100)
+```
+
+```{r}
+SEP_score$score_aspt_mod <-
+  case_when(
+    SEP_score$aspt_mod > 4.65 ~ 100,
+    SEP_score$aspt_mod < 3.18 ~ 0,
+    TRUE ~ ((SEP_score$aspt_mod-3.18)/(4.65-3.18))*100)
+
+SEP_score$score_gold <-
+  case_when(
+    SEP_score$gold > 50.3 ~ 100,
+    SEP_score$gold < 32.16 ~ 0,
+    TRUE ~ ((SEP_score$gold-32.16)/(50.3-32.16))*100)
+
+SEP_score$score_hbi <-
+  case_when(
+    SEP_score$hbi < 5.12 ~ 100,
+    SEP_score$hbi > 5.86 ~ 0,
+    TRUE ~ ((5.86-SEP_score$hbi)/(5.86-5.12))*100)
+
+SEP_score$pct_cling <-
+  case_when(
+    SEP_score$pct_cling > 43.05 ~ 100,
+    SEP_score$pct_cling < 0 ~ 0,
+    TRUE ~ ((SEP_score$pct_cling-0)/(43.05-0))*100)
+
+SEP_score$score_pct_cote <-
+  case_when(
+    SEP_score$pct_cote > 26.37 ~ 100,
+    SEP_score$pct_cote < 1.62 ~ 0,
+    TRUE ~ ((SEP_score$pct_cote-1.62)/(26.37-1.62))*100)
+
+SEP_score$score_pct_ept_rich_no_tol <-
+  case_when(
+    SEP_score$pct_ept_rich_no_tol > 24.73 ~ 100,
+    SEP_score$pct_ept_rich_no_tol < 16.49 ~ 0,
+    TRUE ~ ((SEP_score$pct_ept_rich_no_tol-16.49)/(24.73-16.49))*100)
+
+SEP_score$score_rich_cling <-
+  case_when(
+    SEP_score$rich_cling > 4.93 ~ 100,
+    SEP_score$rich_cling < 1.03 ~ 0,
+    TRUE ~ ((SEP_score$rich_cling-1.03)/(4.93-1.03))*100)
+
+SEP_score$score_rich_collect <-
+  case_when(
+    SEP_score$rich_collect > 8.0 ~ 100,
+    SEP_score$rich_collect < 4.62 ~ 0,
+    TRUE ~ ((SEP_score$rich_collect-4.62)/(8.0-4.62))*100)
+
+SEP_score$score_rich_ephemeroptera <-
+  case_when(
+    SEP_score$rich_ephemeroptera > 2.0 ~ 100,
+    SEP_score$rich_ephemeroptera < 0 ~ 0,
+    TRUE ~ ((SEP_score$rich_ephemeroptera-0)/(2.0-0))*100)
+
+SEP_score$score_rich_filter <-
+  case_when(
+    SEP_score$rich_filter  > 2.31 ~ 100,
+    SEP_score$rich_filter < 0.04 ~ 0,
+    TRUE ~ ((SEP_score$rich_filter-0.04)/(2.31-0.04))*100)
+
+SEP_score$score_rich_trichoptera <-
+  case_when(
+    SEP_score$rich_trichoptera > 2.0 ~ 100,
+    SEP_score$rich_trichoptera < 0.41 ~ 0,
+    TRUE ~ ((SEP_score$rich_trichoptera-0.41)/(2.0-0.41))*100)
+```
+
+```{r}
+BLUE_score$score_pct_burrow <-
+  case_when(
+    BLUE_score$pct_burrow < 12.65 ~ 100,
+    BLUE_score$pct_burrow > 40.71 ~ 0,
+    TRUE ~ ((40.71-BLUE_score$pct_burrow)/(40.71-12.65))*100)
+
+BLUE_score$score_pct_ept_rich_no_tol <-
+  case_when(
+    BLUE_score$pct_ept_rich_no_tol > 52.78 ~ 100,
+    BLUE_score$pct_ept_rich_no_tol < 34.74 ~ 0,
+    TRUE ~ ((BLUE_score$pct_ept_rich_no_tol-34.74)/(52.78-34.74))*100)
+
+BLUE_score$score_pct_scrape <-
+  case_when(
+    BLUE_score$pct_scrape > 15.23 ~ 100,
+    BLUE_score$pct_scrape < 0 ~ 0,
+    TRUE ~ ((BLUE_score$pct_scrape-0)/(15.23-0))*100)
+
+BLUE_score$score_pct_systellognatha <-
+  case_when(
+    BLUE_score$pct_systellognatha > 6.06 ~ 100,
+    BLUE_score$pct_systellognatha < 0 ~ 0,
+    TRUE ~ ((BLUE_score$pct_systellognatha-0)/(6.06-0))*100)
+
+BLUE_score$score_rich_ephemeroptera <-
+  case_when(
+    BLUE_score$rich_ephemeroptera > 4.0 ~ 100,
+    BLUE_score$rich_ephemeroptera < 0.33 ~ 0,
+    TRUE ~ ((BLUE_score$rich_ephemeroptera-0.33)/(4.0-0.33))*100)
+```
+
+```{r}
+NRV_score$score_aspt_mod <-
+  case_when(
+    NRV_score$aspt_mod > 6.27 ~ 100,
+    NRV_score$aspt_mod < 4.59 ~ 0,
+    TRUE ~ ((NRV_score$aspt_mod-4.59)/(6.27-4.59))*100)
+
+NRV_score$score_pct_ephemeroptera_no_baetid <-
+  case_when(
+    NRV_score$pct_ephemeroptera_no_baetid > 23.69 ~ 100,
+    NRV_score$pct_ephemeroptera_no_baetid < 6.01 ~ 0,
+    TRUE ~ ((NRV_score$pct_ephemeroptera_no_baetid-6.01)/(23.69-6.01))*100)
+
+NRV_score$score_pct_ept_rich <-
+  case_when(
+    NRV_score$pct_ept_rich > 64.7 ~ 100,
+    NRV_score$pct_ept_rich < 47.53 ~ 0,
+    TRUE ~ ((NRV_score$pct_ept_rich-47.53)/(64.7-47.53))*100)
+
+NRV_score$score_rich_collect <-
+  case_when(
+    NRV_score$rich_collect > 8.0 ~ 100,
+    NRV_score$rich_collect < 7.14 ~ 0,
+    TRUE ~ ((NRV_score$rich_collect-7.14)/(8.0-7.14))*100)
+
+NRV_score$score_rich_ephemeroptera <-
+  case_when(
+    NRV_score$rich_ephemeroptera > 4.0 ~ 100,
+    NRV_score$rich_ephemeroptera < 1.8 ~ 0,
+    TRUE ~ ((NRV_score$rich_ephemeroptera-1.8)/(4.0-1.8))*100)
+
+NRV_score$score_rich_predator <-
+  case_when(
+    NRV_score$rich_predator > 3.0 ~ 100,
+    NRV_score$rich_predator < 0.32 ~ 0,
+    TRUE ~ ((NRV_score$rich_predator-0.32)/(3.0-0.32))*100)
+
+NRV_score$score_rich_shred <-
+  case_when(
+    NRV_score$rich_shred > 2.0 ~ 100,
+    NRV_score$rich_shred < 1.27 ~ 0,
+    TRUE ~ ((NRV_score$rich_shred-1.27)/(2.0-1.27))*100)
+
+NRV_score$score_rich_trichoptera <-
+  case_when(
+    NRV_score$rich_trichoptera > 3.0 ~ 100,
+    NRV_score$rich_trichoptera < 2.53 ~ 0,
+    TRUE ~ ((NRV_score$rich_trichoptera-2.53)/(3.0-2.53))*100)
+```
+
+```{r}
+UNP_score$score_hbi <-
+  case_when(
+    UNP_score$hbi < 4.01 ~ 100,
+    UNP_score$hbi > 5.74 ~ 0,
+    TRUE ~ ((5.74-UNP_score$hbi)/(5.74-4.01))*100)
+
+UNP_score$score_pct_collect <-
+  case_when(
+    UNP_score$pct_collect < 80.32 ~ 100,
+    UNP_score$pct_collect > 90.97 ~ 0,
+    TRUE ~ ((90.97-UNP_score$pct_collect)/(90.97-80.32))*100)
+
+UNP_score$score_pct_ept_rich_no_tol <-
+  case_when(
+    UNP_score$pct_ept_rich_no_tol > 37.09 ~ 100,
+    UNP_score$pct_ept_rich_no_tol < 22.1 ~ 0,
+    TRUE ~ ((UNP_score$pct_ept_rich_no_tol-22.1)/(37.09-22.1))*100)
+
+UNP_score$score_pct_filter <-
+  case_when(
+    UNP_score$pct_filter > 18.14 ~ 100,
+    UNP_score$pct_filter < 1.91 ~ 0,
+    TRUE ~ ((UNP_score$pct_filter - 1.91)/(18.14-1.91))*100)
+
+UNP_score$score_pct_hexapoda <-
+  case_when(
+    UNP_score$pct_hexapoda > 99.5 ~ 100,
+    UNP_score$pct_hexapoda < 96.59 ~ 0,
+    TRUE ~ ((UNP_score$pct_hexapoda-96.59)/(99.5-96.59))*100)
+
+UNP_score$score_pct_pisciforma <-
+  case_when(
+    UNP_score$pct_pisciforma > 9.43 ~ 100,
+    UNP_score$pct_pisciforma < 0 ~ 0,
+    TRUE ~ ((UNP_score$pct_pisciforma-0)/(9.43-0))*100)
+
+UNP_score$score_pct_retreat_caddisfly <-
+  case_when(
+    UNP_score$pct_retreat_caddisfly > 10.97 ~ 100,
+    UNP_score$pct_retreat_caddisfly < 2.89 ~ 0,
+    TRUE ~ ((UNP_score$pct_retreat_caddisfly-2.89)/(10.97-2.89))*100)
+
+UNP_score$score_pct_scrape <-
+  case_when(
+    UNP_score$pct_scrape > 5.72 ~ 100,
+    UNP_score$pct_scrape < 0.22 ~ 0,
+    TRUE ~ ((UNP_score$pct_scrape-0.22)/(5.72-0.22))*100)
+
+UNP_score$score_pct_urban_intol <- 
+  case_when(
+    UNP_score$pct_urban_intol > 98.46 ~ 100,
+    UNP_score$pct_urban_intol < 91.71 ~ 0,
+    TRUE ~ ((UNP_score$pct_urban_intol-91.71)/(98.46-91.71))*100)
+
+UNP_score$score_rich_ephemeroptera <-
+  case_when(
+    UNP_score$rich_ephemeroptera > 3.0 ~ 100,
+    UNP_score$rich_ephemeroptera < 1.44 ~ 0,
+    TRUE ~ ((UNP_score$rich_ephemeroptera-1.44)/(3.0-1.44))*100)
+
+UNP_score$score_rich_plecoptera <-
+  case_when(
+    UNP_score$rich_plecoptera > 2.23 ~ 100,
+    UNP_score$rich_plecoptera < 0 ~ 0,
+    TRUE ~ ((UNP_score$rich_plecoptera-0)/(2.23-0))*100)
+
+UNP_score$score_rich_trichoptera <-
+  case_when(
+    UNP_score$rich_trichoptera > 3.0 ~ 100,
+    UNP_score$rich_trichoptera < 1.01 ~ 0,
+    TRUE ~ ((UNP_score$rich_trichoptera-1.01)/(3.0-1.01))*100)
+```
+
+```{r}
+SRV_score$score_aspt_mod <-
+  case_when(
+    SRV_score$aspt_mod > 6.44 ~ 100,
+    SRV_score$aspt_mod < 4.95 ~ 0,
+    TRUE ~ ((SRV_score$aspt_mod-4.95)/(6.44-4.95))*100)
+
+SRV_score$score_pct_burrow <-
+  case_when(
+    SRV_score$pct_burrow < 17.13 ~ 100,
+    SRV_score$pct_burrow > 31.28 ~ 0,
+    TRUE ~ ((31.28-SRV_score$pct_burrow)/(31.28-17.13))*100)
+
+SRV_score$score_pct_cling <-
+  case_when(
+    SRV_score$pct_cling > 58.45 ~ 100,
+    SRV_score$pct_cling < 40.16 ~ 100,
+    TRUE ~ ((SRV_score$pct_cling-40.16)/(58.45-40.16))*100)
+
+SRV_score$score_pct_cote <-
+  case_when(
+    SRV_score$pct_cote > 57.55 ~ 100,
+    SRV_score$pct_cote < 43.78 ~ 0,
+    TRUE ~ ((SRV_score$pct_cote-43.78)/(57.55-43.78))*100)
+
+SRV_score$score_pct_ephemeroptera_no_baetid <-
+  case_when(
+    SRV_score$pct_ephemeroptera_no_baetid > 21.0 ~ 100,
+    SRV_score$pct_ephemeroptera_no_baetid < 2.8 ~ 0,
+    TRUE ~ ((SRV_score$pct_ephemeroptera_no_baetid-2.8)/(21.0-2.8))*100)
+
+SRV_score$score_pct_ept_rich_no_tol <-
+  case_when(
+    SRV_score$pct_ept_rich_no_tol > 47.16 ~ 100,
+    SRV_score$pct_ept_rich_no_tol < 34.94 ~ 0,
+    TRUE ~ ((SRV_score$pct_ept_rich_no_tol-34.94)/(47.16-34.94))*100)
+
+SRV_score$score_pct_predator <-
+  case_when(
+    SRV_score$pct_predator > 7.12 ~ 100,
+    SRV_score$pct_predator < 2.24 ~ 0,
+    TRUE ~ ((SRV_score$pct_predator-2.24)/(7.12-2.24))*100)
+
+SRV_score$score_pct_scrape <-
+  case_when(
+    SRV_score$pct_scrape > 10.88 ~ 100,
+    SRV_score$pct_scrape < 0.47 ~ 0,
+    TRUE ~ ((SRV_score$pct_scrape-0.47)/(10.88-0.47))*100)
+
+SRV_score$score_rich_cling <- 
+  case_when(
+    SRV_score$rich_cling > 8.43 ~ 100,
+    SRV_score$rich_cling < 6.16 ~ 0,
+    TRUE ~ ((SRV_score$rich_cling-6.16)/(8.43-6.16))*100)
+
+SRV_score$score_rich_collect <-
+  case_when(
+    SRV_score$rich_collect > 7.97 ~ 100,
+    SRV_score$rich_collect < 6.02 ~ 0,
+    TRUE ~ ((SRV_score$rich_collect-6.02)/(7.97-6.02))*100)
+
+SRV_score$score_rich_ephemeroptera <-
+  case_when(
+    SRV_score$rich_ephemeroptera > 4.0 ~ 100,
+    SRV_score$rich_ephemeroptera < 3.66 ~ 0,
+    TRUE ~ ((SRV_score$rich_ephemeroptera-3.66)/(4.0-3.66))*100)
+
+SRV_score$score_rich_intol <-
+  case_when(
+    SRV_score$rich_intol > 8.0 ~ 100,
+    SRV_score$rich_intol < 4.15 ~ 0,
+    TRUE ~ ((SRV_score$rich_intol-4.15)/(8.0-4.15))*100)
+
+SRV_score$score_rich_plecoptera <-
+  case_when(
+    SRV_score$rich_plecoptera > 3.0 ~ 100,
+    SRV_score$rich_plecoptera < 0.65 ~ 0,
+    TRUE ~ ((SRV_score$rich_plecoptera-0.65)/(3.0-0.65))*100)
+
+SRV_score$score_rich_predator <-
+  case_when(
+    SRV_score$rich_predator > 3.0 ~ 100,
+    SRV_score$rich_predator < 2.72 ~ 0,
+    TRUE ~ ((SRV_score$rich_predator-2.72)/(3.0-2.72))*100)
+
+SRV_score$score_rich_trichoptera <-
+  case_when(
+    SRV_score$rich_trichoptera > 3.0 ~ 100,
+    SRV_score$rich_trichoptera < 2.79 ~ 0,
+    TRUE ~ ((SRV_score$rich_trichoptera-2.79)/(3.0-2.79))*100)
+```
+
+```{r}
+SGV_score$score_aspt_mod <-
+  case_when(
+    SGV_score$aspt_mod > 6.44 ~ 100,
+    SGV_score$aspt_mod < 3.94 ~ 0,
+    TRUE ~ ((SGV_score$aspt_mod-3.94)/(6.44-3.94))*100)
+
+SGV_score$score_gold <-
+  case_when(
+    SGV_score$gold > 80.89 ~ 100,
+    SGV_score$gold < 64.95 ~ 0,
+    TRUE ~ ((SGV_score$gold-64.95)/(80.89-64.95))*100)
+
+SGV_score$score_pct_cling <-
+  case_when(
+    SGV_score$pct_cling > 62.23 ~ 100,
+    SGV_score$pct_cling < 39.7 ~ 0,
+    TRUE ~ ((SGV_score$pct_cling-39.7)/(62.23-39.7))*100)
+
+SGV_score$score_pct_collect <-
+  case_when(
+    SGV_score$pct_collect < 71.17 ~ 100,
+    SGV_score$pct_collect > 94.57 ~ 0,
+    TRUE ~ ((94.57-SGV_score$pct_collect)/(94.57-71.17))*100)
+
+SGV_score$score_pct_ephemeroptera_no_baetid <-
+  case_when(
+    SGV_score$pct_ephemeroptera_no_baetid > 23.94 ~ 100,
+    SGV_score$pct_ephemeroptera_no_baetid < 5.23 ~ 0,
+    TRUE ~ ((SGV_score$pct_ephemeroptera_no_baetid-5.23)/(23.94-5.23))*100)
+
+SGV_score$score_pct_ept_no_hydro <-
+  case_when(
+    SGV_score$pct_ept_no_hydro > 83.21 ~ 100,
+    SGV_score$pct_ept_no_hydro < 73.53 ~ 0,
+    TRUE ~ ((SGV_score$pct_ept_no_hydro-73.53)/(83.21-73.53))*100)
+
+SGV_score$score_pct_ept_rich_no_tol <-
+  case_when(
+    SGV_score$pct_ept_rich_no_tol > 32.97 ~ 100,
+    SGV_score$pct_ept_rich_no_tol < 19.39 ~ 0,
+    TRUE ~ ((SGV_score$pct_ept_rich_no_tol-19.39)/(32.97-19.39))*100)
+
+SGV_score$score_pct_filter <-
+  case_when(
+    SGV_score$pct_filter > 22.79 ~ 100,
+    SGV_score$pct_filter < 8.6 ~ 0,
+    TRUE ~ ((SGV_score$pct_filter-8.6)/(22.79-8.6))*100)
+
+SGV_score$score_pct_heptageniidae <-
+  case_when(
+    SGV_score$pct_heptageniidae > 7.89 ~ 100,
+    SGV_score$pct_heptageniidae < 0 ~ 0,
+    TRUE ~ ((SGV_score$pct_heptageniidae-0)/(7.89-0))*100)
+
+SGV_score$score_pct_mod_tol_4_6 <-
+  case_when(
+    SGV_score$pct_mod_tol_4_6 < 52.49 ~ 100,
+    SGV_score$pct_mod_tol_4_6 > 76.71 ~ 0,
+    TRUE ~ ((76.71-SGV_score$pct_mod_tol_4_6)/(76.71-52.49))*100)
+
+SGV_score$score_pct_non_hydrop_trichoptera <-
+  case_when(
+    SGV_score$pct_non_hydrop_trichoptera > 30.54 ~ 100,
+    SGV_score$pct_non_hydrop_trichoptera < 10.57 ~ 0,
+    TRUE ~ ((SGV_score$pct_non_hydrop_trichoptera-10.57)/(30.54-10.57))*100)
+
+SGV_score$score_pct_pisciforma <-
+  case_when(
+    SGV_score$pct_pisciforma > 17.07 ~ 100,
+    SGV_score$pct_pisciforma < 0.1 ~ 0,
+    TRUE ~ ((SGV_score$pct_pisciforma-0.1)/(17.07-0.1))*100)
+
+SGV_score$score_pct_predator <-
+  case_when(
+    SGV_score$pct_predator > 5.28 ~ 100,
+    SGV_score$pct_predator < 0.02 ~ 0,
+    TRUE ~ ((SGV_score$pct_predator-0.02)/(5.28-0.02))*100)
+
+SGV_score$score_pct_pterygota <-
+  case_when(
+    SGV_score$pct_pterygota > 96.88 ~ 100,
+    SGV_score$pct_pterygota < 90.2 ~ 0,
+    TRUE ~ ((SGV_score$pct_pterygota-90.2)/(96.88-90.2))*100)
+
+SGV_score$score_pct_scrape <-
+  case_when(
+    SGV_score$pct_scrape > 15.43 ~ 100,
+    SGV_score$pct_scrape < 0.32 ~ 0,
+    TRUE ~ ((SGV_score$pct_scrape-0.32)/(15.43-0.32))*100)
+
+SGV_score$score_pct_sprawl <-
+  case_when(
+    SGV_score$pct_sprawl < 1.79 ~ 100,
+    SGV_score$pct_sprawl > 4.54 ~ 0,
+    TRUE ~ ((4.54-SGV_score$pct_sprawl)/(4.54-1.79))*100)
+
+SGV_score$score_pct_tolerant_7_10 <-
+  case_when(
+    SGV_score$pct_tolerant_7_10 < 1.73 ~ 100,
+    SGV_score$pct_tolerant_7_10 > 4.3 ~ 0,
+    TRUE ~ ((4.3-SGV_score$pct_tolerant_7_10)/(4.3-1.73))*100)
+
+SGV_score$score_rich_collect <-
+  case_when(
+    SGV_score$rich_collect > 8.0 ~ 100,
+    SGV_score$rich_collect < 6.32 ~ 0,
+    TRUE ~ ((SGV_score$rich_collect-6.32)/(8.0-6.32))*100)
+
+SGV_score$score_rich_ephemeroptera <-
+  case_when(
+    SGV_score$rich_ephemeroptera > 3.94 ~ 100,
+    SGV_score$rich_ephemeroptera < 0.61 ~ 0,
+    TRUE ~ ((SGV_score$rich_ephemeroptera-0.61)/(3.94-0.61))*100)
+
+SGV_score$score_rich_filter <-
+  case_when(
+    SGV_score$rich_filter > 3.0 ~ 100,
+    SGV_score$rich_filter < 1.36 ~ 0,
+    TRUE ~ ((SGV_score$rich_filter-1.36)/(3.0-1.36))*100)
+
+SGV_score$score_rich_trichoptera <-
+  case_when(
+    SGV_score$rich_trichoptera > 2.54 ~ 100,
+    SGV_score$rich_trichoptera < 0.08 ~ 0,
+    TRUE ~ ((SGV_score$rich_trichoptera-0.08)/(2.54-0.08))*100)
+```
+
+```{r}
+LNP_score$score_aspt_mod <-
+  case_when(
+    LNP_score$aspt_mod > 6.62 ~ 100,
+    LNP_score$aspt_mod < 2.7 ~ 0,
+    TRUE ~ ((LNP_score$aspt_mod-2.7)/(6.62-2.7))*100)
+
+LNP_score$score_pct_cling <-
+  case_when(
+    LNP_score$pct_cling > 62.77 ~ 100,
+    LNP_score$pct_cling < 4.54 ~ 0,
+    TRUE ~ ((LNP_score$pct_cling-4.54)/(62.77-4.54))*100)
+
+LNP_score$score_pct_collect <-
+  case_when(
+    LNP_score$pct_collect < 72.82 ~ 100,
+    LNP_score$pct_collect > 92.49 ~ 0,
+    TRUE ~ ((92.49-LNP_score$pct_collect)/(92.49-72.82))*100)
+
+LNP_score$score_pct_ept_rich <-
+  case_when(
+    LNP_score$pct_ept_rich > 52.32 ~ 100,
+    LNP_score$pct_ept_rich < 38.07 ~ 0,
+    TRUE ~ ((LNP_score$pct_ept_rich-38.07)/(52.32-38.07))*100)
+
+LNP_score$score_pct_mod_tol_4_6 <-
+  case_when(
+    LNP_score$pct_mod_tol_4_6 < 46.54 ~ 100,
+    LNP_score$pct_mod_tol_4_6 > 77.78 ~ 0,
+    TRUE ~ ((77.78-LNP_score$pct_mod_tol_4_6)/(77.78-46.54))*100)
+
+LNP_score$score_pct_predator <-
+  case_when(
+    LNP_score$pct_predator > 7.78 ~ 100,
+    LNP_score$pct_predator < 1.43 ~ 0,
+    TRUE ~ ((LNP_score$pct_predator-1.43)/(7.78-1.43))*100)
+
+LNP_score$score_pct_pterygota <-
+  case_when(
+    LNP_score$pct_pterygota > 98.36 ~ 100,
+    LNP_score$pct_pterygota < 92.09 ~ 0,
+    TRUE ~ ((LNP_score$pct_pterygota-92.09)/(98.36-92.09))*100)
+
+LNP_score$score_rich_cling <-
+  case_when(
+    LNP_score$rich_cling > 7.0 ~ 100,
+    LNP_score$rich_cling < 3.69 ~ 0,
+    TRUE ~ ((LNP_score$rich_cling-3.69)/(7.0-3.69))*100)
+
+LNP_score$score_rich_ephemeroptera <-
+  case_when(
+    LNP_score$rich_ephemeroptera > 3.0 ~ 100,
+    LNP_score$rich_ephemeroptera < 1.7 ~ 0,
+    TRUE ~ ((LNP_score$rich_ephemeroptera-1.7)/(3.0-1.7))*100)
+```
+
+```{r}
+PIED_score$score_pct_cling <-
+  case_when(
+    PIED_score$pct_cling > 62.62 ~ 100,
+    PIED_score$pct_cling < 32.33 ~ 0,
+    TRUE ~ ((PIED_score$pct_cling-32.33)/(62.62-32.33))*100)
+
+PIED_score$score_pct_ept_rich <-
+  case_when(
+    PIED_score$pct_ept_rich > 53.58 ~ 100,
+    PIED_score$pct_ept_rich < 38.51 ~ 0,
+    TRUE ~ ((PIED_score$pct_ept_rich-38.51)/(53.58-38.51))*100)
+
+PIED_score$score_pct_intol_0_4 <-
+  case_when(
+    PIED_score$pct_intol_0_4 > 58.15 ~ 100,
+    PIED_score$pct_intol_0_4 < 27.97 ~ 0,
+    TRUE ~ ((PIED_score$pct_intol_0_4-27.97)/(58.15-27.97))*100)
+
+PIED_score$score_pct_tolerant_7_10 <- 
+  case_when(
+    PIED_score$pct_tolerant_7_10 < 1.6 ~ 100,
+    PIED_score$pct_tolerant_7_10 > 4.84 ~ 0,
+    TRUE ~ ((4.84-PIED_score$pct_tolerant_7_10)/(4.84-1.6))*100)
+
+PIED_score$score_pct_urban_intol <-
+  case_when(
+    PIED_score$pct_urban_intol > 95.41 ~ 100,
+    PIED_score$pct_urban_intol < 86.93 ~ 0,
+    TRUE ~ ((PIED_score$pct_urban_intol-86.93)/(95.41-86.93))*100)
+
+PIED_score$score_rich_cling <-
+  case_when(
+    PIED_score$rich_cling > 8.0 ~ 100,
+    PIED_score$rich_cling < 2.96 ~ 0,
+    TRUE ~ ((PIED_score$rich_cling-2.96)/(8.0-2.96))*100)
+  
+PIED_score$score_rich_ephemeroptera <-  
+  case_when(
+    PIED_score$rich_ephemeroptera > 3.6 ~ 100,
+    PIED_score$rich_ephemeroptera < 0.86 ~ 0,
+    TRUE ~ ((PIED_score$rich_ephemeroptera-0.86)/(3.6-0.86))*100)
+
+PIED_score$score_rich_trichoptera <-
+  case_when(
+    PIED_score$rich_trichoptera > 2.03 ~ 100,
+    PIED_score$rich_trichoptera < 0.45 ~ 0,
+    TRUE ~ ((PIED_score$rich_trichoptera-0.45)/(2.03-0.45))*100)
+```
+
+```{r}
+NAPU_score$chessie_bibi <- rowMeans(NAPU_score[ ,25:43], na.rm = T)
+NCA_score$chessie_bibi  <- rowMeans(NCA_score[ ,15:23], na.rm = T)
+CA_score$chessie_bibi   <- rowMeans(CA_score[ ,19:31], na.rm = T)
+MAC_score$chessie_bibi  <- rowMeans(MAC_score[ ,18:29], na.rm = T)
+SEP_score$chessie_bibi  <- rowMeans(SEP_score[ ,17:26], na.rm = T)
+BLUE_score$chessie_bibi <- rowMeans(BLUE_score[ ,11:15], na.rm = T) 
+NRV_score$chessie_bibi  <- rowMeans(NRV_score[ ,14:21], na.rm = T)
+SRV_score$chessie_bibi  <- rowMeans(SRV_score[ ,21:35], na.rm = T)
+UNP_score$chessie_bibi  <- rowMeans(UNP_score[ ,18:29], na.rm = T)
+SGV_score$chessie_bibi  <- rowMeans(SGV_score[ ,27:47], na.rm = T) 
+LNP_score$chessie_bibi  <- rowMeans(LNP_score[ ,15:23], na.rm = T)
+PIED_score$chessie_bibi <- rowMeans(PIED_score[ ,14:21], na.rm = T) 
+```
+
+```{r}
+NAPU_score$rating <-
+  case_when(
+    NAPU_score$chessie_bibi < 17.9 ~ "very_poor",
+    NAPU_score$chessie_bibi >= 17.9 & NAPU_score$chessie_bibi < 35.9 ~ "poor",
+    NAPU_score$chessie_bibi >= 35.9 & NAPU_score$chessie_bibi < 47.7 ~ "fair",
+    NAPU_score$chessie_bibi >= 47.7 & NAPU_score$chessie_bibi < 61.9 ~ "good",
+    NAPU_score$chessie_bibi >= 61.9 ~ "excellent",
+    TRUE ~ "ERROR")
+
+NCA_score$rating <-
+  case_when(
+    NCA_score$chessie_bibi < 15.7 ~ "very_poor",
+    NCA_score$chessie_bibi >= 15.7 & NCA_score$chessie_bibi < 31.5 ~ "poor",
+    NCA_score$chessie_bibi >= 31.5 & NCA_score$chessie_bibi < 56.3 ~ "fair",
+    NCA_score$chessie_bibi >= 56.3 & NCA_score$chessie_bibi < 78.7 ~ "good",
+    NCA_score$chessie_bibi >= 78.7 ~ "excellent",
+    TRUE ~ "ERROR")
+  
+CA_score$rating <-
+  case_when(
+    CA_score$chessie_bibi < 27.9 ~ "very_poor",
+    CA_score$chessie_bibi >= 27.9 & CA_score$chessie_bibi < 55.8 ~ "poor",
+    CA_score$chessie_bibi >= 55.8 & CA_score$chessie_bibi < 69.5 ~ "fair",
+    CA_score$chessie_bibi >= 69.5 & CA_score$chessie_bibi < 78.6 ~ "good",
+    CA_score$chessie_bibi >= 78.6 ~ "excellent",
+    TRUE ~ "ERROR")
+
+MAC_score$rating <-
+  case_when(
+    MAC_score$chessie_bibi < 22.7 ~ "very_poor",
+    MAC_score$chessie_bibi >= 22.7 & MAC_score$chessie_bibi < 45.4 ~ "poor",
+    MAC_score$chessie_bibi >= 45.4 & MAC_score$chessie_bibi < 63.2 ~ "fair",
+    MAC_score$chessie_bibi >= 63.2 & MAC_score$chessie_bibi < 76.8 ~ "good",
+    MAC_score$chessie_bibi >= 76.8 ~ "excellent",
+    TRUE ~ "ERROR")
+  
+SEP_score$rating <-
+  case_when(
+    SEP_score$chessie_bibi < 16.3 ~ "very_poor",
+    SEP_score$chessie_bibi >= 16.3 & SEP_score$chessie_bibi < 32.6 ~ "poor",
+    SEP_score$chessie_bibi >= 32.6 & SEP_score$chessie_bibi < 56.7 ~ "fair",
+    SEP_score$chessie_bibi >= 56.7 & SEP_score$chessie_bibi < 83.9 ~ "good",
+    SEP_score$chessie_bibi >= 83.9 ~ "excellent",
+    TRUE ~ "ERROR")
+  
+BLUE_score$rating <-
+  case_when(
+    BLUE_score$chessie_bibi < 30.9 ~ "very_poor",
+    BLUE_score$chessie_bibi >= 30.9 & BLUE_score$chessie_bibi < 61.7 ~ "poor",
+    BLUE_score$chessie_bibi >= 61.7 & BLUE_score$chessie_bibi < 82.2 ~ "fair",
+    BLUE_score$chessie_bibi >= 82.2 & BLUE_score$chessie_bibi < 91.1 ~ "good",
+    BLUE_score$chessie_bibi >= 91.1 ~ "excellent",
+    TRUE ~ "ERROR")
+  
+NRV_score$rating <-
+  case_when(
+    NRV_score$chessie_bibi < 19.1 ~ "very_poor",
+    NRV_score$chessie_bibi >= 19.1 & NRV_score$chessie_bibi < 38.2 ~ "poor",
+    NRV_score$chessie_bibi >= 38.2 & NRV_score$chessie_bibi < 50.8 ~ "fair",
+    NRV_score$chessie_bibi >= 50.8 & NRV_score$chessie_bibi < 75.0 ~ "good",
+    NRV_score$chessie_bibi >= 75.0 ~ "excellent",
+    TRUE ~ "ERROR")
+  
+SRV_score$rating <-
+  case_when(
+    SRV_score$chessie_bibi < 21.6 ~ "very_poor",
+    SRV_score$chessie_bibi >= 21.6 & SRV_score$chessie_bibi < 43.2 ~ "poor",
+    SRV_score$chessie_bibi >= 43.2 & SRV_score$chessie_bibi < 58.0 ~ "fair",
+    SRV_score$chessie_bibi >= 58.0 & SRV_score$chessie_bibi < 71.9 ~ "good",
+    SRV_score$chessie_bibi >= 71.9 ~ "excellent",
+    TRUE ~ "ERROR")
+
+UNP_score$rating <-
+  case_when(
+    UNP_score$chessie_bibi < 31.3 ~ "very_poor",
+    UNP_score$chessie_bibi >= 31.3 & UNP_score$chessie_bibi < 62.6 ~ "poor",
+    UNP_score$chessie_bibi >= 62.6 & UNP_score$chessie_bibi < 69.9 ~ "fair",
+    UNP_score$chessie_bibi >= 69.9 & UNP_score$chessie_bibi < 80.5 ~ "good",
+    UNP_score$chessie_bibi >= 80.5 ~ "excellent",
+    TRUE ~ "ERROR")
+
+SGV_score$rating <-
+  case_when(
+    SGV_score$chessie_bibi < 29.9 ~ "very_poor",
+    SGV_score$chessie_bibi >= 29.9 & SGV_score$chessie_bibi < 59.9 ~ "poor",
+    SGV_score$chessie_bibi >= 59.9 & SGV_score$chessie_bibi < 66.0 ~ "fair",
+    SGV_score$chessie_bibi >= 66.0 & SGV_score$chessie_bibi < 76.5 ~ "good",
+    SGV_score$chessie_bibi >= 76.5 ~ "excellent",
+    TRUE ~ "ERROR")
+
+LNP_score$rating <-
+  case_when(
+    LNP_score$chessie_bibi < 35.2 ~ "very_poor",
+    LNP_score$chessie_bibi >= 35.2 & LNP_score$chessie_bibi < 70.3 ~ "poor",
+    LNP_score$chessie_bibi >= 70.3 & LNP_score$chessie_bibi < 80.2 ~ "fair",
+    LNP_score$chessie_bibi >= 80.2 & LNP_score$chessie_bibi < 91.3 ~ "good",
+    LNP_score$chessie_bibi >= 91.3 ~ "excellent",
+    TRUE ~ "ERROR")
+
+PIED_score$rating <-
+  case_when(
+    PIED_score$chessie_bibi < 30.3 ~ "very_poor",
+    PIED_score$chessie_bibi >= 30.3 & PIED_score$chessie_bibi < 60.6 ~ "poor",
+    PIED_score$chessie_bibi >= 60.6 & PIED_score$chessie_bibi < 73.2 ~ "fair",
+    PIED_score$chessie_bibi >= 73.2 & PIED_score$chessie_bibi < 81.8 ~ "good",
+    PIED_score$chessie_bibi >= 81.8 ~ "excellent",
+    TRUE ~ "ERROR")
+```
+
+```{r}
+NAPU_sub <- NAPU_score %>% select(unique_id, icprb_bioregion_id, chessie_bibi, rating)
+NCA_sub <- NCA_score %>% select(unique_id, icprb_bioregion_id, chessie_bibi, rating)
+CA_sub <- CA_score %>% select(unique_id, icprb_bioregion_id, chessie_bibi, rating)
+MAC_sub <- MAC_score %>% select(unique_id, icprb_bioregion_id, chessie_bibi, rating)
+SEP_sub <- SEP_score %>% select(unique_id, icprb_bioregion_id, chessie_bibi, rating)
+BLUE_sub <- BLUE_score %>% select(unique_id, icprb_bioregion_id, chessie_bibi, rating)
+NRV_sub <- NRV_score %>% select(unique_id, icprb_bioregion_id, chessie_bibi, rating)
+SRV_sub <- SRV_score %>% select(unique_id, icprb_bioregion_id, chessie_bibi, rating)
+UNP_sub <- UNP_score %>% select(unique_id, icprb_bioregion_id, chessie_bibi, rating)
+SGV_sub <- SGV_score %>% select(unique_id, icprb_bioregion_id, chessie_bibi, rating)
+LNP_sub <- LNP_score %>% select(unique_id, icprb_bioregion_id, chessie_bibi, rating)
+PIED_sub <- PIED_score %>% select(unique_id, icprb_bioregion_id, chessie_bibi, rating)
+
+bind1 <- rbind(NAPU_sub, NCA_sub)
+bind2 <- rbind(bind1, CA_sub)
+bind3 <- rbind(bind2, MAC_sub)
+bind4 <- rbind(bind3, SEP_sub)
+bind5 <- rbind(bind4, BLUE_sub)
+bind6 <- rbind(bind5, NRV_sub)
+bind7 <- rbind(bind6, SRV_sub)
+bind8 <- rbind(bind7, UNP_sub)
+bind9 <- rbind(bind8, SGV_sub)
+bind10 <- rbind(bind9, LNP_sub)
+bibi_ratings_combined <- rbind(bind10, PIED_sub)
+```
+
+```{r}
+write.csv(bibi_ratings_combined, file= "name_of_file.csv")
+```
+
+```{r}
+stacked_bar <- bibi_ratings_combined %>% 
+  group_by(icprb_bioregion_id) %>% 
+  mutate(total = n()) %>% 
+  group_by(icprb_bioregion_id, rating, total) %>% 
+  summarize(count = n()) %>% 
+  ungroup() %>% 
+  mutate(percent = count / total * 100, rating = factor(rating, levels = c("excellent", "good", "fair", "poor", "very_poor"))) %>% 
+  arrange(icprb_bioregion_id, rating)
+
+  ggplot(stacked_bar) + geom_bar(aes(y = percent, x = icprb_bioregion_id, fill = rating), data = stacked_bar, stat="identity") + 
+                        ggtitle("Chessie BIBI Index Scores for Family-level Bioregion Indices") + ylab("Percent (%)") + xlab("Bioregion") +
+                        scale_fill_manual(name = "Rating",
+                        labels = c("Excellent", "Good", "Fair", "Poor", "Very poor"),
+                        values = c("excellent" = "darkgreen", "good" = "green3", "fair" = "yellow2", "poor" = "orange2", "very_poor" = "red3"))  
+```
+
+```{r}
+pie_total <- bibi_ratings_combined %>%
+  mutate(total = n()) %>% 
+  group_by(rating, total) %>% 
+  summarize(count = n()) %>% 
+  ungroup() %>%
+  mutate(percent = count / total * 100)
+
+slices <- c(21.49659, 18.32555, 16.42113, 26.10492, 17.65181)
+lbls <- c("Excellent", "Good", "Fair", "Poor", "Very Poor")
+pct <- round(slices/sum(slices)*100)
+lbls <- paste(lbls, pct)
+lbls <- paste(lbls,"%",sep="")
+pie(slices, labels = lbls, main="Family-level Bioregion Chessie BIBI Ratings", col= c("darkgreen", "green3","yellow2", "orange2", "red3"))
+```
+
+
+
 
