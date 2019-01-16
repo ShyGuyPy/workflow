@@ -2152,6 +2152,15 @@ lbls <- paste(lbls,"%",sep="")
 pie(slices, labels = lbls, main="Family-level Bioregion Chessie BIBI Ratings", col= c("darkgreen", "green3","yellow2", "orange2", "red3"))
 ```
 
-
-
+run up to Pielou
+testing a work around
+```{r}
+test.df <- rare %>%
+  filter(unique_id %in% c("10147_1", "10021_1")) %>%
+  group_by(unique_id) %>%
+  select(unique_id, family, rare_count) %>%
+  mutate(family_totals = sum(rare_count)) %>%
+  group_by(family) #%>%
+  #summarise_all(unique_id)
+```
 
