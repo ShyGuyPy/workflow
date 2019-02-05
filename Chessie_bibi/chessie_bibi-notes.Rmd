@@ -2164,3 +2164,44 @@ test.df <- rare %>%
   #summarise_all(unique_id)
 ```
 
+
+```{r}
+library(dplyr)
+library(readxl)
+
+project.dir <- rprojroot::find_rstudio_root_file()
+
+test.df <- read_excel(file.path(project.dir,"data/C_BIBI_data/repeat_test.xlsx"))
+
+
+
+repeat.scores.df <- test.df %>%              
+ select(unique_id) %>%
+ unique() %>%
+ arrange(unique_id)
+
+  repeat_me <- 2
+  count <- 1
+  # name = as.character(paste0("Score", count))
+  # repeat.scores.df$name = 5
+  for(i in repeat_me) {
+    
+    name <- as.character(paste0("Score", count))
+    
+    repeat.scores.df$name="dog"
+    repeat.scores.df$name=as.character(paste0("Score", count)) 
+    
+    repeat.scores.shake.df <- repeat.scores.df %>%
+      mutate(unique_id = (sample(0:10, 1, replace=TRUE)))#*unique_id))
+    
+    
+    
+    as.character(paste0("Score", count)) <- repeat.scores.shake.df$unique_id
+    #repeat.scores.df <- repeat.scores.df %>%
+         
+
+    count = count+1
+
+  }
+```
+
