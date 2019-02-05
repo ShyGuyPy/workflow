@@ -1610,10 +1610,17 @@ library(sp)
 
 project.dir <- rprojroot::find_rstudio_root_file()
 
-ncdf_path <- file.path(project.dir, "data/netcdf/nwm.t00z.short_range.channel_rt.f001.conus.nc")
+ncdf_path_short <- file.path(project.dir, "data/netcdf/nwm.t00z.short_range.channel_rt.f001.conus.nc")
 
-ncdf <- nc_open(ncdf_path)
+ncdf_path_long <- file.path(project.dir, "data/netcdf/nwm.t00z.long_range.channel_rt_1.f006.conus.nc")
 
-print(ncdf)
+ncdf_short <- nc_open(ncdf_path_short)
+ncdf_long <- nc_open(ncdf_path_long)
+
+print(ncdf_long)
+```
+
+```{r}
+
 ```
 
