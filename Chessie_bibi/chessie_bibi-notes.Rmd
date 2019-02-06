@@ -2165,6 +2165,8 @@ test.df <- rare %>%
 ```
 
 
+
+
 ```{r}
 library(dplyr)
 library(readxl)
@@ -2180,27 +2182,26 @@ repeat.scores.df <- test.df %>%
  unique() %>%
  arrange(unique_id)
 
-  repeat_me <- 2
-  count <- 1
-  # name = as.character(paste0("Score", count))
-  # repeat.scores.df$name = 5
-  for(i in repeat_me) {
+  repeat_me <- 5
+  repeat.scores.df
+  for(i in 1:repeat_me) {
     
-    name <- as.character(paste0("Score", count))
+    # rs.df <- repeat.scores.df %>%
+    # rename(count  = name)#as.character(paste0("Score", count))) 
+    #print(as.character(paste0("Score", i)))
     
-    repeat.scores.df$name="dog"
-    repeat.scores.df$name=as.character(paste0("Score", count)) 
+    # rs.df <- rs.df %>%
+    #   mutate(i= i)
     
-    repeat.scores.shake.df <- repeat.scores.df %>%
-      mutate(unique_id = (sample(0:10, 1, replace=TRUE)))#*unique_id))
+    #rs.df$test_column <- 12
+    repeat.scores.df <- repeat.scores.df %>%
+      mutate(test_column = i)
     
+    #as.character(paste0("Score", i))
     
-    
-    as.character(paste0("Score", count)) <- repeat.scores.shake.df$unique_id
-    #repeat.scores.df <- repeat.scores.df %>%
+    colnames(repeat.scores.df)[colnames(repeat.scores.df)=="test_column"] <- as.character(paste0("Score", i))
+    # colnames(data)[colnames(data)=="old_name"] <- "new_name"
          
-
-    count = count+1
 
   }
 ```
