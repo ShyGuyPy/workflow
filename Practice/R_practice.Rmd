@@ -1657,3 +1657,26 @@ hier.wide <- lapply(unique(bay.temp$org_tsn), function(tsn.i) {
   clean_up()
 ```
 
+lapply
+```{r}
+library(rprojroot)
+library(dplyr)
+library(ritis)
+
+project.dir <- rprojroot::find_rstudio_root_file()
+
+bay.temp <- data.table::fread(file.path(project.dir, "data/CEDR/", "cedr_phyto_taxa.csv")) %>%
+  mutate(tsn=as.numeric(tsn)) %>%
+  mutate(speccode = as.character(speccode)) %>%
+  mutate(reportingvalue = as.integer(reportingvalue)) %>%
+  mutate(samplenumber = as.character(samplenumber))
+
+
+test.df <- lapply(bay.temp$tsn, function(the_func){
+  mutate(average = mean(the_func))
+})
+  #test <- sum(the_func)
+
+```
+
+
