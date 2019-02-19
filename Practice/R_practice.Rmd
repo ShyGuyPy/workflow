@@ -1657,7 +1657,7 @@ hier.wide <- lapply(unique(bay.temp$org_tsn), function(tsn.i) {
   clean_up()
 ```
 
-lapply
+ritis (and lapply)
 ```{r}
 library(rprojroot)
 library(dplyr)
@@ -1671,10 +1671,41 @@ bay.temp <- data.table::fread(file.path(project.dir, "data/CEDR/", "cedr_phyto_t
   mutate(reportingvalue = as.integer(reportingvalue)) %>%
   mutate(samplenumber = as.character(samplenumber))
 
+accepted <- accepted_names(tsn =  504239, wt="json", raw=FALSE)
 
-test.df <- lapply(bay.temp$tsn, function(the_func){
-  mutate(average = mean(the_func))
-})
+#this generates a single match, and the integer 1 is returned
+count1 <- any_match_count(504239, wt="json", raw=FALSE)
+
+#this generates zero matches, as expected, and the integer 0 is returned
+count2 <- any_match_count(123123123, wt="json", raw=FALSE)
+
+comment_detail(tsn=180543)
+
+tsns <- c(504239,180543,2288,123)
+
+usable <- lapply(tsns, function(tsn.i) {
+  usage(tsn.i)$taxonUsageRating
+  
+  #thing <- ritis::common_names(tsn.i)$commonName
+   }) %>% 
+  bind_rows()
+
+names <- lapply(tsns, function(tsn.i) {
+  common_names(tsn.i)$commonName
+  #thing <- ritis::common_names(tsn.i)$commonName
+   }) %>% 
+  bind_rows()
+
+full <- lapply(tsns, function(tsn.i) {
+  hierarchy_full(tsn.i)
+  #thing <- ritis::common_names(tsn.i)$commonName
+   }) %>% 
+  bind_rows()
+
+single_full <- hierarchy_full(2288)
+# test.df <- lapply(bay.temp$tsn, function(the_func){
+#   mutate(average = mean(the_func))
+# })
   #test <- sum(the_func)
 
 ```
