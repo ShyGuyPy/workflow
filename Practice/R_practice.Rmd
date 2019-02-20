@@ -1710,4 +1710,21 @@ single_full <- hierarchy_full(2288)
 
 ```
 
+using taxize
+```{r}
+library(taxize)
+library(ritis)
+
+chiro_tsn <- get_tsn("Chironomus riparius")
+
+green_tsn <- get_tsn("Cyanobacteria")
+
+blue_green_tsn <- get_tsn("blue_green_sphere")
+
+zero_test <-  names(0)
+
+test <- usage("956108")
+test <- common_names("956108")
+
+```
 
