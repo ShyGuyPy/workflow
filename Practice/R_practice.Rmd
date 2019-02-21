@@ -1792,4 +1792,8 @@ no tsn blue_green_sphere but there is tsn for Cyanobacteria.  can this be used i
 
 ```
 
+```{r}
+num <- "003402"
+nums_fixed <- gsub("(^|[^0-9])0+", "\\1", as.integer(num), perl = TRUE)
+```
 
