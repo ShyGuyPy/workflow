@@ -1717,14 +1717,79 @@ library(ritis)
 
 chiro_tsn <- get_tsn("Chironomus riparius")
 
-green_tsn <- get_tsn("Cyanobacteria")
+green_tsn <- get_tsn("Chlorophyta")
 
-blue_green_tsn <- get_tsn("blue_green_sphere")
+blue_green_tsn <- get_tsn("Cyanobacteria")
 
-zero_test <-  names(0)
+zero_test <-  common_names("0")
 
-test <- usage("956108")
-test <- common_names("956108")
+test_use <- usage("956108")
+test_name <- common_names("956108")
+
+test_use2 <- usage("5414")
+test_name2 <- common_names("5414")
+
 
 ```
+
+
+exploring issue with green_cells
+```{r}
+green_cell_carbon.df <- missing_carbon.df %>%
+  filter(latinname=="green_cells") #%>%
+  #select(-size)
+
+green_cell_tsn.df <- missing_tsn.df %>%
+  filter(latinname=="green_cells") #%>%
+  #select(-size)
+
+blue_green_carbon.df <- missing_carbon.df %>%
+  filter(latinname=="blue_green_sphere") #%>%
+  #select(-size)
+
+blue_green_tsn.df <- missing_tsn.df %>%
+  filter(latinname=="blue_green_sphere") #%>%
+
+
+
+blue_green_sphere.df <- bay_merged.df %>%
+  filter(latinname %in% c("blue_green_sphere","green_cells"))
+
+blue_green_sphere_carbon.df <- carbon.df %>%
+  filter(latinname %in% c("green_cells","blue_green_sphere"))
+
+blue_green_sphere_carbon.df <- left_join(blue_green_sphere.df, carbon.df, by= c("latinname","size"))
+
+# bay_w_size.df <- bay_partials_added.df %>%
+#   #filter(size != as.character(NA))
+#   filter(!size == "not_applicable")
+
+
+green.df <- left_join(green_cell.df, carbon.df, by= c("latinname"))
+
+chiro <- bay_merged.df %>% filter(latinname %in% c("chironomus_riparius"))
+
+```
+
+no tsn blue_green_sphere but there is tsn for Cyanobacteria.  can this be used instead?  Aslo, check for an alias for green_cells as well.
+```{r}
+# green_tsn <- get_tsn("Cyanobacteria")
+# 
+# test <- usage("956108")
+# test <- common_names("956108")
+# 
+# test <- phyto.df %>%
+# filter(latinname%in% c("chironomus_riparius","chlorophyta","cryptomonas","green_cells"))
+# 
+# print(missing_tsn_names <- unique(missing_tsn.df$latinname))
+# 
+# print(missingcarbon_names <- unique(missing_carbon.df$latinname))
+```
+
+```{r}
+# c( "green_cells","blue_green_sphere","cylindrospermopsis","woronichinia_naegeliana","limnothrix"            ,"protoperidinium_orbiculare")
+
+
+```
+
 
