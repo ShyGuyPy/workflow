@@ -1797,3 +1797,25 @@ num <- "003402"
 nums_fixed <- gsub("(^|[^0-9])0+", "\\1", as.integer(num), perl = TRUE)
 ```
 
+for Andrea 
+```{r}
+library(MBSStools)
+library(dplyr)
+
+myIndex <- "MBSS.2005.Bugs"
+
+thresh <- MBSStools::metrics_scoring
+
+myMetrics.Bugs.MBSS <- as.character(droplevels(unique(thresh[thresh[,"Index.Name"]==myIndex, "MetricName"])))
+
+
+testMetric <-  as.character(droplevels(unique(thresh[test, "MetricName"])))
+test1 <- #unique(
+  thresh[thresh[,"Index.Name"]==myIndex, "Metrics"]#)
+
+test <- thresh[,"Index.Name"]==myIndex
+print(typeof(test))
+print(test)
+
+```
+
