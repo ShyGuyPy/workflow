@@ -1819,3 +1819,40 @@ print(test)
 
 ```
 
+```{r}
+library(readxl)
+library(dplyr)
+
+
+#creates project.dir, phyto directory object 
+project.dir <- rprojroot::find_rstudio_root_file()
+
+reservoir.df <- read_excel(file.path(project.dir, "data/Reservoir_Intake_test.xlsx"),
+                         sheet = "NorbData"#,
+                         #skip = 1
+                         )
+
+reservoir.df <-  reservoir.df %>%
+  mutate(Id = paste0(Year,Mon)) 
+
+#move last column (id) to first
+reservoir.df<-reservoir.df[,c(29, 1:28)]
+
+reservoir.df %>%  
+data.table::fwrite(file.path(project.dir, "data/", "Reservoir_intake.csv"))
+
+reservoir.df %>%  
+data.table::fwrite(file.path(project.dir, "data/", "Reservoir_intake.xlsx"))
+
+test.df <- reservoir.df %>%
+  select(Id, Year, Mon, Res)
+
+test.df %>%  
+data.table::fwrite(file.path(project.dir, "data/", "Test.xlsx"))
+
+test.df %>%  
+data.table::fwrite(file.path(project.dir, "data/", "Test.csv"))
+
+
+```
+
