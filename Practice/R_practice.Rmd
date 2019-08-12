@@ -1856,3 +1856,22 @@ data.table::fwrite(file.path(project.dir, "data/", "Test.csv"))
 
 ```
 
+
+```{r}
+library(readxl)
+library(dplyr)
+library(ggplot2)
+library(tidyr)
+library(lubridate)
+
+project.dir <- rprojroot::find_rstudio_root_file()
+
+ten_day.df <- data.table::fread(file.path(project.dir, "data/ten_day_test.csv"),
+                            data.table = FALSE)
+ 
+ten_day.df$date_time <- as_datetime(as.character(ten_day.df$date_time))
+ 
+ggplot(ten_day.df, aes(x = date_time, y = flow)) + geom_line(aes(linetype = site, colour = site))
+                                
+```
+
