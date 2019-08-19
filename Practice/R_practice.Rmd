@@ -1866,12 +1866,19 @@ library(lubridate)
 
 project.dir <- rprojroot::find_rstudio_root_file()
 
+#import the data
 ten_day.df <- data.table::fread(file.path(project.dir, "data/ten_day_test.csv"),
                             data.table = FALSE)
- 
+
+#turn dates to date_time type
 ten_day.df$date_time <- as_datetime(as.character(ten_day.df$date_time))
  
+#plot the data
 ggplot(ten_day.df, aes(x = date_time, y = flow)) + geom_line(aes(linetype = site, colour = site))
+
+#find data with missing flow values
+missing.df <- ten_day.df %>%
+  dplyr::filter(is.na(flow))
                                 
 ```
 
