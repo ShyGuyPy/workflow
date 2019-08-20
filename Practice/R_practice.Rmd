@@ -1882,3 +1882,22 @@ missing.df <- ten_day.df %>%
                                 
 ```
 
+```{r}
+library(readxl)
+library(dplyr)
+library(ggplot2)
+library(tidyr)
+library(lubridate)
+
+project.dir <- rprojroot::find_rstudio_root_file()
+
+#import the data from sarah's site
+demands.df <- data.table::fread("https://icprbcoop.org/drupal4/products/coop_pot_withdrawals.csv",
+                            data.table = FALSE)
+
+
+demands.long <- gather(demands.df,Site, Flow, 2:6)
+
+```
+
+
