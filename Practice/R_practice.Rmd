@@ -1910,4 +1910,9 @@ missing.df <- demands.df %>%
 
 ```
 
+```{r}
+library(RCurl)
+test <- url.exists("https://icprbcoop.org/drupal4/products/coop_pot_withdrawals.csv")
+print(test)
+```
 
