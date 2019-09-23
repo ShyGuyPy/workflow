@@ -1916,3 +1916,69 @@ test <- url.exists("https://icprbcoop.org/drupal4/products/coop_pot_withdrawals.
 print(test)
 ```
 
+```{r}
+
+
+
+last = 'https://mde.maryland.gov/programs/Water/droughtinformation/Currentconditions/PublishingImages/DroughtGraphsStarting2019jan31/Drought2019-08-31.png' 
+
+
+
+# substrRight <- function(x, n){
+#   substr(x, nchar(x)-n+1, nchar(x))
+# }
+
+# substrRight(x, 6)
+# [1] "string"
+# 
+# substrRight(x, 8)
+# [1] "a string"
+
+#grabs the tail end of the address for the Maryland Drought maps last displayed(the date)
+last_select = substr(last, nchar(last) -14+1,(nchar(last)-4))
+
+print(last_select)
+
+# makes the date a date object
+last_select = as.Date(last_select)
+
+#gets todays date
+todays_date = Sys.Date()
+
+#create a vector with all days between today and last date map was updated
+dates_array = seq(as.Date(last_select, format="%y-%m-%d"), as.Date(todays_date, format="%y-%m-%d"), by="days")
+#dates_array = c(last_select:todays_date)
+
+print(dates_array[4])
+
+theDate <- last_select
+
+while (theDate <= todays_date)
+{
+  url_to_date = (paste0('https://mde.maryland.gov/programs/Water/droughtinformation/Currentconditions/PublishingImages/DroughtGraphsStarting2019jan31/Drought',format(theDate,"20%y-%m-%d"),'.png'))
+  
+  #https://mde.maryland.gov/programs/Water/droughtinformation/Currentconditions/PublishingImages/DroughtGraphsStarting2019jan31/Drought2019-08-31.png
+  
+  try(
+
+    #test =
+    download.file(url_to_date, 'url_to_date.png', mode = 'wb')
+    #return(test)
+
+    # jj <- readPNG('url_to_date.png',native=TRUE)
+    # plot(0:1,0:1,type="n",ann=FALSE,axes=FALSE)
+    # rasterImage(jj,0,0,1,1)
+
+  )
+  #return(test)
+  
+  
+  theDate <- theDate + 1                    
+}
+
+jj <- readPNG('url_to_date.png',native=TRUE)
+plot(0:1,0:1,type="n",ann=FALSE,axes=FALSE)
+rasterImage(jj,0,0,1,1)
+
+```
+
