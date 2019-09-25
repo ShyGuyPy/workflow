@@ -1445,7 +1445,7 @@ ggsave(filename = paste0("plot",counter), plot = p[[1]], device= "pdf")
 
 
 ```
-this sis close to a working version but the random id(iva ave func snippet) is being assigned to values with cumulative above 1.  Don't want that.
+this is close to a working version but the random id(iva ave func snippet) is being assigned to values with cumulative above 1.  Don't want that.
 ```{r}
 library(dplyr)
 
@@ -1998,6 +1998,7 @@ print(url_to_date)
 
 ```{r}
 library(RCurl)
+#script to get most recent maryland drought map
 
 #url for maryland map always starts this way
 map_url_head = 'https://mde.maryland.gov/programs/Water/droughtinformation/Currentconditions/PublishingImages/DroughtGraphsStarting2019jan31/Drought'
@@ -2027,6 +2028,52 @@ while ( test == FALSE)
 print(test)
 print(url_to_date)
   
+
+```
+
+```{r}
+library(RCurl)
+library(stringr)
+
+#script to get most recent virginia drought map
+
+
+map_url_head ='https://deq1.bse.vt.edu/drought/state/images/maps/'
+
+test <- curl::curl(map_url_head)
+
+open(test)
+
+# Get lines
+out <- readLines(test)
+
+#print(out)
+#for(i in out[12:15]){print(i)}
+#for(i in out[9:length(out)]){print(i)}
+
+#for (i in out[length(out):12]){print(i)}
+
+#get todays date
+todays_date = Sys.Date()
+
+str_todays_date = as.character(todays_date)
+  #substr(todays_date, nchar(todays_date)-10+1, nchar(todays_date))
+print(todays_date)
+print(typeof(todays_date))
+print(str_todays_date)
+
+#reverse iterate through
+#for (i in out[length(out):12]){print(i)}
+
+test_loc <- str_locate(out, str_todays_date)#"2019-09-25") 
+# print(out[420:425])
+# print(typeof(test))
+
+#print(!is.na(test))
+
+
+
+
 
 ```
 
