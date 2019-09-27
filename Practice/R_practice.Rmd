@@ -2066,14 +2066,85 @@ print(str_todays_date)
 #for (i in out[length(out):12]){print(i)}
 
 test_loc <- str_locate(out, str_todays_date)#"2019-09-25") 
+#print(test_loc)
 # print(out[420:425])
 # print(typeof(test))
 
+first <- "imageMapFile"
+
+last <- ".png"
+
+id_num<- str_match(entry2, "imageMapFile(.*?).png")
+#print(id_num)
+full_url = paste0(map_url_head,id_num[1])#,id_num)
+print(full_url)
 #print(!is.na(test))
+# test1 <- (out[50])
+# test2 <- (out[200])
+# entry1 <- (out[425])
+# entry2 <- (out[426])
+# 
+# str_sub(entry2, 112,140)
+# 
+# str_sub(test1, 112,140)
+# str_sub(test2, 112,140)
 
 
+# test2 <- curl::curl(paste0(map_url_head,"imageMapFile1569587611359.png"))
+# open(test2)
 
 
+url = paste0(map_url_head,"imageMapFile1569587611359.png")
 
+
+#"https://deq1.bse.vt.edu/drought/state/images/maps/imageMapFile1569587611359.png"
+
+```
+
+```{r}
+#va drought map continued
+
+library(RCurl)
+library(stringr)
+
+map_url_head ='https://deq1.bse.vt.edu/drought/state/images/maps/'
+
+test <- curl::curl(map_url_head)
+
+open(test)
+out <- readLines(test)
+
+todays_date = Sys.Date()
+
+test_date = todays_date
+str_todays_date = as.character(todays_date)
+
+latest_maps <- vector()
+
+test_loc <- str_locate(out, format(test_date,"20%y-%m-%d"))
+
+print(typeof(test_loc))
+print(test_loc[426])
+
+# while(length(latest_maps) ==0 ){
+# 
+# test_loc <- str_locate(out, format(test_date,"20%y-%m-%d"))
+# 
+# #add any entries that arent NA from test_loc into latest_maps
+# 
+# test_date = test_date - 1
+# }
+
+# while ( test == FALSE)
+# {
+#   #concat to produce url in expected format
+#   url_to_date = (paste0('https://mde.maryland.gov/programs/Water/droughtinformation/Currentconditions/PublishingImages/DroughtGraphsStarting2019jan31/Drought',format(test_date,"20%y-%m-%d"),'.png'))
+#   
+#   #tests if
+#   test <- url.exists(url_to_date)
+#   
+#   #back one day
+#   test_date = test_date -1
+# }
 ```
 
