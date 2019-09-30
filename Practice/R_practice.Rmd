@@ -2121,30 +2121,56 @@ str_todays_date = as.character(todays_date)
 
 latest_maps <- vector()
 
+#locate values that match date 
 test_loc <- str_locate(out, format(test_date,"20%y-%m-%d"))
 
-print(typeof(test_loc))
-print(test_loc[426])
+#######find 
+NonNAindex <- which(!is.na(test_loc))
+print(NonNAindex)
+# print(out[427:439])
+# print(out[5526:5568])
+# print(out[19952:19970])
+# print(out[19952:19970])
+# print(out[20410:20422])
+# print(out[25509:25551])
+print(out[439])
 
-# while(length(latest_maps) ==0 ){
-# 
-# test_loc <- str_locate(out, format(test_date,"20%y-%m-%d"))
-# 
-# #add any entries that arent NA from test_loc into latest_maps
-# 
-# test_date = test_date - 1
+test = out[427]#[427][168:177])
+# print(test)
+
+test_full = out[427:439]
+# print(test_full)
+#use regex to find the id between known elements
+id <- str_match(test,'href=\"(.*?)">imageMapFile')
+# print(id[,2])
+#assemble the full url
+full_url = paste0(map_url_head,id[,2])
+# print(full_url)
+```
+
+```{r}
+# print(out[5592])
+
+#print(NonNAindex)
+
+test.df <- data.frame(matrix(ncol = 3, nrow = 0))
+x <- c("htnl","date", "id")
+colnames(df) <- x
+
+
+for(i in NonNAindex){
+  print(out[i])
+}
+
+
+  
+
+# for(i in NonNAindex){
+#     id <- str_match(out[i],'>2019-09-30 (.*?)  </td><td')
+#     test_vec[i] <- id[,2]
 # }
 
-# while ( test == FALSE)
-# {
-#   #concat to produce url in expected format
-#   url_to_date = (paste0('https://mde.maryland.gov/programs/Water/droughtinformation/Currentconditions/PublishingImages/DroughtGraphsStarting2019jan31/Drought',format(test_date,"20%y-%m-%d"),'.png'))
-#   
-#   #tests if
-#   test <- url.exists(url_to_date)
-#   
-#   #back one day
-#   test_date = test_date -1
-# }
+print(test_vec)
+
 ```
 
