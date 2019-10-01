@@ -2153,14 +2153,18 @@ full_url = paste0(map_url_head,id[,2])
 
 #print(NonNAindex)
 
-test.df <- data.frame(matrix(ncol = 3, nrow = 0))
-x <- c("htnl","date", "id")
-colnames(df) <- x
+test.df <- data.frame(matrix(ncol = 4, nrow = 0))
+x <- c("html","date", "time", "id")
+colnames(test.df) <- x
+
+test2.df <- rbind(test.df, out)
+print(test2.df)
+#lapply(str_match(out,'>2019-09-30 (.*?)  </td><td'))
 
 
-for(i in NonNAindex){
-  print(out[i])
-}
+# for(i in NonNAindex){
+#   print(out[i])
+# }
 
 
   
