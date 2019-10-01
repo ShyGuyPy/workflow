@@ -2149,15 +2149,33 @@ full_url = paste0(map_url_head,id[,2])
 ```
 
 ```{r}
-# print(out[5592])
+library(dplyr)
+library(tidyverse)
+print(out[2])#5592])
+
+#"<tr><td valign=\"top\"><img src=\"/icons/image2.gif\" alt=\"[IMG]\"></td><td><a href=\"imageMapFile15698691306458.png\">imageMapFile15698691306458.png</a></td><td align=\"right\">2019-09-30 14:45  </td><td align=\"right\"> 31K</td><td>&nbsp;</td></tr>"
 
 #print(NonNAindex)
 
-test.df <- data.frame(matrix(ncol = 4, nrow = 0))
-x <- c("html","date", "time", "id")
-colnames(test.df) <- x
+test.df <- data.frame(matrix(ncol = 4, nrow = length(out)))
+cols <- c("html","date", "time", "id")
+colnames(test.df) <- cols
 
-test2.df <- rbind(test.df, out)
+test3.df <- as.data.frame(out, row.names = NULL, optional = TRUE, col.names = cols )
+colnames(test3.df) <- c("html")
+
+id_pattern = 'href=\"(.*?)">imageMapFile'
+date_time_pattern = '"right\">(.*?)  </td><td'
+full_pattern = *_([^_]*)
+
+test4.df <- test3.df %>% 
+  #mutate(id =str_match(html,'href=\"(.*?)">imageMapFile'))
+  extract(test.df, html, c("id", "date_time"), regex = id_pattern)
+
+#cbind(test3.df,date, time, id)
+
+
+#test2.df <- rbind(test.df, out)
 print(test2.df)
 #lapply(str_match(out,'>2019-09-30 (.*?)  </td><td'))
 
@@ -2176,5 +2194,65 @@ print(test2.df)
 
 print(test_vec)
 
+```
+
+```{r}
+test_url <- "<tr><td valign=\"top\"><img src=\"/icons/image2.gif\" alt=\"[IMG]\"></td><td><a href=\"imageMapFile15698691306458.png\">imageMapFile15698691306458.png</a></td><td align=\"right\">2019-09-30 14:45  </td><td align=\"right\"> 31K</td><td>&nbsp;</td></tr>"
+
+
+#"href=\".*</a></td><td align=\"right\">*</td><td align=\"right\"> 31K</td><td>&nbsp;</td></tr>"
+
+#"(\\d+).*_([^_]*).xlsx"
+pattern_id <- "\\w{10,}"
+pattern_date <- "\\d{4}[-]\\d{2}[-]\\d{2}"
+pattern_time <- "\\d{2}[:]\\d{2}"
+
+test_out <- str_match(test, pattern_time)
+```
+
+```{r}
+library(RCurl)
+library(stringr)
+library(dplyr)
+library(tidyverse)
+
+#this is the url that contains all the map files
+map_url_head ='https://deq1.bse.vt.edu/drought/state/images/maps/'
+
+#creates an object to open 
+test <- curl::curl(map_url_head)
+
+#open and read said object
+open(test)
+out <- readLines(test)
+
+map.df <- as.data.frame(out, row.names = NULL, optional = TRUE, col.names = cols )
+colnames(map.df) <- c("html")
+
+#remove useless entries in maps dataframe
+map.df <- tail(map.df, -10)
+map.df <- head(map.df,-4)
+
+######patterns for finding string fragments for retrieving map
+pattern_id <- "\\w{10,}"
+pattern_date <- "\\d{4}[-]\\d{2}[-]\\d{2}"
+pattern_time <- "\\d{2}[:]\\d{2}"
+
+pattern_b4_time <- "\\D*[^\\w{10,}]"
+
+################
+test_url <- "<tr><td valign=\"top\"><img src=\"/icons/image2.gif\" alt=\"[IMG]\"></td><td><a href=\"imageMapFile15698691306458.png\">imageMapFile15698691306458.png</a></td><td align=\"right\">2019-09-30 14:45  </td><td align=\"right\"> 31K</td><td>&nbsp;</td></tr>"
+
+#a test of our pattern
+test_out <- str_match(test_url, pattern_date)#out[25] , pattern_time)
+print(test_out)
+
+###this is what you want to do but it's not working as is(llok at it tomorow)
+map2.df <- extract(map.df,html, c("html","date"), regex = pattern_date, remove =FALSE)
+
+
+map2.df <- separate(map.df,html, c("html","date"), sep =  pattern_date)
+
+print(head(map2.df$trash))
 ```
 
