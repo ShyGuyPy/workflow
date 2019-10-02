@@ -2226,7 +2226,9 @@ test <- curl::curl(map_url_head)
 open(test)
 out <- readLines(test)
 
-map.df <- as.data.frame(out, row.names = NULL, optional = TRUE, col.names = cols )
+#cols <- c("html")
+
+map.df <- as.data.frame(out, row.names = NULL, optional = TRUE)#, col.names = cols )
 colnames(map.df) <- c("html")
 
 ######patterns for finding string fragments for retrieving map
