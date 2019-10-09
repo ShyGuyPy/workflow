@@ -2281,4 +2281,17 @@ print(map_url_full)
 # 
 # print(head(map2.df$date, 430))
 ```
+```{r}
+library(RCurl)
+
+site_url <- "https://icprbcoop.org/drupal4/products/coop_pot_withdrawals.csv"
+
+test <- curl::curl(site_url)
+
+open(test)
+out <- readLines(test)
+
+print(out)
+
+```
 
