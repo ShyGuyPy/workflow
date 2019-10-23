@@ -2291,9 +2291,10 @@ test <- curl::curl(site_url)
 open(test)
 out <- readLines(test)
 
-print(out)
+print(head(out, 20))
 
 ```
+
 ```{r}
 library(rsconnect)
 rsconnect::deployApp("C:/Users/icprbadmin/Documents/R_Scripts/shiny_test_app4")
@@ -2340,5 +2341,32 @@ eval(parse(text = paste("library(", need, ")")))
 rm(Get, ins, need)
 #------------------------------------------------------------------------------
 options(shiny.usecairo = TRUE)
+```
+
+```{r}
+library(curl)
+library(jsonlite)
+
+url_head <- 'https://deq1.bse.vt.edu/drought/state/images/maps/'
+
+# url_test <-'https://deq1.bse.vt.edu/drought/state/images/maps/PrecipMap14050126519712.png'
+
+deploy_test <- curl::curl(url_head)
+
+#print(deploy_test)
+
+out <- readLines(deploy_test)
+
+out_mem <- curl_fetch_memory(url_head)
+#print(out[15:30])
+parse_headers(out_mem$headers)#[15:30])
+
+#prettify(
+rawToChar(out_mem$content)
+#)
+
+# tmp <- tempfile()
+# curl_download(url_test, tmp)
+# readline(tmp)
 ```
 
