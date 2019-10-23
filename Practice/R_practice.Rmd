@@ -2356,10 +2356,11 @@ deploy_test <- curl::curl(url_head)
 #print(deploy_test)
 
 out <- readLines(deploy_test)
+print(out[1:30])
 
 out_mem <- curl_fetch_memory(url_head)
-#print(out[15:30])
-parse_headers(out_mem$headers)#[15:30])
+
+#parse_headers(out_mem$headers)#[15:30])
 
 #prettify(
 rawToChar(out_mem$content)
