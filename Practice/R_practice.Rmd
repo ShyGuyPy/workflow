@@ -2370,4 +2370,20 @@ rawToChar(out_mem$content)
 # curl_download(url_test, tmp)
 # readline(tmp)
 ```
+```{r}
+
+test_png = 'C:/Users/icprbadmin/Documents/R_Scripts/2019_DroughtOps/input/images/va_drought_placeholder.png'
+
+library(png)
+img <- readPNG(system.file("img", test_png, package="png"))
+grid::grid.raster(img)
+```
+
+```{r}
+#/inputs/parameters/ts/current
+https://icprbcoop.org/drupal4/icprb/flow-data?startdate=01%2F01%2F2019&enddate=10%2F24%2F2019&format=daily&submit=Submit
+
+https://icprbcoop.org/drupal4/products/coop_pot_withdrawals.csv
+
+```
 
