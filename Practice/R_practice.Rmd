@@ -2370,13 +2370,20 @@ rawToChar(out_mem$content)
 # curl_download(url_test, tmp)
 # readline(tmp)
 ```
+
 ```{r}
 
-test_png = 'C:/Users/icprbadmin/Documents/R_Scripts/2019_DroughtOps/input/images/va_drought_placeholder.png'
+test_png = file.path('C:\\Users\\icprbadmin\\Documents\\R_Scripts\\workflow\\data\\DREX\\images\\test_bulb.png')
+#'C:/Users/icprbadmin/Documents/R_Scripts/workflow/data/DREX/images/test_bulb.png'
+#va_drought_placeholder
+
+print(test_png)
 
 library(png)
-img <- readPNG(system.file("img", test_png, package="png"))
+img <- readPNG(test_png, TRUE, FALSE)#system.file("img", test_png, package="png"))
+
 grid::grid.raster(img)
+
 ```
 
 ```{r}
@@ -2386,4 +2393,69 @@ https://icprbcoop.org/drupal4/icprb/flow-data?startdate=01%2F01%2F2019&enddate=1
 https://icprbcoop.org/drupal4/products/coop_pot_withdrawals.csv
 
 ```
+
+
+```{r}
+library(jsonlite)
+library(rprojroot)
+library(dplyr)
+library(tidyr)
+
+url.root <- "http://datahub.chesapeakebay.net/api.JSON"
+todays.date <- format(Sys.Date(), "%m-%d-%Y")
+
+station.vec <- file.path(url.root,
+                       "LivingResources",
+                       "TidalPlankton",
+                       "Reported",
+                       min_date,
+                       max_date, 
+                       phyto_num,
+                       "Station") %>% 
+  fromJSON() %>% 
+  pull(unique(MonitoringLocationId))
+
+clean_string <- function(x) {
+  x %>% 
+    stringr::str_trim() %>% 
+    tolower() %>% 
+    stringr::str_replace_all("\\s+", " ") %>% 
+    stringr::str_replace_all(" ", "_") %>%  
+    if_else(. == "", as.character(NA), .)
+}
+
+clean_up <- function(x) {
+  x %>% 
+    rename_all(clean_string) %>% 
+    mutate_if(is.character, funs(clean_string))%>% 
+    distinct()
+}
+
+min_date = "1-01-1970"
+
+max_date = todays.date
+
+pico_num = "18"
+
+phyto_num = "17"
+
+chla=21
+doc=34 
+pheo=74 
+salinity=83
+
+event.df <- file.path(url.root,
+                      "LivingResources",
+                      "TidalPlankton",
+                      "MonitorEvent",
+                      min_date,
+                      max_date, 
+                      phyto_num,
+                      "Station",
+                      paste(station.vec, collapse = ",")) %>%
+  fromJSON() %>% 
+  clean_up()
+```
+
+
 
