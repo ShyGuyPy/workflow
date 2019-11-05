@@ -2380,7 +2380,9 @@ test_png = file.path('C:\\Users\\icprbadmin\\Documents\\R_Scripts\\workflow\\dat
 print(test_png)
 
 library(png)
-img <- readPNG(test_png, TRUE, FALSE)#system.file("img", test_png, package="png"))
+img <- readPNG(test_png)#test_png, TRUE, FALSE)#system.file("img", test_png, package="png"))
+
+#print(typeof(img))
 
 grid::grid.raster(img)
 
