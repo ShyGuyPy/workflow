@@ -1892,7 +1892,7 @@ library(lubridate)
 project.dir <- rprojroot::find_rstudio_root_file()
 
 #import the data from sarah's site
-demands_raw.df <- data.table::fread("https://icprbcoop.org/drupal4/products/coop_pot_withdrawals.csv",
+demands_raw.df <- data.table::fread("http://icprbcoop.org/drupal4/products/coop_pot_withdrawals.csv",
                             data.table = FALSE)
 
 #gather the data into long format
@@ -2459,5 +2459,50 @@ event.df <- file.path(url.root,
   clean_up()
 ```
 
+```{r}
+library(data.table)
+library(dplyr)
 
+demands_raw.df <- data.table::fread("https://icprbcoop.org/drupal4/products/coop_pot_withdrawals.csv",data.table = FALSE)
+```
+
+
+```{r}
+library(readxl)
+library(dplyr)
+library(ggplot2)
+library(tidyr)
+library(lubridate)
+
+#import the data from sarah's site
+demands_raw.df <- data.table::fread("http://icprbcoop.org/drupal4/products/coop_pot_withdrawals.csv",
+                                    data.table = FALSE)
+
+#gather the data into long format
+demands.df <- gather(demands_raw.df,site, flow, 2:6)
+
+#turn dates to date_time type
+demands.df$DateTime <- as_datetime(as.character(demands.df$DateTime))
+
+#write dataframe to file
+write.csv(demands.df, paste(
+  "download_data_temp.csv"))
+
+# data.table::fwrite(demands.df,paste(
+#   "download_data_temp.csv"))
+
+
+  
+#read file
+demands2.df <- data.table::fread(paste(
+  "download_data_temp.csv"),
+                                data.table = FALSE)
+
+demands2.df$DateTime <- as_datetime(as.character(demands2.df$DateTime))
+
+#plot the data
+#button interaction needs to be conditional on data being readable in directory
+ggplot(demands2.df, aes(x = DateTime, y = flow)) + geom_line(aes(linetype = site, colour = site))
+  
+```
 
