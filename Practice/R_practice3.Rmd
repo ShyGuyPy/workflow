@@ -1,0 +1,725 @@
+---
+title: "R_practice3.Rmd"
+output: html_document
+---
+note: continued from R_practice2.Rmd
+
+
+```{r}
+library(readxl)
+library(dplyr)
+library(ggplot2)
+library(tidyr)
+library(lubridate)
+
+project.dir <- rprojroot::find_rstudio_root_file()
+
+#import the data
+ten_day.df <- data.table::fread(file.path(project.dir, "data/ten_day_test.csv"),
+                            data.table = FALSE)
+
+#turn dates to date_time type
+ten_day.df$date_time <- as_datetime(as.character(ten_day.df$date_time))
+ 
+#plot the data
+ggplot(ten_day.df, aes(x = date_time, y = flow)) + geom_line(aes(linetype = site, colour = site))
+
+#find data with missing flow values
+missing.df <- ten_day.df %>%
+  dplyr::filter(is.na(flow))
+                                
+```
+
+```{r}
+library(readxl)
+library(dplyr)
+library(ggplot2)
+library(tidyr)
+library(lubridate)
+
+project.dir <- rprojroot::find_rstudio_root_file()
+
+#import the data from sarah's site
+demands_raw.df <- data.table::fread("http://icprbcoop.org/drupal4/products/coop_pot_withdrawals.csv",
+                            data.table = FALSE)
+
+#gather the data into long format
+demands.df <- gather(demands_raw.df,site, flow, 2:6)
+
+#turn dates to date_time type
+demands.df$DateTime <- as_datetime(as.character(demands.df$DateTime))
+ 
+#plot the data
+ggplot(demands.df, aes(x = DateTime, y = flow)) + geom_line(aes(linetype = site, colour = site))
+
+#find data with missing flow values
+missing.df <- demands.df %>%
+  dplyr::filter(is.na(flow))
+
+```
+
+```{r}
+library(RCurl)
+test <- url.exists("https://icprbcoop.org/drupal4/products/coop_pot_withdrawals.csv")
+print(test)
+```
+
+```{r}
+library(RCurl)
+
+#site is 
+#https://mde.maryland.gov/programs/Water/droughtinformation/Pages/index.aspx
+
+#https://mde.maryland.gov/programs/Water/droughtinformation/Currentconditions/PublishingImages/DroughtGraphsStarting2019jan31/Drought2019-08-31.png
+
+last = 'https://mde.maryland.gov/programs/Water/droughtinformation/Currentconditions/PublishingImages/DroughtGraphsStarting2019jan31/Drought2019-08-31.png' 
+
+
+
+# substrRight <- function(x, n){
+#   substr(x, nchar(x)-n+1, nchar(x))
+# }
+
+# substrRight(x, 6)
+# [1] "string"
+# 
+# substrRight(x, 8)
+# [1] "a string"
+
+#grabs the tail end of the address for the Maryland Drought maps last displayed(the date)
+last_select = substr(last, nchar(last) -14+1,(nchar(last)-4))
+
+print(last_select)
+
+# makes the date a date object
+last_select = as.Date(last_select)
+
+#gets todays date
+todays_date = Sys.Date()
+
+#create a vector with all days between today and last date map was updated
+dates_array = seq(as.Date(last_select, format="%y-%m-%d"), as.Date(todays_date, format="%y-%m-%d"), by="days")
+#dates_array = c(last_select:todays_date)
+
+#print(dates_array[4])
+
+theDate <- last_select +1
+
+test = FALSE
+
+
+while (theDate <= todays_date && test == FALSE)
+{
+  url_to_date = (paste0('https://mde.maryland.gov/programs/Water/droughtinformation/Currentconditions/PublishingImages/DroughtGraphsStarting2019jan31/Drought',format(theDate,"20%y-%m-%d"),'.png'))
+  
+  #https://mde.maryland.gov/programs/Water/droughtinformation/Currentconditions/PublishingImages/DroughtGraphsStarting2019jan31/Drought2019-08-31.png
+  
+  
+  test <- url.exists(url_to_date)
+  
+  # test <- try(
+  #   
+  #   url.exists(url_to_date)
+  # 
+  #   #test =
+  #   #download.file(url_to_date, 'url_to_date.png', mode = 'wb')
+  #   #return(test)
+  # 
+  #   # jj <- readPNG('url_to_date.png',native=TRUE)
+  #   # plot(0:1,0:1,type="n",ann=FALSE,axes=FALSE)
+  #   # rasterImage(jj,0,0,1,1)
+  # 
+  # )
+  #return(test)
+
+  theDate <- theDate + 1                    
+}
+
+print(test)
+print(url_to_date)
+
+# jj <- readPNG('url_to_date.png',native=TRUE)
+# plot(0:1,0:1,type="n",ann=FALSE,axes=FALSE)
+# rasterImage(jj,0,0,1,1)
+
+```
+
+```{r}
+library(RCurl)
+#script to get most recent maryland drought map
+
+#url for maryland map always starts this way
+map_url_head = 'https://mde.maryland.gov/programs/Water/droughtinformation/Currentconditions/PublishingImages/DroughtGraphsStarting2019jan31/Drought'
+
+#get todays date
+todays_date = Sys.Date()
+
+#set test date variable at todays date
+test_date = todays_date
+
+#set a test for if the url we search exists
+test = FALSE
+
+#while url searched doesn't produce a valid link to map, until then iterate backwards from todays date
+while ( test == FALSE)
+{
+  #concat to produce url in expected format
+  url_to_date = (paste0('https://mde.maryland.gov/programs/Water/droughtinformation/Currentconditions/PublishingImages/DroughtGraphsStarting2019jan31/Drought',format(test_date,"20%y-%m-%d"),'.png'))
+  
+  #tests if
+  test <- url.exists(url_to_date)
+  
+  #back one day
+  test_date = test_date -1
+}
+
+print(test)
+print(url_to_date)
+  
+
+```
+
+```{r}
+library(RCurl)
+library(stringr)
+
+#script to get most recent virginia drought map
+
+
+map_url_head ='https://deq1.bse.vt.edu/drought/state/images/maps/'
+
+test <- curl::curl(map_url_head)
+
+open(test)
+
+# Get lines
+out <- readLines(test)
+
+#print(out)
+#for(i in out[12:15]){print(i)}
+#for(i in out[9:length(out)]){print(i)}
+
+#for (i in out[length(out):12]){print(i)}
+
+#get todays date
+todays_date = Sys.Date()
+
+str_todays_date = as.character(todays_date)
+  #substr(todays_date, nchar(todays_date)-10+1, nchar(todays_date))
+print(todays_date)
+print(typeof(todays_date))
+print(str_todays_date)
+
+#reverse iterate through
+#for (i in out[length(out):12]){print(i)}
+
+test_loc <- str_locate(out, str_todays_date)#"2019-09-25") 
+#print(test_loc)
+# print(out[420:425])
+# print(typeof(test))
+
+first <- "imageMapFile"
+
+last <- ".png"
+
+id_num<- str_match(entry2, "imageMapFile(.*?).png")
+#print(id_num)
+full_url = paste0(map_url_head,id_num[1])#,id_num)
+print(full_url)
+#print(!is.na(test))
+# test1 <- (out[50])
+# test2 <- (out[200])
+# entry1 <- (out[425])
+# entry2 <- (out[426])
+# 
+# str_sub(entry2, 112,140)
+# 
+# str_sub(test1, 112,140)
+# str_sub(test2, 112,140)
+
+
+# test2 <- curl::curl(paste0(map_url_head,"imageMapFile1569587611359.png"))
+# open(test2)
+
+
+url = paste0(map_url_head,"imageMapFile1569587611359.png")
+
+
+#"https://deq1.bse.vt.edu/drought/state/images/maps/imageMapFile1569587611359.png"
+
+```
+
+```{r}
+#va drought map continued
+
+library(RCurl)
+library(stringr)
+
+map_url_head ='https://deq1.bse.vt.edu/drought/state/images/maps/'
+
+test <- curl::curl(map_url_head)
+
+open(test)
+out <- readLines(test)
+
+todays_date = Sys.Date()
+
+test_date = todays_date
+str_todays_date = as.character(todays_date)
+
+latest_maps <- vector()
+
+#locate values that match date 
+test_loc <- str_locate(out, format(test_date,"20%y-%m-%d"))
+
+#######find 
+NonNAindex <- which(!is.na(test_loc))
+print(NonNAindex)
+# print(out[427:439])
+# print(out[5526:5568])
+# print(out[19952:19970])
+# print(out[19952:19970])
+# print(out[20410:20422])
+# print(out[25509:25551])
+print(out[439])
+
+test = out[427]#[427][168:177])
+# print(test)
+
+test_full = out[427:439]
+# print(test_full)
+#use regex to find the id between known elements
+id <- str_match(test,'href=\"(.*?)">imageMapFile')
+# print(id[,2])
+#assemble the full url
+full_url = paste0(map_url_head,id[,2])
+# print(full_url)
+```
+
+```{r}
+library(dplyr)
+library(tidyverse)
+print(out[2])#5592])
+
+#"<tr><td valign=\"top\"><img src=\"/icons/image2.gif\" alt=\"[IMG]\"></td><td><a href=\"imageMapFile15698691306458.png\">imageMapFile15698691306458.png</a></td><td align=\"right\">2019-09-30 14:45  </td><td align=\"right\"> 31K</td><td>&nbsp;</td></tr>"
+
+#print(NonNAindex)
+
+test.df <- data.frame(matrix(ncol = 4, nrow = length(out)))
+cols <- c("html","date", "time", "id")
+colnames(test.df) <- cols
+
+test3.df <- as.data.frame(out, row.names = NULL, optional = TRUE, col.names = cols )
+colnames(test3.df) <- c("html")
+
+id_pattern = 'href=\"(.*?)">imageMapFile'
+date_time_pattern = '"right\">(.*?)  </td><td'
+full_pattern = *_([^_]*)
+
+test4.df <- test3.df %>% 
+  #mutate(id =str_match(html,'href=\"(.*?)">imageMapFile'))
+  extract(test.df, html, c("id", "date_time"), regex = id_pattern)
+
+#cbind(test3.df,date, time, id)
+
+
+#test2.df <- rbind(test.df, out)
+print(test2.df)
+#lapply(str_match(out,'>2019-09-30 (.*?)  </td><td'))
+
+
+# for(i in NonNAindex){
+#   print(out[i])
+# }
+
+
+  
+
+# for(i in NonNAindex){
+#     id <- str_match(out[i],'>2019-09-30 (.*?)  </td><td')
+#     test_vec[i] <- id[,2]
+# }
+
+print(test_vec)
+
+```
+
+```{r}
+test_url <- "<tr><td valign=\"top\"><img src=\"/icons/image2.gif\" alt=\"[IMG]\"></td><td><a href=\"imageMapFile15698691306458.png\">imageMapFile15698691306458.png</a></td><td align=\"right\">2019-09-30 14:45  </td><td align=\"right\"> 31K</td><td>&nbsp;</td></tr>"
+
+
+#"href=\".*</a></td><td align=\"right\">*</td><td align=\"right\"> 31K</td><td>&nbsp;</td></tr>"
+
+#"(\\d+).*_([^_]*).xlsx"
+pattern_id <- "\\w{10,}"
+pattern_date <- "\\d{4}[-]\\d{2}[-]\\d{2}"
+pattern_time <- "\\d{2}[:]\\d{2}"
+
+test_out <- str_match(test, pattern_time)
+```
+
+```{r}
+library(RCurl)
+library(stringr)
+library(dplyr)
+library(tidyverse)
+
+#this is the url that contains all the map files
+map_url_head ='https://deq1.bse.vt.edu/drought/state/images/maps/'
+
+#creates an object to open 
+test <- curl::curl(map_url_head)
+
+#open and read said object
+open(test)
+out <- readLines(test)
+
+#cols <- c("html")
+
+map.df <- as.data.frame(out, row.names = NULL, optional = TRUE)#, col.names = cols )
+colnames(map.df) <- c("html")
+
+######patterns for finding string fragments for retrieving map
+pattern_id <- "(\\d{10,})"
+pattern_date <- "(\\d{4}[-]\\d{2}[-]\\d{2})"
+pattern_time <- "(\\d{2}[:]\\d{2})"
+
+# pattern_b4_time <- "\\D*[^\\w{10,}]"
+# pattern_test <- "(\\d{10,})(\\d{4}[-]\\d{2}[-]\\d{2})(\\d{2}[:]\\d{2})"
+
+################
+
+
+###this is what you want to do but it's not working as is(look at it tomorow)
+#test.df <- extract(map.df,html, c("id","date","time"), regex = pattern_test, remove =FALSE)
+id.df <- extract(map.df,html, c("id"), regex = pattern_id)
+date.df <- extract(map.df,html, c("date"), regex = pattern_date)
+time.df <- extract(map.df,html, c("time"), regex = pattern_time)
+
+maps_full.df <- cbind(map.df,id.df, date.df,time.df)
+
+maps_full.df <- arrange(maps_full.df, desc(date),desc(time))
+
+map_url_id = maps_full.df$id[1]
+map_url_date = maps_full.df$date[1]
+map_url_time = maps_full.df$time[1]
+# print(map_url_id)
+# print(map_url_date)
+# print(map_url_time)
+map_url_full = as.character(paste0(map_url_head,"imageMapFile", map_url_id,".png"))
+print(map_url_full)
+# maps_full <- left_join(id.df, date.df, by = c("html"))
+# maps_full <- left_join(maps_full, time.df, by = c("html"))
+
+# maps_full.df$datetime<- as.character(paste(date.df$date,time.df$time))
+# 
+# test_maps_full.df <- maps_full.df %>%
+#   mutate(datetime = case_when(!is.na(datetime)~ as.POSIXct(datetime), TRUE ~ datetime ))
+
+# Test_maps_full.df <- maps_full.df %>%
+#   mutate(datetime = case_when(is.na(datetime)~0) )#, TRUE ~ datetime)
+
+
+# print (min(maps_full.df$datetime))
+# 
+# 
+# 
+# 
+# 
+# 
+# print(head(map2.df$date, 430))
+```
+```{r}
+library(RCurl)
+
+site_url <- "https://icprbcoop.org/drupal4/products/coop_pot_withdrawals.csv"
+
+test <- curl::curl(site_url)
+
+open(test)
+out <- readLines(test)
+
+print(head(out, 20))
+
+```
+
+```{r}
+library(rsconnect)
+rsconnect::deployApp("C:/Users/icprbadmin/Documents/R_Scripts/shiny_test_app4")
+```
+
+load_packages.R from shiny_test_app4
+(use to restore if needed)
+```{r}
+# List of packages and code to load packages was copied from Zach's code.
+# He copied the scripts from:
+# https://www.r-bloggers.com/install-and-load-missing-specifiedneeded-packages-on-the-fly/
+#
+need <- c("shiny",
+          "shinythemes",
+          "shinydashboard",
+          "ggplot2",
+          "dplyr",
+          "rlang",
+          "data.table",
+          "stringi",
+          #"plotly",
+          "Cairo",
+          "RcppRoll",
+          "tidyr",
+          "lubridate",
+          "pryr",
+          "zoo",
+          "sp",
+          "leaflet",
+          "rgdal",
+          "RCurl",
+          "tidyverse") 
+# find out which packages are installed
+ins <- installed.packages()[, 1] 
+# check if the needed packages are installed
+(Get <-
+    need[which(is.na(match(need, ins)))]) 
+# install the needed packages if they are not-installed
+if (length(Get) > 0) {
+  install.packages(Get)
+}
+# load the needed packages
+eval(parse(text = paste("library(", need, ")")))
+rm(Get, ins, need)
+#------------------------------------------------------------------------------
+options(shiny.usecairo = TRUE)
+```
+
+```{r}
+library(curl)
+library(jsonlite)
+
+url_head <- 'https://deq1.bse.vt.edu/drought/state/images/maps/'
+
+# url_test <-'https://deq1.bse.vt.edu/drought/state/images/maps/PrecipMap14050126519712.png'
+
+deploy_test <- curl::curl(url_head)
+
+#print(deploy_test)
+
+out <- readLines(deploy_test)
+print(out[1:30])
+
+out_mem <- curl_fetch_memory(url_head)
+
+#parse_headers(out_mem$headers)#[15:30])
+
+#prettify(
+rawToChar(out_mem$content)
+#)
+
+# tmp <- tempfile()
+# curl_download(url_test, tmp)
+# readline(tmp)
+```
+
+```{r}
+
+test_png = file.path('C:\\Users\\icprbadmin\\Documents\\R_Scripts\\workflow\\data\\DREX\\images\\test_bulb.png')
+#'C:/Users/icprbadmin/Documents/R_Scripts/workflow/data/DREX/images/test_bulb.png'
+#va_drought_placeholder
+
+print(test_png)
+
+library(png)
+img <- readPNG(test_png)#test_png, TRUE, FALSE)#system.file("img", test_png, package="png"))
+
+#print(typeof(img))
+
+grid::grid.raster(img)
+
+```
+
+```{r}
+#/inputs/parameters/ts/current
+https://icprbcoop.org/drupal4/icprb/flow-data?startdate=01%2F01%2F2019&enddate=10%2F24%2F2019&format=daily&submit=Submit
+
+https://icprbcoop.org/drupal4/products/coop_pot_withdrawals.csv
+
+```
+
+
+```{r}
+library(jsonlite)
+library(rprojroot)
+library(dplyr)
+library(tidyr)
+
+url.root <- "http://datahub.chesapeakebay.net/api.JSON"
+todays.date <- format(Sys.Date(), "%m-%d-%Y")
+
+station.vec <- file.path(url.root,
+                       "LivingResources",
+                       "TidalPlankton",
+                       "Reported",
+                       min_date,
+                       max_date, 
+                       phyto_num,
+                       "Station") %>% 
+  fromJSON() %>% 
+  pull(unique(MonitoringLocationId))
+
+clean_string <- function(x) {
+  x %>% 
+    stringr::str_trim() %>% 
+    tolower() %>% 
+    stringr::str_replace_all("\\s+", " ") %>% 
+    stringr::str_replace_all(" ", "_") %>%  
+    if_else(. == "", as.character(NA), .)
+}
+
+clean_up <- function(x) {
+  x %>% 
+    rename_all(clean_string) %>% 
+    mutate_if(is.character, funs(clean_string))%>% 
+    distinct()
+}
+
+min_date = "1-01-1970"
+
+max_date = todays.date
+
+pico_num = "18"
+
+phyto_num = "17"
+
+chla=21
+doc=34 
+pheo=74 
+salinity=83
+
+event.df <- file.path(url.root,
+                      "LivingResources",
+                      "TidalPlankton",
+                      "MonitorEvent",
+                      min_date,
+                      max_date, 
+                      phyto_num,
+                      "Station",
+                      paste(station.vec, collapse = ",")) %>%
+  fromJSON() %>% 
+  clean_up()
+```
+
+```{r}
+library(data.table)
+library(dplyr)
+
+demands_raw.df <- data.table::fread("https://icprbcoop.org/drupal4/products/coop_pot_withdrawals.csv",data.table = FALSE)
+```
+
+
+```{r}
+library(readxl)
+library(dplyr)
+library(ggplot2)
+library(tidyr)
+library(lubridate)
+
+#import the data from sarah's site
+demands_raw.df <- data.table::fread("http://icprbcoop.org/drupal4/products/coop_pot_withdrawals.csv",
+                                    data.table = FALSE)
+
+#gather the data into long format
+demands.df <- gather(demands_raw.df,site, flow, 2:6)
+
+#turn dates to date_time type
+demands.df$DateTime <- as_datetime(as.character(demands.df$DateTime))
+
+#write dataframe to file
+write.csv(demands.df, paste(
+  "download_data_temp.csv"))
+
+# data.table::fwrite(demands.df,paste(
+#   "download_data_temp.csv"))
+
+
+  
+#read file
+demands2.df <- data.table::fread(paste(
+  "download_data_temp.csv"),
+                                data.table = FALSE)
+
+demands2.df$DateTime <- as_datetime(as.character(demands2.df$DateTime))
+
+#plot the data
+#button interaction needs to be conditional on data being readable in directory
+ggplot(demands2.df, aes(x = DateTime, y = flow)) + geom_line(aes(linetype = site, colour = site))
+  
+```
+
+```{r}
+
+
+ #construct file path to access Drupal site flows data
+  
+
+  
+todays_date = Sys.Date()
+print(todays_date)
+
+date_year = format(todays_date, "20%y")
+date_month = format(todays_date,"%m")
+date_day = format(todays_date,"%d")
+
+print(date_year)
+print(date_month)
+print(date_day)
+
+#https://icprbcoop.org/drupal4/icprb/flow-data?startdate=11%2F2%2F2019&enddate=11%2F07%2F2019&format=hourly&submit=Submit
+
+###hourly---------------------
+date_minus_five = todays_date - 5
+hourly_start = paste0(format(date_minus_five,"%m"),"%2F",format(date_minus_five,"%d"), "%2F",format(date_minus_five,"20%y"))
+print(hourly_start)
+
+hourly_end = paste0(format(todays_date,"%m"),"%2F",format(todays_date,"%d"), "%2F",format(todays_date,"20%y"))
+
+full_hourly_url = paste0("https://icprbcoop.org/drupal4/icprb/flow-data?","startdate=", hourly_start,"&enddate=" ,hourly_end, "&format=hourly&submit=Submit")
+
+print(full_hourly_url)
+#-----------------------------
+
+
+###daily----------------------
+first_of_year = as.Date("2019-1-1")
+
+daily_start = paste0(format(first_of_year,"%m"),"%2F",format(first_of_year,"%d"), "%2F",format(first_of_year,"20%y"))
+print(daily_start)
+
+daily_end = paste0(format(todays_date,"%m"),"%2F",format(todays_date,"%d"), "%2F",format(todays_date,"20%y"))
+
+full_daily_url = paste0("https://icprbcoop.org/drupal4/icprb/flow-data?","startdate=", daily_start,"&enddate=" ,daily_end, "&format=daily&submit=Submit")
+
+print(full_daily_url)
+
+#-----------------------------
+```
+
+```{r}
+library(dplyr)
+library(tidyverse)
+library(lubridate)
+
+#import the data from sarah's site
+demands_raw.df <- data.table::fread('https://icprbcoop.org/drupal4/icprb/flow-data?startdate=11%2F2%2F2019&enddate=11%2F07%2F2019&format=hourly&submit=Submit',
+                                    data.table = FALSE, header = TRUE)
+
+#gather the data into long format
+demands.df <- gather(demands_raw.df,site, flow, 2:6)
+
+#turn dates to date_time type
+demands.df$DateTime <- as_datetime(as.character(demands.df$DateTime))
+
+#plot the data
+#button interaction needs to be conditional on data being readable in directory
+ggplot(demands.df, aes(x = DateTime, y = flow)) + geom_line(aes(linetype = site, colour = site))
+    
+  
+```

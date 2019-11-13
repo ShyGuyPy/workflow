@@ -1,0 +1,925 @@
+---
+title: "R_practice2.Rmd"
+output: html_document
+---
+note:continued from R-practice.Rmd
+
+
+to test RET,TF,LE station issue fix
+```{r}
+library(dplyr)
+library(readxl)
+library(data.table)
+
+project.dir <- rprojroot::find_rstudio_root_file()
+
+events_test.df <- data.table::fread(file.path(project.dir, 
+                                                 "data/phytoplankton2/VA_ODU_phyto_event.csv"),
+                            data.table = FALSE,
+                            #colClasses = col.class.vec,
+                            na.strings = "")
+
+stations_test.df <- events_test.df %>%
+  select(station) %>%
+  distinct()
+
+events_test.df <- events_test.df%>%
+
+mutate(salzone_test = case_when(
+    events_test.df$station %in% c("tf3.3","tf4.2","tf5.5")~ "F",
+    #events_test.df$station == starts_with("cb")~ "good",
+    events_test.df$station %in% c("ret3.1","ret4.3","ret3.1")~ "O",
+    events_test.df$station %in% c("le3.6","le5.2","le5.4","le5.5-w")~ "P",
+    TRUE~"bogus"
+
+  )
+  )
+
+    
+
+```
+
+```{r}
+library(dplyr)
+library(readxl)
+library(data.table)
+
+project.dir <- rprojroot::find_rstudio_root_file()
+
+taxa.df <- data.table::fread(file.path(project.dir, 
+                                                 "data/phytoplankton2/VA_ODU_phyto_taxa.csv"),
+                            data.table = FALSE,
+                            #colClasses = col.class.vec,
+                            na.strings = "")
+
+
+
+id <- c(1,2,3)
+date <- c("1/1/1","2/2/2","3/3/3")
+name <- c("ted","fred", "dave")
+value <- c(12,5,10)
+data.df <- data.frame(id, date, value, name)
+
+n.df <- data.df%>%
+  group_by_at(vars(-value)) %>% 
+  summarise(value=mean(value)) %>%
+  ungroup()
+
+
+#count(data.df$name == 23)
+
+test.df <- data.df %>% 
+  group_by_at(vars(-value)) %>%
+  summarize(value = sum(value)) %>%
+  ungroup()
+
+find.df <- data.df %>%
+  filter(grepl("ed", name))
+
+# test2.df <- taxa.df %>% 
+#   group_by_at(vars(-reportingvalue)) #%>%
+  # summarize(reportingvalue2 = sum(reportingvalue)) %>%
+  # ungroup()
+
+
+```
+
+
+this is salzone calculation but without 3 day
+```{r}
+library(dplyr)
+library(readxl)
+library(data.table)
+library(tidyr)
+
+project.dir <- rprojroot::find_rstudio_root_file()
+wq.raw <- data.table::fread(file.path(project.dir, "data/water_quality/cedr_wq.csv"),
+                            data.table = FALSE,
+                           na.strings = c("")) %>% 
+  filter(is.na(problem),
+         parameter %in% c("chla", "doc", "pheo", "salinity"))
+
+wq.df <- wq.raw %>% 
+  mutate(sampledate = as.Date(sampledate))
+
+wq.df <- wq.df %>% 
+  select(station, source, sampledate, samplereplicatetype,
+         depth, layer, 
+         #pycnocline, upperpycnocline, lowerpycnocline,
+         parameter, measurevalue) %>% 
+  distinct()
+
+wq.df <- wq.df %>% 
+  filter(layer == "s", 
+         parameter == "chla") %>% 
+  unite(parameter, c("layer", "parameter"), remove = FALSE) %>% 
+  bind_rows(wq.df)
+
+chla <- wq.df %>%
+  filter(parameter=="chla")
+
+#get event.df
+events.df <- data.table::fread(file.path(project.dir, "data/phytoplankton2/VA_ODU_phyto_event.csv"
+                                         ),
+                            data.table = FALSE,
+                            na.strings = "")
+
+#get pdepth from event.df
+pdepth.df <- events.df %>% 
+  filter(layer %in% c("ap", "wc")) %>% 
+  mutate(sampledate = as.Date(sampledate)) %>% 
+  select(station, sampledate, pdepth) %>% 
+  dplyr::distinct()
+
+#filter out below pdepth samples in wq.df
+wq.df <- left_join(wq.df, pdepth.df, by = c("station", "sampledate"))
+wq.df <- wq.df %>% 
+  filter(depth <= pdepth) #%>% 
+  
+s_chla.df <- wq.df %>%
+  filter(parameter=="s_chla")
+
+
+di_doc.df <- wq.df %>%
+  filter(parameter=="doc")
+
+di_chla <- wq.df %>%
+  filter(parameter == "chla")
+
+di_salinity <- wq.df %>%
+  filter(parameter == "salinity")
+
+di_pheo <- wq.df %>%
+  filter(parameter == "pheo")
+
+avg_sal.df <- di_salinity %>%
+
+  group_by(station, sampledate) %>%
+  mutate(avg_sal = mean(measurevalue, na.rm = TRUE)) %>%
+  ungroup()
+
+avg_salzone.df <- avg_sal.df %>%
+
+  mutate(salzone = case_when(
+    measurevalue >0 & measurevalue <= 0.5 ~ "F",
+    measurevalue > .5 &  measurevalue <= 5 ~ "O",
+    measurevalue > 5 & measurevalue <= 18 ~ "M",
+    measurevalue > 18~ "P")
+  )
+```
+
+```{r}
+library(dplyr)
+library(readxl)
+library(data.table)
+library(tidyr)
+
+project.dir <- rprojroot::find_rstudio_root_file()
+
+wq.raw <- data.table::fread(file.path(project.dir, "data/water_quality/cedr_wq.csv"),
+                            data.table = FALSE,
+                           na.strings = c("")) %>% 
+  filter(is.na(problem),
+         parameter %in% c("chla", "doc", "pheo", "salinity"))
+
+
+events.df <- data.table::fread(file.path(project.dir, "data/phytoplankton2/VA_ODU_phyto_event.csv"
+                                         ),
+                            data.table = FALSE,
+                            na.strings = "")
+
+wq.df <- wq.raw %>% 
+  mutate(sampledate = as.Date(sampledate))
+
+#3 day prep
+events.sub <- events.df %>% 
+  select(station, sampledate) %>% 
+  distinct() %>% 
+  mutate(sampledate = as.Date(sampledate)) %>%
+  mutate(lower_date = sampledate - lubridate::days(3),
+         upper_date = sampledate + lubridate::days(3))
+
+library(parallel)
+n.cores <- detectCores() - 1
+cl <- makeCluster(n.cores)
+clusterExport(cl = cl, varlist = c("wq.df", "events.sub"))
+clusterEvalQ(cl, c(library(dplyr))) %>% invisible()
+
+env.df <- parLapply(cl, 1:nrow(events.sub), function(row.i) {
+  
+  sub.df <- slice(events.sub, row.i)
+  #----------------------------------------------------------------------------
+  sub.env <- wq.df %>% 
+    filter(station == sub.df$station,
+           date >= sub.df$lower_date,
+           date <= sub.df$upper_date)
+  #----------------------------------------------------------------------------
+  if (nrow(sub.env) == 0) return(data.frame(
+    station = NA,
+    date = NA,
+    parameter = NA,
+    measurevalue = NA
+  ))
+  #----------------------------------------------------------------------------
+  final.df <- sub.env %>% 
+    mutate(date_diff = date - sub.df$sampledate,
+           abs_date_diff = abs(date_diff),
+           sampledate = sub.df$sampledate) %>% 
+    filter(abs_date_diff == min(abs_date_diff))
+  #----------------------------------------------------------------------------
+  if (nrow(final.df) > 1) {
+    final.df <- final.df %>% 
+      filter(date == min(date))
+  }
+  #----------------------------------------------------------------------------
+  return(final.df)
+}) %>% 
+  bind_rows() %>% 
+  filter(!is.na(station))
+
+stopCluster(cl)
+```
+
+```{r}
+library(dplyr)
+library(readxl)
+library(data.table)
+library(tidyr)
+
+project.dir <- rprojroot::find_rstudio_root_file()
+
+wq.raw <- data.table::fread(file.path(project.dir, "data/water_quality/cedr_wq.csv"),
+                            data.table = FALSE,
+                           na.strings = c("")) %>% 
+  filter(is.na(problem),
+         parameter %in% c("chla", "doc", "pheo", "salinity"))
+
+
+events.df <- data.table::fread(file.path(project.dir, "data/phytoplankton2/VA_ODU_phyto_event.csv"
+                                         ),
+                            data.table = FALSE,
+                            na.strings = "")
+
+wq.df <- wq.raw %>% 
+  mutate(sampledate = as.Date(sampledate))
+
+wq.df <- wq.df %>% 
+  select(station, source, sampledate, samplereplicatetype,
+         depth, layer, 
+         #pycnocline, upperpycnocline, lowerpycnocline,
+         parameter, measurevalue) %>% 
+  distinct()
+
+#get pdepth from event.df
+pdepth.df <- events.df %>% 
+  filter(layer %in% c("ap", "wc")) %>% 
+  mutate(sampledate = as.Date(sampledate)) %>% 
+  select(station, sampledate, pdepth) %>% 
+  dplyr::distinct()
+
+#filter out below pdepth samples in wq.df
+wq.df <- left_join(wq.df, pdepth.df, by = c("station", "sampledate"))
+wq.df <- wq.df %>% 
+  filter(depth <= pdepth) #%>% 
+
+#3 day prep
+events.sub <- events.df %>% 
+  select(station, sampledate) %>% 
+  distinct() %>% 
+  mutate(sampledate = as.Date(sampledate)) %>%
+  mutate(lower_date = sampledate - lubridate::days(3),
+         upper_date = sampledate + lubridate::days(3))
+
+library(parallel)
+n.cores <- detectCores() - 1
+cl <- makeCluster(n.cores)
+clusterExport(cl = cl, varlist = c("wq.df", "events.sub"))
+clusterEvalQ(cl, c(library(dplyr))) %>% invisible()
+
+env.df <- parLapply(cl, 1:nrow(events.sub), function(row.i) {
+  
+  sub.df <- slice(events.sub, row.i)
+  #----------------------------------------------------------------------------
+  sub.env <- wq.df %>%
+    filter(station == sub.df$station,
+           date >= sub.df$lower_date,
+           date <= sub.df$upper_date)
+  
+  return(sub.df)
+})
+```
+
+```{r}
+bay.sub <- bay.df %>% 
+  select(station, sampledate) %>% 
+  distinct() %>% 
+  mutate(sampledate = as.Date(sampledate)) %>%
+  mutate(lower_date = sampledate - lubridate::days(3),
+         upper_date = sampledate + lubridate::days(3))
+```
+
+```{r}
+foo <- local({x <- 10
+             y <- 200
+             x +y})
+
+foo
+
+x <- 4
+
+z <- rlang::expr(y <- x * 10)
+eval(z)
+y
+
+
+```
+
+```{r}
+
+library(dplyr)
+
+
+prop_count <- function(df, ...){
+  vars_col <- quos(...)
+  
+  print(vars_col)
+  
+  df %>% 
+    count(!!!vars_col, sort = T) %>% 
+    mutate(prop_n = prop.table(n)) %>% 
+    mutate(cumsum_n = cumsum(prop_n)) 
+}
+
+dplyr::starwars %>% 
+  prop_count(homeworld, species)
+```
+```{r}
+var <- 12
+range.vec <- c(1:var)
+print(range.vec)
+```
+```{r}
+library(dplyr)
+set.seed(0)
+
+#Dummy data.frame to test
+df <- tbl_df(data.frame(x = rep(1:3, each = 4)))
+
+#Generate the random integer column
+df_test = df %>% 
+  rowwise() %>%
+  mutate(pop=sample(0:1, 1, replace=TRUE))
+```
+
+```{r}
+# library(dplyr)
+# library(readxl)
+# library(data.table)
+# library(tidyr)
+# 
+# project.dir <- rprojroot::find_rstudio_root_file()
+# 
+# event.df <- data.table::fread(file.path(project.dir, "data/phytoplankton2/VA_ODU_phyto_event.csv"
+#                                          ),
+#                             data.table = FALSE,
+#                             na.strings = "")
+# 
+# 
+# test.df <- lapply(1:nrow(event.df), function(row.i)) {
+#   
+# }
+
+```
+
+```{r}
+library(dplyr)
+
+count_var <-  97
+
+id_df <- c(1,2,3,4,5)
+var_df <- c(0,0,0,0,0)
+my_var <-  c(97,97,97,97,97)
+#my_var <- c(100,100,100,100,100)
+value_df <- c(0,1,0,1,1)
+data.df <- data.frame(id_df,my_var, value_df)
+
+
+###########  this is it
+while((sum(subset(data.df$my_var,value_df !=0)) / as.numeric(nrow(subset(data.df,value_df >0))))<100){
+
+data.df <-data.df %>%
+mutate(my_var = case_when( my_var < 100 & value_df >0 ~my_var + 1, TRUE ~ my_var))
+}
+###########
+
+
+
+# rows <-  as.numeric(nrow(subset(data.df,value_df >0)))
+# total <- (sum(data.df$my_var) / nrow(data.df - as.numeric(nrow(subset(data.df,value_df >0)))))
+# 
+# # while((sum(data.df$my_var) / nrow(data.df - nrow(data.df$value.df==0))) <100) {
+# apple <- sum(subset(data.df$my_var,value_df !=0)) / as.numeric(nrow(subset(data.df,value_df >0)))# - as.numeric(sum(subset(data.df$my_var,value_df ==0))))
+# 
+# while((sum(subset(data.df$my_var,value_df !=0)) / as.numeric(nrow(subset(data.df,value_df >0))))<100){
+# 
+# data.df <-data.df %>%
+# mutate(my_var = case_when( my_var < 100 & value_df >0 ~my_var + 1, TRUE ~ my_var))
+# }
+#while((sum(data.df$my_var) / nrow(data.df - as.numeric(nrow(subset(data.df,value_df ==0))))) <100) {
+    # my_var <- my_var + 1
+    # print("one more time")
+    
+    # mutate(my_var = my_var + value_df, count_var <- countvar + case_when(value_df > 0~, TRUE <- 0))
+    
+
+
+
+```
+
+
+```{r}
+library(dplyr)
+library(ggplot2)
+
+project.dir <- rprojroot::find_rstudio_root_file()
+
+dir.create(file.path(project.dir, "data/"),
+           recursive = TRUE, showWarnings = FALSE)
+
+#fill in blank with dataframe name
+#data.table::fwrite(__________, file.path(project.dir, "data/", "SprBIBI.csv"))
+
+
+
+BIBI_plot.df <- data.table::fread(file.path(project.dir, 
+                                                 "data/SprBIBI.csv"),
+                            data.table = FALSE,
+                            #colClasses = col.class.vec,
+                            na.strings = "")
+
+BIBI_plot.df <- BIBI_plot.df %>%
+  mutate(SITE = as.character(SITE))
+
+
+
+plot_df <-BIBI_plot.df %>% group_by(LOCATION) %>%
+  do(
+    plots =ggplot(data = .) + aes(x = SITE, y = BIBI) +
+      geom_boxplot() + ggtitle(.$LOCATION)
+  )
+
+plot_df$plots
+
+###############################
+counter = 0
+for(item in plot_df$plots) {
+  counter = counter + 1
+  ggsave(filename = paste0("plot",counter), plot = p[[counter]], device= "pdf")
+  print(item)
+}
+##############################
+
+p <- plot_df$plots
+
+p[[1]]
+ggsave(filename = paste0("plot",counter), plot = p[[1]], device= "pdf")
+
+
+#myplot <- ggplot(mtcars, aes(wt, mpg)) + geom_point()
+# print(myplot)
+# dev.off()
+
+#pdf("plot_df", width = 10)
+
+# 
+# BIBI_plot.df <- BIBI_plot.df %>%
+#   group_by(LOCATION, SITE) %>%
+#   do(ggplot(data = BIBI_plot.df, aes(SITE,BIBI, group = LOCATION))) %>%
+#   ungroup()
+# 
+# ggplot(data = BIBI_plot.df, aes(SITE,BIBI, group = SITE, LOCATION))
+
+
+
+
+
+# 
+# require(reshape2)
+# 
+# df.m <- melt(plot_df, LOCATION = "Label")
+
+
+
+
+
+```
+this is close to a working version but the random id(iva ave func snippet) is being assigned to values with cumulative above 1.  Don't want that.
+```{r}
+library(dplyr)
+
+
+id_df <- c(1,1,1,1,1,2,2,2,2,2)
+#var_df <- c(0,0,0,0,0)
+cumulative <-  c(66,32,0,0,0,50,48,0,0,0)
+#my_var <- c(100,100,100,100,100)
+track_order <- c(1:10)
+data.df <- data.frame(id_df,cumulative, track_order)
+
+
+data.df <- data.df %>%
+  group_by(id_df) %>%
+  mutate(cum_sum = sum(cumulative)) %>%
+  mutate(cum_minus_sum = 100-cumulative) %>%
+  
+  mutate(row_count = n()) %>%
+  
+  #generates a random id for each member of a grouping
+  mutate(g_id = ave(row_count, id_df, FUN=function(x) {sample.int(length(x))})) %>%
+  arrange(g_id) %>% #, .by_group = TRUE) %>%
+  mutate(value = case_when(g_id <= 100 -cum_sum & cumulative <1 ~1))
+
+
+
+```
+
+this is the ongoing attempt to fix the issue
+```{r}
+library(dplyr)
+
+#count_var <-  97
+
+id_df <- c(1,1,1,1,1,2,2,2,2,2)
+#var_df <- c(0,0,0,0,0)
+cumulative <-  c(66,32,0,0,0,50,48,0,0,0)
+#my_var <- c(100,100,100,100,100)
+track_order <- c(1:10)
+data.df <- data.frame(id_df,cumulative, track_order)
+
+
+data.df <- data.df %>%
+  group_by(id_df) %>%
+  mutate(cum_sum = sum(cumulative)) %>%
+  mutate(cum_minus_sum = 100-cumulative) %>%
+  
+  mutate(row_count = n()) %>%
+  ungroup()
+
+data_subset.df <- data.df %>%
+  filter(cumulative == 0)
+  #generates a random id for each member of a grouping
+  
+  #mutate(ss_test =subset(data.df$cumulative, cumulative == 0))
+  
+  #this part needs to apply unique ids to only the subset of the group in which cumulative  == 0, or apply
+  #the unique id in a way that differentiates between cum==0 and cum!=0 in a way that makes them iterable
+  mutate(g_id = ave(subset(data_subset.df$cumulative, cumulative == 0) , id_df, FUN=function(x) {sample.int(length(x))})) %>%
+  arrange(g_id) %>% #, .by_group = TRUE) %>%
+  mutate(value = case_when(g_id <= 100 -cum_sum & cumulative <1 ~1))
+
+data_final.df <- left_join(data.df, data_subset.df, by= "unique_id")
+  
+########
+
+```
+
+```{r}
+taxa_test.df <- taxa.df %>% 
+  group_by(unique_id) %>%
+  mutate(total_sum = sum(reporting_value)) %>%
+  mutate(ratio = 100*(reporting_value/total_sum)) %>%
+  mutate(ratio = ifelse(ratio >= 1, round(ratio), as.integer(ratio))) %>%
+  mutate(cumulative = ifelse(ratio >= 1, sum(ratio), 0)) %>%
+  mutate(sum_cum = ifelse(ratio >= 1, 100-cumulative, 100-(max(cumulative)))) %>%
+  mutate(count = n()) %>%
+```
+
+
+Chessie BIBI testing code
+
+
+```{r}
+# taxa.df <- prob_rarefaction(taxa.df, unique_id, reporting_value, genus, 100)
+```
+
+```{r}
+taxa_test.df <- taxa.df %>% 
+  group_by(unique_id) %>%
+  mutate(total_sum = sum(reporting_value)) %>%
+  mutate(ratio = 100*(reporting_value/total_sum)) %>%
+  mutate(ratio = ifelse(ratio >= 1, round(ratio), as.integer(ratio))) %>%
+  mutate(cumulative = ifelse(ratio >= 1, sum(ratio), 0)) %>%
+  mutate(sum_cum = ifelse(ratio >= 1, 100-cumulative, 100-(max(cumulative)))) %>%
+  mutate(count = n()) %>%
+  rowwise() %>%
+  mutate(rc_test =(ifelse(cumulative == 0, sample(0:1, 1, replace=TRUE), ratio))) %>%
+  ungroup()
+
+taxa_test.df <- taxa_test.df %>% 
+  group_by(unique_id) %>%
+  mutate(rc_total = sum(rc_test)) #%>%
+  # #for (n()) {
+  #   for (sum_cum)}
+  # #for cum_sum (mutate(elseif()))
+  # summarise(rand = sample_n(.,5))
+  
+  #mutate(rare_count =ifelse(sum_cum != 100, sample_n(sum_cum), ratio))
+```
+
+
+rowwise() is a stop-gap and not a great one.  This method doesn't work because of that but even if it did it's a brute force and sloppy.
+```{r}
+taxa_test.df <- taxa.df %>% 
+  group_by(unique_id) %>%
+  mutate(total_sum = sum(reporting_value)) %>%
+  mutate(ratio = 100*(reporting_value/total_sum)) %>%
+  mutate(ratio = ifelse(ratio >= 1, round(ratio), as.integer(ratio))) %>%
+  mutate(cumulative = ifelse(ratio >= 1, sum(ratio), 0)) %>%
+  mutate(sum_cum = ifelse(ratio >= 1, 100-cumulative, 100-(max(cumulative)))) #%>%
+```
+
+
+```{r}
+taxa_while_test.df <- taxa_test.df
+
+while((sum(subset(taxa_while_test.df$cumulative,taxa_while_test.df$ratio <1)) / as.numeric(nrow(subset(taxa_while_test.df,taxa_while_test.df$ratio <1))))<100){
+
+taxa_while_test.df <- taxa_while_test.df %>%
+mutate(cumulative = case_when( cumulative < 100 & ratio <1 ~cumulative + 1, TRUE ~ cumulative))
+}
+```
+
+
+
+```{r}
+  
+#   mutate(count = n()) %>%
+#   rowwise() %>%
+#   mutate(rc_test =(ifelse(cumulative == 0, sample(0:1, 1, replace=TRUE), ratio))) %>%
+#   ungroup()
+#   
+# taxa_test.df <- taxa_test.df %>%
+#   mutate(rc_total = sum(rc_test)) %>%
+#   while (rc_total != 100) {  
+#     rowwise() %>%
+#     lapply(mutate(rc_test =(ifelse(cumulative == 0, sample(0:1, 1, replace=TRUE), ratio)))) %>%
+#     mutate(rc_total = sum(rc_test))
+#     
+#   }
+
+
+
+```
+
+import, examine, plot, etc. netcdf data from NWM
+```{r}
+library(ncdf4)
+library(raster)
+library(sp)
+
+project.dir <- rprojroot::find_rstudio_root_file()
+
+ncdf_path_short <- file.path(project.dir, "data/netcdf/nwm.t00z.short_range.channel_rt.f001.conus.nc")
+
+ncdf_path_long <- file.path(project.dir, "data/netcdf/nwm.t00z.long_range.channel_rt_1.f006.conus.nc")
+
+ncdf_short <- nc_open(ncdf_path_short)
+ncdf_long <- nc_open(ncdf_path_long)
+
+print(ncdf_long)
+```
+
+```{r}
+library(rprojroot)
+library(dplyr)
+library(ritis)
+
+project.dir <- rprojroot::find_rstudio_root_file()
+
+bay.temp <- data.table::fread(file.path(project.dir, "data/phytoplankton/", "cedr_phyto_taxa.csv")) %>%
+  mutate(tsn=as.character(tsn)) %>%
+  mutate(speccode = as.character(speccode)) %>%
+  mutate(reportingvalue = as.integer(reportingvalue)) %>%
+  mutate(samplenumber = as.character(samplenumber))
+
+hier.wide <- lapply(unique(bay.temp$org_tsn), function(tsn.i) {
+ #print(tsn.i)
+  
+  if(ncol(usage(tsn.i)) == 0) return(data.frame(org_tsn = as.integer(tsn.i),
+                                                stringsAsFactors = FALSE))
+  if(!ritis::usage(tsn.i)$taxonUsageRating %in% c("accepted", "valid")) {
+    tsn.accepted <- ritis::accepted_names(as.integer(tsn.i))$acceptedTsn
+  } else {
+    tsn.accepted <- as.integer(tsn.i)
+  }
+  
+  full.df <- ritis::hierarchy_full(tsn.accepted) %>% 
+    select(rankname, taxonname, tsn) %>% 
+    slice(1:which(tsn == tsn.accepted)) %>% 
+    mutate(org_tsn = as.integer(tsn.i),
+           final_tsn = as.integer(tsn.accepted),
+           final_id = slice(., which(tsn == tsn.accepted))$taxonname)
+}) %>% 
+  bind_rows() %>% 
+  select(-tsn) %>% 
+  spread(rankname, taxonname) %>% 
+  clean_up()
+```
+
+ritis (and lapply)
+```{r}
+library(rprojroot)
+library(dplyr)
+library(ritis)
+
+project.dir <- rprojroot::find_rstudio_root_file()
+
+bay.temp <- data.table::fread(file.path(project.dir, "data/CEDR/", "cedr_phyto_taxa.csv")) %>%
+  mutate(tsn=as.numeric(tsn)) %>%
+  mutate(speccode = as.character(speccode)) %>%
+  mutate(reportingvalue = as.integer(reportingvalue)) %>%
+  mutate(samplenumber = as.character(samplenumber))
+
+accepted <- accepted_names(tsn =  504239, wt="json", raw=FALSE)
+
+#this generates a single match, and the integer 1 is returned
+count1 <- any_match_count(504239, wt="json", raw=FALSE)
+
+#this generates zero matches, as expected, and the integer 0 is returned
+count2 <- any_match_count(123123123, wt="json", raw=FALSE)
+
+comment_detail(tsn=180543)
+
+tsns <- c(504239,180543,2288,123)
+
+usable <- lapply(tsns, function(tsn.i) {
+  usage(tsn.i)$taxonUsageRating
+  
+  #thing <- ritis::common_names(tsn.i)$commonName
+   }) %>% 
+  bind_rows()
+
+names <- lapply(tsns, function(tsn.i) {
+  common_names(tsn.i)$commonName
+  #thing <- ritis::common_names(tsn.i)$commonName
+   }) %>% 
+  bind_rows()
+
+full <- lapply(tsns, function(tsn.i) {
+  hierarchy_full(tsn.i)
+  #thing <- ritis::common_names(tsn.i)$commonName
+   }) %>% 
+  bind_rows()
+
+single_full <- hierarchy_full(2288)
+# test.df <- lapply(bay.temp$tsn, function(the_func){
+#   mutate(average = mean(the_func))
+# })
+  #test <- sum(the_func)
+
+```
+
+using taxize
+```{r}
+library(taxize)
+library(ritis)
+
+chiro_tsn <- get_tsn("Chironomus riparius")
+
+green_tsn <- get_tsn("Chlorophyta")
+
+blue_green_tsn <- get_tsn("Cyanobacteria")
+
+zero_test <-  common_names("0")
+
+test_use <- usage("956108")
+test_name <- common_names("956108")
+
+test_use2 <- usage("5414")
+test_name2 <- common_names("5414")
+
+
+```
+
+
+exploring issue with green_cells
+```{r}
+green_cell_carbon.df <- missing_carbon.df %>%
+  filter(latinname=="green_cells") #%>%
+  #select(-size)
+
+green_cell_tsn.df <- missing_tsn.df %>%
+  filter(latinname=="green_cells") #%>%
+  #select(-size)
+
+blue_green_carbon.df <- missing_carbon.df %>%
+  filter(latinname=="blue_green_sphere") #%>%
+  #select(-size)
+
+blue_green_tsn.df <- missing_tsn.df %>%
+  filter(latinname=="blue_green_sphere") #%>%
+
+
+
+blue_green_sphere.df <- bay_merged.df %>%
+  filter(latinname %in% c("blue_green_sphere","green_cells"))
+
+blue_green_sphere_carbon.df <- carbon.df %>%
+  filter(latinname %in% c("green_cells","blue_green_sphere"))
+
+blue_green_sphere_carbon.df <- left_join(blue_green_sphere.df, carbon.df, by= c("latinname","size"))
+
+# bay_w_size.df <- bay_partials_added.df %>%
+#   #filter(size != as.character(NA))
+#   filter(!size == "not_applicable")
+
+
+green.df <- left_join(green_cell.df, carbon.df, by= c("latinname"))
+
+chiro <- bay_merged.df %>% filter(latinname %in% c("chironomus_riparius"))
+
+```
+
+no tsn blue_green_sphere but there is tsn for Cyanobacteria.  can this be used instead?  Aslo, check for an alias for green_cells as well.
+```{r}
+# green_tsn <- get_tsn("Cyanobacteria")
+# 
+# test <- usage("956108")
+# test <- common_names("956108")
+# 
+# test <- phyto.df %>%
+# filter(latinname%in% c("chironomus_riparius","chlorophyta","cryptomonas","green_cells"))
+# 
+# print(missing_tsn_names <- unique(missing_tsn.df$latinname))
+# 
+# print(missingcarbon_names <- unique(missing_carbon.df$latinname))
+```
+
+```{r}
+# c( "green_cells","blue_green_sphere","cylindrospermopsis","woronichinia_naegeliana","limnothrix"            ,"protoperidinium_orbiculare")
+
+
+```
+
+```{r}
+num <- "003402"
+nums_fixed <- gsub("(^|[^0-9])0+", "\\1", as.integer(num), perl = TRUE)
+```
+
+for Andrea 
+```{r}
+library(MBSStools)
+library(dplyr)
+
+myIndex <- "MBSS.2005.Bugs"
+
+thresh <- MBSStools::metrics_scoring
+
+myMetrics.Bugs.MBSS <- as.character(droplevels(unique(thresh[thresh[,"Index.Name"]==myIndex, "MetricName"])))
+
+
+testMetric <-  as.character(droplevels(unique(thresh[test, "MetricName"])))
+test1 <- #unique(
+  thresh[thresh[,"Index.Name"]==myIndex, "Metrics"]#)
+
+test <- thresh[,"Index.Name"]==myIndex
+print(typeof(test))
+print(test)
+
+```
+
+```{r}
+library(readxl)
+library(dplyr)
+
+
+#creates project.dir, phyto directory object 
+project.dir <- rprojroot::find_rstudio_root_file()
+
+reservoir.df <- read_excel(file.path(project.dir, "data/Reservoir_Intake_test.xlsx"),
+                         sheet = "NorbData"#,
+                         #skip = 1
+                         )
+
+reservoir.df <-  reservoir.df %>%
+  mutate(Id = paste0(Year,Mon)) 
+
+#move last column (id) to first
+reservoir.df<-reservoir.df[,c(29, 1:28)]
+
+reservoir.df %>%  
+data.table::fwrite(file.path(project.dir, "data/", "Reservoir_intake.csv"))
+
+reservoir.df %>%  
+data.table::fwrite(file.path(project.dir, "data/", "Reservoir_intake.xlsx"))
+
+test.df <- reservoir.df %>%
+  select(Id, Year, Mon, Res)
+
+test.df %>%  
+data.table::fwrite(file.path(project.dir, "data/", "Test.xlsx"))
+
+test.df %>%  
+data.table::fwrite(file.path(project.dir, "data/", "Test.csv"))
+
+
+```
