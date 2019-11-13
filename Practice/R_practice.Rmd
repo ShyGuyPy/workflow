@@ -2554,3 +2554,21 @@ print(full_daily_url)
 #-----------------------------
 ```
 
+```{r}
+#import the data from sarah's site
+demands_raw.df <- data.table::fread('https://icprbcoop.org/drupal4/icprb/flow-data?startdate=11%2F2%2F2019&enddate=11%2F07%2F2019&format=hourly&submit=Submit',
+                                    data.table = FALSE)
+
+#gather the data into long format
+demands.df <- gather(demands_raw.df,site, flow, 2:6)
+
+#turn dates to date_time type
+demands.df$DateTime <- as_datetime(as.character(demands.df$DateTime))
+
+#plot the data
+#button interaction needs to be conditional on data being readable in directory
+ggplot(demands.df, aes(x = DateTime, y = flow)) + geom_line(aes(linetype = site, colour = site))
+    
+  
+```
+
