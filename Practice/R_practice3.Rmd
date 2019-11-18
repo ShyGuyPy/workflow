@@ -709,7 +709,11 @@ library(lubridate)
 
 #import the data from sarah's site
 demands_raw.df <- data.table::fread('https://icprbcoop.org/drupal4/icprb/flow-data?startdate=11%2F2%2F2019&enddate=11%2F07%2F2019&format=hourly&submit=Submit',
-                                    data.table = FALSE, header = TRUE)
+```
+
+
+```{r}
+data.table = FALSE, header = TRUE)
 
 #gather the data into long format
 demands.df <- gather(demands_raw.df,site, flow, 2:6)
@@ -723,3 +727,101 @@ ggplot(demands.df, aes(x = DateTime, y = flow)) + geom_line(aes(linetype = site,
     
   
 ```
+
+
+```{r}
+  #write old dataframe to old dataframe location 
+  write.csv(withdrawals_actual.df, paste0(ts_path, "download_data_w_old.csv"))
+```
+
+```{r}
+library(dplyr)
+library(lubridate)
+library(ggplot2)
+library(tidyverse)
+
+  #write old dataframe to old dataframe location 
+  write.csv(withdrawals_actual.df, paste0(ts_path, "download_data_w_old.csv"))
+
+# Path for current operations
+ts_path <- "input/ts/current/" 
+
+# #read file
+# withdrawals.df <- data.table::fread(paste0(ts_path, "download_data_w_temp.csv"),
+#                                       header = TRUE,
+#                                   data.table = FALSE)
+
+withdrawals.df <- data.table::fread("http://icprbcoop.org/drupal4/products/coop_pot_withdrawals.csv",
+                                      header = TRUE,
+                                      na.strings = c("eqp", "Ice", "Bkw", "", "#N/A", -999999),
+                                      data.table = FALSE) #, colClasses = list_gage_locations)
+
+#holds the values in wide format and addes dummy rows for formatting purposes
+withdrawals_actual.df <-  withdrawals.df %>%
+  add_row(DateTime = rep("dummy-row", 10), .before=1)
+
+#gather the data into long format for plotting
+withdrawals.df <- gather(withdrawals.df,site, flow, 2:6)
+
+#select only essential(prevents duplicate numbering v1 column)
+withdrawals.df <- withdrawals.df %>%
+    select(c(DateTime, site, flow))
+
+
+
+#if older data exist in directory
+if(file.exists(paste0(ts_path, "download_data_w_old.csv"))){
+    #grab old withdrawal data from app
+withdrawals_old.df <- data.table::fread(paste0(ts_path, "download_data_w_old.csv"),
+                                            header = TRUE,
+                                        data.table = FALSE)
+
+withdrawals_old.df <- withdrawals_old.df%>%
+slice(11:n())
+
+withdrawals_old.df <- withdrawals_old.df %>%
+    select(-V1)
+
+#gather the data into long format for plotting
+withdrawals_old.df <- gather(withdrawals_old.df,site, flow, 2:6)
+    
+withdrawals_old.df <- withdrawals_old.df %>%
+    select(c(DateTime, site, flow))
+
+    #change site names to be unique from new data (e.g 'lfalls' becomes 'lfalls_old')
+withdrawals_old.df <- withdrawals_old.df %>%
+      mutate( site =  paste0(site, "_old"))
+    
+    #turn dates to date_time type
+withdrawals_old.df$DateTime <- as_datetime(as.character(withdrawals_old.df$DateTime))
+  } else #if old data not in directory 
+    {
+    #make withdrawals old an empty dataframe
+  withdrawals_old.df <-  data.frame(Date=as.Date(character()),
+                                           File=character(), 
+                                           User=character(), 
+                                           stringsAsFactors=FALSE) 
+  }
+  
+  #turn dates to date_time type
+withdrawals.df$DateTime <- as_datetime(as.character(withdrawals.df$DateTime))
+  
+# withdrawals_old.df <- withdrawals_old.df %>%
+#     select(c(DateTime, site, flow))
+#   
+# withdrawals.df <- withdrawals.df %>%
+#     select(c(DateTime, site, flow))
+  
+  #plot the data
+  #button interaction needs to be conditional on data being readable in directory
+if(file.exists(paste0(ts_path, "download_data_w_old.csv"))){
+  
+  withdrawals_new_and_old.df <- full_join(withdrawals.df, withdrawals_old.df)#, by = c(DateTime, site, flow))
+  
+  ggplot(withdrawals_new_and_old.df, aes(x = DateTime, y = flow)) + geom_line(aes(linetype = site, colour = site)) 
+} else {
+  ggplot(withdrawals.df, aes(x = DateTime, y = flow)) + geom_line(aes(linetype = site, colour = site))
+}
+    
+```
+
