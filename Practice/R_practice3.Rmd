@@ -1264,3 +1264,60 @@ ggplot(flows_hourly.df, aes(x = date, y = flow)) + geom_line(aes(linetype = site
   
 ```
 
+```{r}
+```{r}
+library(dplyr)
+library(jsonlite)
+
+url.root <- "http://datahub.chesapeakebay.net/api.JSON"
+todays.date <- format(Sys.Date(), "%m-%d-%Y")
+
+
+#this is the minimum date to be included
+min_date = "1-01-1970"#
+
+#this is the maximum date to be included, add the variable todays.date into this variable if you want the most recent data
+max_date = todays.date#
+#------------------------
+
+#------number for phytoplankton in CEDR api-------------------
+phyto_num = "17"
+
+
+#------number for picoplankton in CEDR api--------------------
+pico_num = "18"
+#-------------------------------------------------------------
+
+#------number for phytoplankton in CEDR api-------------------
+phyto_num = "17"
+#-------------------------------------------------------------
+
+#------these are the parameter codes for the CEDR api---------
+chla=21
+doc=34 
+pheo=74 
+salinity=83
+#-------------------------------------------------------------
+
+#-----create a station vector for us in data pull------
+#temporary placement
+station.vec <- file.path(url.root,
+                         "LivingResources",
+                         "TidalPlankton",
+                         "Reported",
+                         min_date,
+                         max_date,
+                         phyto_num,
+                         "Station") 
+  #%>%
+  # fromJSON() %>%
+  # pull(unique(MonitoringLocationId))
+
+print(station.vec)
+
+station.vec   %>%
+  fromJSON() %>%
+  dplyr::pull(unique(MonitoringLocationId))
+```
+```
+
