@@ -1265,16 +1265,25 @@ ggplot(flows_hourly.df, aes(x = date, y = flow)) + geom_line(aes(linetype = site
 ```
 
 ```{r}
-```{r}
+
 library(dplyr)
+library(tidyr)
+library(data.table)
+library(lubridate)
+library(readxl)
 library(jsonlite)
+library(rprojroot)
+library(ritis)
+library(stringr)
+library(purrr)
+library(lubridate)
 
 url.root <- "http://datahub.chesapeakebay.net/api.JSON"
 todays.date <- format(Sys.Date(), "%m-%d-%Y")
 
 
 #this is the minimum date to be included
-min_date = "1-01-1970"#
+min_date = "01-01-2018"#
 
 #this is the maximum date to be included, add the variable todays.date into this variable if you want the most recent data
 max_date = todays.date#
@@ -1299,6 +1308,27 @@ pheo=74
 salinity=83
 #-------------------------------------------------------------
 
+#-----------------clean data----------------------------
+#should be in functions
+clean_string <- function(x) {
+  x %>% 
+    stringr::str_trim() %>% 
+    tolower() %>% 
+    stringr::str_replace_all("\\s+", " ") %>% 
+    stringr::str_replace_all(" ", "_") %>%  
+    if_else(. == "", as.character(NA), .)
+}
+
+clean_up <- function(x) {
+  x %>% 
+    rename_all(clean_string) %>% 
+    mutate_if(is.character, funs(clean_string))%>% 
+    distinct()
+}
+#----------------------------------------------------
+
+
+
 #-----create a station vector for us in data pull------
 #temporary placement
 station.vec <- file.path(url.root,
@@ -1308,16 +1338,29 @@ station.vec <- file.path(url.root,
                          min_date,
                          max_date,
                          phyto_num,
-                         "Station") 
-  #%>%
-  # fromJSON() %>%
-  # pull(unique(MonitoringLocationId))
+                         "Station") %>%
+  fromJSON() %>%
+  pull(unique(MonitoringLocationId))
 
 print(station.vec)
 
-station.vec   %>%
+# station.vec   %>%
+#   fromJSON() %>%
+#   dplyr::pull(unique(MonitoringLocationId))
+
+data.df <- file.path(url.root,
+                     "LivingResources",
+                     "TidalPlankton",
+                     "Reported",
+                     min_date,
+                     max_date,
+                     phyto_num,
+                     "Station",
+                     paste(station.vec, collapse = ",")) %>%
   fromJSON() %>%
-  dplyr::pull(unique(MonitoringLocationId))
+  clean_up()
+
+#print(max_date)
 ```
-```
+
 
