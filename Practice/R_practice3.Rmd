@@ -1363,4 +1363,17 @@ data.df <- file.path(url.root,
 #print(max_date)
 ```
 
+```{r}
+library(reticulate)
 
+
+```
+
+```{python}
+import pandas
+
+test = pandas.read_csv("data/ten_day_test.csv")
+
+print(test.head())
+
+```
