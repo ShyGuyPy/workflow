@@ -1395,3 +1395,28 @@ data_df['coltest1'] = data_df['t1']
 print(data_df)
 
 ```
+
+
+```{r}
+library(data.table)
+library(dplyr)
+
+ts_path <- "input/ts/current/" 
+
+withdrawals_correct_format.df <- data.table::fread(paste0(ts_path, "coop_pot_withdrawals.csv"),
+                                  data.table = FALSE)
+
+
+# get add_row to work correctly
+
+ #read temp file(grabbing the data that has added dummy rows and is still in wide format)
+withdrawals_raw.df <- data.table::fread(paste0(ts_path, "download_data_w_actual.csv"),
+                                  data.table = FALSE)
+#add dummyrows to match format
+withdrawals_formatted.df <- withdrawals_raw.df %>%
+add_row(DateTime = rep("#dummy-row", 10), .before=1)
+
+#write test csv (currently wrong format)
+write.csv(withdrawals_formatted.df, paste0(ts_path, "download_data_w_format_test.csv"), row.names=FALSE)
+```
+
