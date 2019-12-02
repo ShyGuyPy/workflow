@@ -1400,8 +1400,17 @@ print(data_df)
 ```{r}
 library(data.table)
 library(dplyr)
+library(tidyverse)
 
 ts_path <- "input/ts/current/" 
+
+withdrawals_raw.df <- data.table::fread("http://icprbcoop.org/drupal4/products/coop_pot_withdrawals.csv",
+                                      header = TRUE,
+                                      na.strings = c("eqp", "Ice", "Bkw", "", "#N/A", -999999),
+                                      data.table = FALSE) 
+
+#write test csv 
+write_csv(withdrawals_raw.df, paste0(ts_path, "download_data_w_raw.csv"))
 
 withdrawals_correct_format.df <- data.table::fread(paste0(ts_path, "coop_pot_withdrawals.csv"),
                                   data.table = FALSE)
@@ -1410,13 +1419,44 @@ withdrawals_correct_format.df <- data.table::fread(paste0(ts_path, "coop_pot_wit
 # get add_row to work correctly
 
  #read temp file(grabbing the data that has added dummy rows and is still in wide format)
-withdrawals_raw.df <- data.table::fread(paste0(ts_path, "download_data_w_actual.csv"),
+withdrawals_pulled.df <- data.table::fread(paste0(ts_path, "download_data_w_actual.csv"),
                                   data.table = FALSE)
 #add dummyrows to match format
 withdrawals_formatted.df <- withdrawals_raw.df %>%
 add_row(DateTime = rep("#dummy-row", 10), .before=1)
 
 #write test csv (currently wrong format)
-write.csv(withdrawals_formatted.df, paste0(ts_path, "download_data_w_format_test.csv"), row.names=FALSE)
+write_csv(withdrawals_formatted.df, paste0(ts_path, "download_data_w_format_test.csv"))
+```
+
+```{r}
+library(data.table)
+library(dplyr)
+library(tidyverse)
+
+ts_path <- "input/ts/current/" 
+
+withdrawals_raw.df <- data.table::fread("http://icprbcoop.org/drupal4/products/coop_pot_withdrawals.csv",
+                                      header = TRUE,
+                                      na.strings = c("eqp", "Ice", "Bkw", "", "#N/A", -999999),
+                                      data.table = FALSE) 
+
+withdrawals_formatted.df <- withdrawals_raw.df %>%
+  # write the future header
+  add_row(DateTime = "DateTime", FW = "FW", WSSC = "WSSC",
+          WA_GF = "WA_GF", WA_LF = "WA_LF", LW = "LW", .before = 1) %>%
+  # write 10 dummy rows, to mimic file from the Data Portal
+  add_row(DateTime = rep("#dummy-row", 10), .before=1)
+  
+
+#write test csv (currently wrong format)
+write_csv(withdrawals_formatted.df, paste0(ts_path, "download_data_w_format_test.csv"),col_names = FALSE)
+
+# withdrawals_read.df <- data.table::fread(paste0(ts_path, "download_data_w_format_test.csv"),
+#                                   data.table = FALSE,
+#                                   header = FALSE) 
+# 
+# #write test csv (currently wrong format)
+# write_csv(withdrawals_read.df, paste0(ts_path, "download_data_w_format_test.csv"))
 ```
 
