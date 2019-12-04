@@ -556,3 +556,36 @@ server <- function(input, output) {
 shiny::shinyApp(ui = ui, server = server)
 ```
 
+```{r}
+library(shiny)
+my_NA_count = 0
+
+ui <- fluidPage( 
+ sidebarPanel(
+   print(my_NA_count),
+
+   conditionalPanel(
+      condition = "my_NA_count >  1'",
+      sliderInput("breakCount", "pass", min=1, max=1000, value=10)
+      #print("pass")
+      ),
+
+
+      # Only show this panel if na count is one or higher
+      conditionalPanel(
+         condition = "my_NA_count <= 1'",
+         sliderInput("breakCount", "fail", min=1, max=1000, value=10)
+         #print("fail")
+
+      )
+   
+)
+   )
+
+server <- function(input, output) {
+  
+}
+  
+shiny::shinyApp(ui = ui, server = server)
+```
+

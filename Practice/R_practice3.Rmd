@@ -1475,6 +1475,7 @@ library(stringr)
 library(purrr)
 library(lubridate)
 library(ggplot2)
+library(tidyverse)
 
 url.root <- "http://datahub.chesapeakebay.net/api.JSON"
 todays.date <- format(Sys.Date(), "%m-%d-%Y")
@@ -1498,6 +1499,8 @@ pico_num = "18"
 #------number for phytoplankton in CEDR api-------------------
 phyto_num = "17"
 #-------------------------------------------------------------
+
+
 
 #------these are the parameter codes for the CEDR api---------
 chla=21
@@ -1546,29 +1549,53 @@ print(station.vec)
 #   fromJSON() %>%
 #   dplyr::pull(unique(MonitoringLocationId))
 
+
+#----------------pull phyto--------------------------------
+# plot_data.df <- file.path(url.root,
+#                      "LivingResources",
+#                      "TidalPlankton",
+#                      "MonitorEvent",
+#                      min_date,
+#                      max_date,
+#                      phyto_num,
+#                      "Station",
+#                      paste(station.vec, collapse = ",")) %>%
+#   fromJSON() %>%
+#   clean_up()
+#------------------------------------------------------------
+
+#-------------------pull water quality-------------------------
 plot_data.df <- file.path(url.root,
-                     "LivingResources",
-                     "TidalPlankton",
-                     "MonitorEvent",
-                     min_date,
-                     max_date,
-                     phyto_num,
-                     "Station",
-                     paste(station.vec, collapse = ",")) %>%
+                   "WaterQuality",
+                   "WaterQuality",
+
+                   min_date,
+                   max_date,
+                   "6",  #programIds
+                   "7,23",#"7,16,23,24",  #projectIds
+                   "station",
+                   paste(station.vec, collapse = ","),
+                   paste(
+                     #these are the parameter variables declared in Functions and Variables section
+                     chla,doc,pheo,salinity
+                     , sep=",")) %>%
   fromJSON() %>%
   clean_up()
+#---------------------------------------------------------------
+
+write_csv(plot_data.df, paste0(data_path, "download_data_water_quality.csv"))#,col_names = FALSE)
 
 #----------------plot data-------------------
 
 data_path <- "data/CEDR/"
 
-  #read file
-  plot_data.df <- data.table::fread(paste0(data_path, "cedr_phyto_tweak.csv"),
-                                      header = TRUE,
-                                      data.table = FALSE)
+#read file
+plot_data.df <- data.table::fread(paste0(data_path, "download_data_water_quality.csv"),
+                                    header = TRUE,
+                                    data.table = FALSE)
   
 
-ggplot(plot_data.df, aes(x = sampledate, y = reportingvalue)) + geom_line(aes(linetype = latinname, colour = latinname))  
+ggplot(plot_data.df, aes(x = sampledate, y = measurevalue)) + geom_line(aes(linetype = layer, colour = layer))  
 
 
 
