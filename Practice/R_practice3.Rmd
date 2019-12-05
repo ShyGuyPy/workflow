@@ -1477,6 +1477,8 @@ library(lubridate)
 library(ggplot2)
 library(tidyverse)
 
+data_path <- "data/CEDR/"
+
 url.root <- "http://datahub.chesapeakebay.net/api.JSON"
 todays.date <- format(Sys.Date(), "%m-%d-%Y")
 
@@ -1598,7 +1600,25 @@ plot_data.df <- data.table::fread(paste0(data_path, "download_data_water_quality
 ggplot(plot_data.df, aes(x = sampledate, y = measurevalue)) + geom_line(aes(linetype = layer, colour = layer))  
 
 
+data_na_count <- as.numeric(sum(is.na(plot_data.df$measurevalue)))
+print(data_na_count)
+
+data_num <- nrow(plot_data.df)
+data_na_percent <- (data_na_count / data_num)
 
 
+
+
+```
+
+```{r}
+MAIN = 7 #Tidal Mainstem Water Quality Monitoring Project
+TRIB = 23 #Tidal Tributary Water Quality Monitoring Project
+
+
+test <- paste(MAIN,TRIB
+                           , sep=",")
+
+print(test)
 ```
 

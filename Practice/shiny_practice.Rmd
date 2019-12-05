@@ -589,3 +589,24 @@ server <- function(input, output) {
 shiny::shinyApp(ui = ui, server = server)
 ```
 
+```{r}
+library(shiny)
+
+ui <- fluidPage(
+  actionButton("pass_fail","select"),
+  selectInput("pass_fail_input", "select pass or fail", c("PASS" = "pass", "FAIL" = "fail")),#,
+  
+  conditionalPanel("input.pass_fail_input == 'pass'",       sliderInput("breakCount", "pass", min=1, max=1000, value=10)
+  ),
+  
+    conditionalPanel("input.pass_fail_input == 'fail'",       sliderInput("breakCount", "fail", min=1, max=1000, value=10)
+  )
+)
+
+server <- function(input, output, session) {
+
+}
+
+shinyApp(ui, server)
+```
+
