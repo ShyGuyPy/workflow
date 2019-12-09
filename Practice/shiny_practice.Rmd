@@ -610,3 +610,67 @@ server <- function(input, output, session) {
 shinyApp(ui, server)
 ```
 
+```{r}
+library(shiny)
+library(readxl)
+library(dplyr)
+library(ggplot2)
+library(tidyr)
+library(lubridate)
+
+data_path <- "data/CEDR/"
+
+#---------------------check data-------------------------------
+check_data <-  function(){
+    withProgress(message = "downloading water quality data", value = 0, {
+          incProgress(1/2)
+  data_tweak.df <- data.table::fread(paste0(data_path, "cedr_wq_tweak.csv"),
+                                   data.table = FALSE)
+    data_na_count <- as.numeric(sum(is.na(data_tweak.df$measurevalue)))
+    incProgress(1/2)
+
+
+  data_num <- nrow(data_tweak.df)
+
+
+  data_na_percent <- (data_na_count / data_num)
+
+  data_check <- case_when( data_na_percent >=  .05 ~ paste("FAIL ","NA percent: ",data_na_percent), data_na_percent <  .05 ~ paste("PASS ","NA percent: ",data_na_percent)) #TRUE ~ "PASS")
+  return(data_check)
+  }) #end of withProgress
+}
+#------------------------end check data-----------------------
+
+ui <- fluidPage(
+
+  actionButton("download_data",
+               "Download data",
+               icon = NULL,
+               width = "220px"
+               ),
+  verbatimTextOutput("pass_fail")
+  # conditionalPanel(condition = "? == FAIL",
+  #                                 box(
+  #                                   title = "fail",
+  #                                   width = NULL
+  #                                   
+  #                                 )#end of box
+
+                   
+# )#end of conditonal panel
+) #end of fluidpage
+
+
+server <- function(input, output, session) {
+   output$pass_fail <-  eventReactive(input$download_data, {
+    check_data()
+    
+  })
+  
+ 
+}
+
+
+shinyApp(ui, server)
+```
+
