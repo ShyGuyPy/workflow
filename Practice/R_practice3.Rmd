@@ -1622,3 +1622,20 @@ test <- paste(MAIN,TRIB
 print(test)
 ```
 
+```{r}
+library(shiny)
+library(readxl)
+library(dplyr)
+library(ggplot2)
+library(tidyr)
+library(lubridate)
+
+data_path <- "data/CEDR/"
+
+data_tweak.df <- data.table::fread(paste0(data_path, "cedr_wq_tweak.csv"),
+                                   data.table = FALSE)
+
+data_tweak_test.df <- data_tweak.df %>%
+  mutate(sampledatetime = paste0(substr(sampledate, start = 1, stop = 11), sampletime))
+```
+
