@@ -1644,11 +1644,19 @@ data_tweak_test.df <- data_tweak.df %>%
 # with sampledate to create a proper datetime object
 to_date_time <- function(dataframe) {
   dataframe %>%
-    mutate(sampledatetime = paste0(substr(sampledate, start = 1, stop = 11), sampletime))
+    mutate(sampledatetime = as.POSIXct(paste0(substr(sampledate, start = 1, stop = 10)," ", sampletime)) )
 }
 
 func_test.df <- data_tweak.df %>%
   to_date_time()
+
+print(typeof(func_test.df$sampledatetime))
+
+
+
+ggplot(
+    func_test.df, aes(x = sampledatetime, y = measurevalue )) + geom_line()
+      #aes(linetype = layer, colour = layer)) #+ scale_x_discrete(breaks = seq(0, 100, by = 100)) 
 ```
 
 
