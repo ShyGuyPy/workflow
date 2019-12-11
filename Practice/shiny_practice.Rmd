@@ -641,6 +641,7 @@ check_data <-  function(){
 }
 #------------------------end check data-----------------------
 
+#------------------------ui----------------------------------
 ui <- fluidPage(
 
   actionButton("download_data",
@@ -649,28 +650,26 @@ ui <- fluidPage(
                width = "220px"
                ),
   verbatimTextOutput("pass_fail")
-  # conditionalPanel(condition = "? == FAIL",
-  #                                 box(
-  #                                   title = "fail",
-  #                                   width = NULL
-  #                                   
-  #                                 )#end of box
 
-                   
-# )#end of conditonal panel
 ) #end of fluidpage
+#--------------------------end ui----------------------------
 
 
+#-------------------------server------------------------------
 server <- function(input, output, session) {
    output$pass_fail <-  eventReactive(input$download_data, {
-    check_data()
+    check_data() 
     
   })
-  
+   
+
  
 }
+#------------------------end server-----------------------------
 
 
 shinyApp(ui, server)
 ```
+
+
 
