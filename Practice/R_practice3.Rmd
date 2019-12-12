@@ -1697,7 +1697,7 @@ phyto_num = "17"
 #-------------------------------------------------------------
 
 #this is the minimum date to be included
-min_date = "01-01-2018"#1970"#
+min_date = "12-13-2018"#1970"#
 
 #this is the maximum date to be included, add the variable todays.date into this variable if you want the most recent data
 max_date = todays.date#
@@ -1708,8 +1708,35 @@ todays.date <- format(Sys.Date(), "%m-%d-%Y")
 MAIN = 7 #Tidal Mainstem Water Quality Monitoring Project
 TRIB = 23 #Tidal Tributary Water Quality Monitoring Project
 
-DOC= 23
+#----------------water quality parameters-----------------------
+CLW =23
+DIN = 30
+DO = 31
+DOC = 34
+DON = 35
+DOP = 36
+NH4F = 60
+NO23F = 63
+NO2F = 65
+PC =  71
+PH = 73
+PN =  77
+PO4F = 78
+PP =82
 SALINITY = 83
+SIGMA_T = 88
+SO4W = 93
+SPCOND = 94
+TALK = 100
+TDN = 104
+TDP = 105
+TN = 109
+TON = 111
+TP = 114
+TSS = 116
+TURB_NTU = 119
+WTEMP = 123
+#----------------------------------------------------------------
 
 clean_string <- function(dataframe) {
   dataframe %>% 
@@ -1768,4 +1795,17 @@ huc8.vec <- file.path(CEDR_url,
                 clean_up() #%>%
 #-----------------------------------------------------
 
+#average by location and parameter
+###write as function for prep for mapping in CEDR_PULL
+  data_map.df <- plot_data.df %>%
+    mutate(sampledatetime = as.POSIXct(paste0(substr(sampledate, start = 1, stop = 10)," ", sampletime)) ) %>%
+    group_by(huc8, sampledatetime, parameter) %>%
+    mutate(measurevalue_averaged = mean(measurevalue)) %>%
+    select(huc8, sampledatetime, measurevalue_averaged, parameter ) %>%
+    unique()
+
 ```
+
+
+
+
