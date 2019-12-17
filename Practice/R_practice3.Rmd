@@ -1736,6 +1736,7 @@ TP = 114
 TSS = 116
 TURB_NTU = 119
 WTEMP = 123
+
 #----------------------------------------------------------------
 
 clean_string <- function(dataframe) {
@@ -1808,4 +1809,158 @@ huc8.vec <- file.path(CEDR_url,
 
 
 
+```{r}
+library(shiny)
+library(shinythemes)
+library(shinydashboard)
+library(tidyverse)
+library(dplyr)
+library(jsonlite)
+library(ggplot2)
+library(rlang)
+library(data.table)
+library(stringi)
+library(Cairo)
+library(RcppRoll)
+library(tidyr)
+library(lubridate)
+library(pryr)
+library(zoo)
+library(sp)
+library(leaflet)
+library(rgdal)
+library(RCurl)
+library(curl)
+
+#-----CEDR api url-------------------------------------
+CEDR_url <- "http://datahub.chesapeakebay.net/api.JSON"
+#------------------------------------------------------
+
+#-------------------todays date------------------------
+todays.date <- format(Sys.Date(), "%m-%d-%Y")
+#------------------------------------------------------
+
+#------number for phytoplankton in CEDR api-------------------
+phyto_num = "17"
+#-------------------------------------------------------------
+
+#this is the minimum date to be included
+min_date = "12-13-2018"#1970"#
+
+#this is the maximum date to be included, add the variable todays.date into this variable if you want the most recent data
+max_date = todays.date#
+
+CEDR_url <- "http://datahub.chesapeakebay.net/api.JSON"
+todays.date <- format(Sys.Date(), "%m-%d-%Y")
+
+MAIN = 7 #Tidal Mainstem Water Quality Monitoring Project
+TRIB = 23 #Tidal Tributary Water Quality Monitoring Project
+
+#----------------water quality parameters-----------------------
+CLW =23
+DIN = 30
+DO = 31
+DOC = 34
+DON = 35
+DOP = 36
+NH4F = 60
+NO23F = 63
+NO2F = 65
+PC =  71
+PH = 73
+PN =  77
+PO4F = 78
+PP =82
+SALINITY = 83
+SIGMA_T = 88
+SO4W = 93
+SPCOND = 94
+TALK = 100
+TDN = 104
+TDP = 105
+TN = 109
+TON = 111
+TP = 114
+TSS = 116
+TURB_NTU = 119
+WTEMP = 123
+
+SECCHI = 85
+CHLA=21
+PHEO=74 
+#----------------------------------------------------------------
+
+
+
+clean_string <- function(dataframe) {
+  dataframe %>% 
+    stringr::str_trim() %>% 
+    tolower() %>% 
+    stringr::str_replace_all("\\s+", " ") %>% 
+    stringr::str_replace_all(" ", "_") %>%  
+    if_else(. == "", as.character(NA), .)
+}
+
+clean_up <- function(dataframe) {
+  dataframe %>% 
+    rename_all(clean_string) %>% 
+    mutate_if(is.character, funs(clean_string))%>% 
+    distinct()
+}
+
+
+#-------------------location vector-------------------
+station.vec <- file.path(CEDR_url,
+                         "LivingResources",
+                         "TidalPlankton",
+                         "Reported",
+                         min_date,
+                         max_date,
+                         phyto_num,
+                         "Station") %>%
+  fromJSON() %>%
+  pull(unique(MonitoringLocationId))
+#-----------------------------------------------------
+wq_selection_vector <- function(){
+  huc8.vec <- file.path(CEDR_url,
+                        "LivingResources",
+                        "TidalPlankton",
+                        "Reported",
+                        min_date,
+                        max_date,
+                        phyto_num,
+                        "Huc8"
+  ) %>%
+    fromJSON() %>%
+    pull(unique(HUCEightId))
+}
+
+HUC8.vec <- wq_selection_vector()
+
+data.df <- file.path(CEDR_url,
+                                  "WaterQuality",
+                                  "WaterQuality",
+
+                                  min_date,
+                                  max_date,
+                                  "6",  #programIds
+                                  paste(
+                                          #these are the parameter variables declared in Functions and Variables section
+                                          MAIN,TRIB
+                                          , sep=","),#"7,16,23,24",  #projectIds
+                             
+                                  "Huc8",
+                                  #"Station",
+                                  paste(HUC8.vec, collapse = ","),
+                                  #paste(station.vec, collapse = ","),
+
+        paste(
+SALINITY, DIN, #PO4,
+SECCHI, CHLA, PHEO, DOC
+                , sep=",")
+) %>%
+
+   fromJSON() %>%
+   clean_up()
+```
 
