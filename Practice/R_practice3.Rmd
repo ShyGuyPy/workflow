@@ -1832,6 +1832,10 @@ library(rgdal)
 library(RCurl)
 library(curl)
 
+#-------------path to data directory-------------------
+data_path <- "data/CEDR/"
+#------------------------------------------------------
+
 #-----CEDR api url-------------------------------------
 CEDR_url <- "http://datahub.chesapeakebay.net/api.JSON"
 #------------------------------------------------------
@@ -1962,5 +1966,44 @@ SECCHI, CHLA, PHEO, DOC
 
    fromJSON() %>%
    clean_up()
+
+#write raw data, and data soon to be modified to directory
+write_csv(data.df, paste0(data_path, "data_raw.csv"))
+write_csv(data.df, paste0(data_path, "data_modified.csv"))#,col_names = FALSE)
+
+
+
+
+
+
+
+A = "LABORATORY ACCIDENT" 
+
+QQ = "PART EXCEEDS WHOLE VALUE YET DIFFERENCE IS WITHIN ANALYTICAL PRECISION" 
+
+#read the data soon to be modified
+data_modified.df <- data.table::fread(paste0(data_path, "data_modified.csv"),
+                                   data.table = FALSE)
+
+#if the column problem is included in the data proceed, otherwise not
+if("problem" %in% colnames(data_modified.df))
+{
+#print("good")
+
+data_problems.df <- data_modified.df %>%
+  filter(!is.na(problem )) #%>%
+
+#qq_problems = count(data_problems.df$problem == "qq")
+
+data_problems.df %>%
+group_by(problem) %>% 
+summarise(qq_count= sum(problem == "qq")#, a_count= sum(problem == "a"), 
+          #count2=sum(week<=2), count4= sum(week<=4)
+          ) %>%
+  ungroup()
+
+test_output = paste("the number of ", A, "is", a_count)
+}
 ```
+
 
