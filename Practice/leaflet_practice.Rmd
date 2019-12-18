@@ -33,7 +33,7 @@ data <- reactive({
 output$mymap <- renderLeaflet({
   m<-leaflet(data=df) %>%
     addTiles() %>%
-    #setView(lng=73.935242, lat = 40.730610, zoom=10)
+    #setView(lng=73.935242, lat = 40.730610, zoom=10) %>%
     addMarkers(lng= ~ longitude,
                lat= ~ latitude,
                popup = paste("Station", df$station, "<br>",

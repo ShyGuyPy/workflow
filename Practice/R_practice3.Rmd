@@ -1894,7 +1894,36 @@ CHLA=21
 PHEO=74 
 #----------------------------------------------------------------
 
-
+#--------------------------------data collection problem codes---
+A = "LABORATORY ACCIDENT" 
+B = "CHEMICAL MATRIX  INTERFERENCE" 
+BB  = "TORN FILTER PAD" 
+C = "INSTRUMENT FAILURE" 
+D = "INSUFFICIENT SAMPLE" 
+DD = "SAMPLE SIZE NOT REPORTED (ASSUMED)" 
+E = "SAMPLE RECEIVED AFTER HOLDING TIME" 
+FF =  "POOR REPLICATION BETWEEN PADS, MEAN REPORTED" 
+GG =  "SAMPLE ANALYZED AFTER HOLDING TIME" 
+I = "SUSPECT VALUE HAS BEEN VERIFIED CORRECT" 
+J =  "INCORRECT SAMPLE FRACTION FOR ANALYSIS" 
+JJ = "VOLUME FILTERED NOT RECORDED (ASSUMED)" 
+L = "LICOR CALIBRATION OFF BY >= 10% PER YEAR.  USE WITH CALC KD WHERE PROB OF LU,   LS, LB EXIST IN RAW" 
+LB = "LICOR CALIBRATION OFF BY >= 10% PER YEAR FOR BOTH AIR AND UPWARD  FACING SENSORS" 
+LS =  "LICOR CALIBRATION OFF BY >= 10% PER YEAR FOR AIR SENSOR" 
+LU = "LICOR CALIBRATION OFF BY >= 10% PER YEAR FOR UPWARD FACING SENSOR" 
+MM = "OVER 20% OF SAMPLE ADHERED TO POUCH AND OUTSIDE OF PAD" 
+NN = "PARTICULATES FOUND IN FILTERED SAMPLE"   
+P = "PROVISIONAL DATA" 
+QQ = "PART EXCEEDS WHOLE VALUE YET DIFFERENCE IS WITHIN ANALYTICAL PRECISION" 
+R = "SAMPLE CONTAMINATED" 
+RR = "NO SAMPLE RECEIVED"                                                                                   
+SS = "SAMPLE REJECTED, HIGH SUSPENDED SEDIMENT CONCENTRATION" 
+U = " MATRIX PROBLEM RESULTING FROM THE INTERRELATIONSHIP BETWEEN VARIABLES SUCH AS PH AND AMMONIA"         
+V = "SAMPLE RESULTS REJECTED DUE TO QC CRITERIA" 
+VV = "STATION WAS NOT SAMPLED DUE TO BAD FIELD CONDITIONS" 
+WW = "HIGH OPTICAL DENSITY (750 NM); ACTUAL VALUE RECORDED" 
+X = "SAMPLE NOT PRESERVED PROPERLY"
+#-----------------------------------------------------------------
 
 clean_string <- function(dataframe) {
   dataframe %>% 
@@ -1972,15 +2001,6 @@ write_csv(data.df, paste0(data_path, "data_raw.csv"))
 write_csv(data.df, paste0(data_path, "data_modified.csv"))#,col_names = FALSE)
 
 
-
-
-
-
-
-A = "LABORATORY ACCIDENT" 
-
-QQ = "PART EXCEEDS WHOLE VALUE YET DIFFERENCE IS WITHIN ANALYTICAL PRECISION" 
-
 #read the data soon to be modified
 data_modified.df <- data.table::fread(paste0(data_path, "data_modified.csv"),
                                    data.table = FALSE)
@@ -1995,14 +2015,61 @@ data_problems.df <- data_modified.df %>%
 
 #qq_problems = count(data_problems.df$problem == "qq")
 
-data_problems.df %>%
-group_by(problem) %>% 
-summarise(qq_count= sum(problem == "qq")#, a_count= sum(problem == "a"), 
-          #count2=sum(week<=2), count4= sum(week<=4)
-          ) %>%
-  ungroup()
+qq_count <- as.numeric(sum(data_problems.df$problem == "qq"))
+a_count <- as.numeric(sum(data_problems.df$problem == "a"))
 
-test_output = paste("the number of ", A, "is", a_count)
+
+a_string = paste("the number of ", A, "is", a_count)
+qq_string = paste("the number of ", QQ, "is", qq_count)
+
+
+#in function form
+count_and_report_problems <-  function(problem_name, problem_description){
+  #read in data
+  data_modified.df <- data.table::fread(paste0(data_path, "data_modified.csv"),
+                                        data.table = FALSE)
+  
+  #if the column problem is included in the data proceed, otherwise not
+  if("problem" %in% colnames(data_modified.df))
+  {
+    #count problem type
+    problem_count <- as.numeric(sum(data_modified.df$problem == as.character(problem_name)))
+  
+    #report problem type
+    problem_report = paste("the number of ", problem_description, "is", problem_count)
+    }
+}
+
+test <- count_and_report_problems("qq", QQ)
+print(test)
+}
+
+library(rlist)
+
+all_problems <- list()
+
+print(paste0(report <- count_and_report_problems("a", A),
+#list.append(all_problems, report)
+"\n ",
+report <- count_and_report_problems("b", B)))
+# list.append(all_problems, report)
+# report <- count_and_report_problems("bb", BB)
+# list.append(all_problems, report)
+# report <- count_and_report_problems("c", C)
+# list.append(all_problems, report)
+# report <- count_and_report_problems("d", D)
+
+print(all)
+
+print(typeof(data_modified.df$qualifier))
+
+if("qualifier" %in% colnames(data_modified.df))
+{
+#print("good")
+
+data_qualifiers.df <- data_modified.df %>%
+  #filter(!is.na(qualifier )) 
+  filter(qualifier == "g")
 }
 ```
 
