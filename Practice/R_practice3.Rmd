@@ -2319,3 +2319,222 @@ SECCHI, CHLA, PHEO, DOC
 
 ```
 
+```{r}
+library(dplyr)
+#-------------path to data directory-------------------
+data_path <- "data/CEDR/"
+#------------------------------------------------------
+
+data_modified.df <- data.table::fread(paste0(data_path, "severn_for_andrea.csv"),
+                                   data.table = FALSE) %>%
+  select(station, latitude, longitude) %>%
+  unique()
+
+write_csv(data_modified.df, paste0(data_path, "severn_unique_for_andrea.csv"))#,col_names = FALSE)
+```
+
+```{r}
+
+count_and_report_problems <-  function(problem_name, problem_description){
+  #read in data
+  data_modified.df <- data.table::fread(paste0(data_path, "data_modified.csv"),
+                                        data.table = FALSE)
+  
+  #if the column problem is included in the data proceed, otherwise not
+  if("problem" %in% colnames(data_modified.df))
+  {
+    #count problem type
+    problem_count <- as.numeric(sum(data_modified.df$problem == as.character(problem_name)))
+    
+    #report problem type
+    problem_report = paste("the number of ",problem_name," = ", problem_description, "is", problem_count)
+    return(problem_report)
+  }
+}
+
+report_all_problems <-  function(){
+  
+  #read in data
+  data_modified.df <- data.table::fread(paste0(data_path, "data_modified.csv"),
+                                        data.table = FALSE)
+  
+#if the column problem is included in the data proceed, otherwise not
+  if("problem" %in% colnames(data_modified.df))
+  { 
+
+    
+    all_problems <- paste0(
+    count_and_report_problems("a", A),"\n ",
+    count_and_report_problems("b", B),"\n ",
+    count_and_report_problems("bb", BB),"\n ",
+    count_and_report_problems("c", C),"\n ",
+    count_and_report_problems("d", D),"\n ",
+    count_and_report_problems("dd", DD),"\n ",
+    count_and_report_problems("e", E),"\n ",
+    count_and_report_problems("f", FF),"\n ",
+    count_and_report_problems("g", GG),"\n ",
+    count_and_report_problems("i", I),"\n ",
+    count_and_report_problems("j", J),"\n ",
+    count_and_report_problems("jj", JJ),"\n ",
+    count_and_report_problems("lb", LB),"\n ",
+    count_and_report_problems("ls", LS),"\n ",
+    count_and_report_problems("lu", LU),"\n ",
+    count_and_report_problems("mm", MM),"\n ",
+    count_and_report_problems("nn", NN),"\n ",
+    count_and_report_problems("p", P),"\n ",
+    count_and_report_problems("qq", QQ),"\n ",
+    count_and_report_problems("r", R),"\n ",
+    count_and_report_problems("rr", RR),"\n ",
+    count_and_report_problems("ss", SS),"\n ",
+    count_and_report_problems("u", U),"\n ",
+    count_and_report_problems("v",V),"\n ",
+    count_and_report_problems("vv", VV),"\n ",
+    count_and_report_problems("ww", WW),"\n ",
+    count_and_report_problems("x", X),"\n "
+    )
+    
+    return(all_problems)
+    
+  }
+}
+
+test <- report_all_problems()
+print(test)
+```
+
+```{r}
+
+#--------------------------------data collection problem codes---
+A = "LABORATORY ACCIDENT" 
+B = "CHEMICAL MATRIX  INTERFERENCE" 
+BB  = "TORN FILTER PAD" 
+C = "INSTRUMENT FAILURE" 
+D = "INSUFFICIENT SAMPLE" 
+DD = "SAMPLE SIZE NOT REPORTED (ASSUMED)" 
+E = "SAMPLE RECEIVED AFTER HOLDING TIME" 
+FF =  "POOR REPLICATION BETWEEN PADS, MEAN REPORTED" 
+GG =  "SAMPLE ANALYZED AFTER HOLDING TIME" 
+I = "SUSPECT VALUE HAS BEEN VERIFIED CORRECT" 
+J =  "INCORRECT SAMPLE FRACTION FOR ANALYSIS" 
+JJ = "VOLUME FILTERED NOT RECORDED (ASSUMED)" 
+L = "LICOR CALIBRATION OFF BY >= 10% PER YEAR.  USE WITH CALC KD WHERE PROB OF LU,   LS, LB EXIST IN RAW" 
+LB = "LICOR CALIBRATION OFF BY >= 10% PER YEAR FOR BOTH AIR AND UPWARD  FACING SENSORS" 
+LS =  "LICOR CALIBRATION OFF BY >= 10% PER YEAR FOR AIR SENSOR" 
+LU = "LICOR CALIBRATION OFF BY >= 10% PER YEAR FOR UPWARD FACING SENSOR" 
+MM = "OVER 20% OF SAMPLE ADHERED TO POUCH AND OUTSIDE OF PAD" 
+NN = "PARTICULATES FOUND IN FILTERED SAMPLE"   
+P = "PROVISIONAL DATA" 
+QQ = "PART EXCEEDS WHOLE VALUE YET DIFFERENCE IS WITHIN ANALYTICAL PRECISION" 
+R = "SAMPLE CONTAMINATED" 
+RR = "NO SAMPLE RECEIVED"                                                                                   
+SS = "SAMPLE REJECTED, HIGH SUSPENDED SEDIMENT CONCENTRATION" 
+U = " MATRIX PROBLEM RESULTING FROM THE INTERRELATIONSHIP BETWEEN VARIABLES SUCH AS PH AND AMMONIA"         
+V = "SAMPLE RESULTS REJECTED DUE TO QC CRITERIA" 
+VV = "STATION WAS NOT SAMPLED DUE TO BAD FIELD CONDITIONS" 
+WW = "HIGH OPTICAL DENSITY (750 NM); ACTUAL VALUE RECORDED" 
+X = "SAMPLE NOT PRESERVED PROPERLY"
+#-----------------------------------------------------------------
+
+
+
+
+generate_problem_table <-  function(){
+  #read in data
+  data_modified.df <- data.table::fread(paste0(data_path, "data_modified.csv"),
+                                        data.table = FALSE) %>%
+    filter(problem == "qq")
+    
+    
+    mutate(error_code = problem) %>%
+    mutate(definition = case_when(problem == "a"~A,
+                                  problem == "b"~B,
+                                  problem == "bb"~BB,
+                                  problem == "c"~C,
+                                  problem == "d"~D,
+                                  problem == "dd"~DD,
+                                  problem == "e"~E,
+                                  problem == "ff"~FF,
+                                  problem == "gg"~GG,
+                                  problem == "i"~I,
+                                  problem == "j"~J,
+                                  problem == "jj"~JJ,
+                                  problem == "lb"~LB,
+                                  problem == "ls"~LS,
+                                  problem == "lu"~LU,
+                                  problem == "mm"~MM,
+                                  problem == "nn"~NN,
+                                  problem == "p"~P,
+                                  problem == "qq"~QQ,
+                                  problem == "r"~R,
+                                  problem == "rr"~RR,
+                                  problem == "ss"~SS,
+                                  problem == "u"~U,
+                                  problem == "v"~V,
+                                  problem == "vv"~VV,
+                                  problem == "ww"~WW,
+                                  problem == "x"~X,
+                                  TRUE~"no problem") ) %>%
+    #filter(definition != "no problem") %>%
+    group_by(parameter, error_code) #%>%
+    #mutate(n = n())
+  
+  
+  
+}
+
+test.df <- generate_problem_table()
+
+
+
+# problem_count <- as.numeric(sum(data_modified.df$problem == as.character(problem_name)))
+```
+
+```{r}
+
+# S------------------------------------------count_problems---------------------------------------------
+count_and_report_problems <-  function(problem_name, problem_description){
+  #read in data
+  data_modified.df <- data.table::fread(paste0(data_path, "data_modified.csv"),
+                                        data.table = FALSE)
+  
+  #if the column problem is included in the data proceed, otherwise not
+  if("problem" %in% colnames(data_modified.df))
+  {
+    #count problem type
+    problem_count <- as.numeric(sum(data_modified.df$problem == as.character(problem_name)))
+    
+    #report problem type
+    problem_report = paste("the number of ",problem_name," = ", problem_description, "is", problem_count)
+    return(problem_report)
+  }
+}
+# E------------------------------------------count_problems---------------------------------------------
+
+
+
+# table_all_problems
+test <- count_and_report_problems("a", A)
+```
+
+```{r}
+table_all_problems <-  function(problem_name, problem_description){
+  #read in data
+  data_modified.df <- data.table::fread(paste0(data_path, "data_modified.csv"),
+                                        data.table = FALSE)
+  
+  #if the column problem is included in the data proceed, otherwise not
+  if("problem" %in% colnames(data_modified.df))
+  {
+    
+    #count problem type
+    problem_count <- as.numeric(sum(data_modified.df$problem == as.character(problem_name)))
+    
+    #report problem type
+    problem_report = paste("the number of ",problem_name," = ", problem_description, "is", problem_count)
+    
+    problem_table.df <- data
+    return(problem_table.df)
+  }
+}
+```
+
