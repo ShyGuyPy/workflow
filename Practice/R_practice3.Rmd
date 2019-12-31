@@ -2654,12 +2654,15 @@ wq.df <- file.path(url.root,
   data.table::fwrite(wq.df, file.path(project.dir, "practice/data/3_day_window", "cedr_wq_test.csv"))
   
   
-  
+#dataframe of unique station/date combos with upper and lower date range added  
 data.sub <-  phyto.df %>%
   select(station, sampledate) %>%
   distinct() %>%
   mutate(lower_date = sampledate - lubridate::days(3),
           upper_date = sampledate + lubridate::days(3))
+
+
+
 
 library(parallel)
 n.cores <- detectCores() - 1
@@ -2704,5 +2707,56 @@ test_result.df <- parLapply(cl, 1:nrow(data.sub), function(row.i) {
 #end env.df
 
 stopCluster(cl)
+```
+
+This is a little microcosmic version of the 3 day window problem.  When the code is working properly: The first 4 water quality entries should all be joinable to a single phyto data entry, with the fifth entry having no joinable option and being removed.  
+```{r}
+#------------------------------create phyto dataframe--------------
+phyto_dates <-  c(as.Date("2019-01-10"),as.Date("2019-01-15"),as.Date("2019-01-20"),as.Date("2019-01-25"),as.Date("2019-01-30"))
+
+phyto_stations <- c("B1", "C2", "C2", "C3", "Z")
+
+phyto_test.df <- data.frame("sampledate" = phyto_dates, "station" = phyto_stations)
+
+#assign upper and lower range for each date
+phyto_test.df <- phyto_test.df %>%
+    mutate(lower_date = sampledate - lubridate::days(3),
+         upper_date = sampledate + lubridate::days(3))
+#-------------------------------------------------------------------
+
+
+
+
+#-----------------------create water quality dataframe--------------
+wq_dates <-  c(as.Date("2019-01-10"),as.Date("2019-01-12"),as.Date("2019-01-16"),as.Date("2019-02-01"),as.Date("2019-05-30"))
+
+wq_stations <- c("B1", "C2", "C2", "B1", "Z")
+
+wq_parameter <- c("chla", "chla", "chla", "chla", "chla" )
+
+wq_measurevalue <-  c(8.01, 5.43, 9.54, 6.66, 5.19)
+
+wq_test.df <- data.frame("sampledate" = wq_dates, "station" = wq_stations, "parameter" = wq_parameter, "measurevalue" = wq_measurevalue)
+#-------------------------------------------------------------------
+
+
+#--------------------this where the function goes-------------------
+#for i in phyto
+#for i in wq 
+#if i in wq  in range lower to upper
+#then i = data 
+#until another is closer 
+#then replaces i
+#until all have been iterated through
+#using parallel p?
+
+#-------------------------------------------------------------------
+
+
+
+#this is the join that  should attach 4 of the 5 wq entries to phyto entries
+#-------------------------------------------------------------------
+test.df <- left_join(phyto_test.df, wq_test.df, by = c("station", "sampledate"))
+#
 ```
 
