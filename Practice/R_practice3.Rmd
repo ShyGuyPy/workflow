@@ -2551,10 +2551,7 @@ library(stringr)
 library(purrr)
 library(lubridate)
 
-library(purrr)
-library(RCurl)
-library(httr)
-library(ritis)
+
 
 project.dir <- rprojroot::find_rstudio_root_file()
 
@@ -2711,6 +2708,18 @@ stopCluster(cl)
 
 This is a little microcosmic version of the 3 day window problem.  When the code is working properly: The first 4 water quality entries should all be joinable to a single phyto data entry, with the fifth entry having no joinable option and being removed.  
 ```{r}
+library(dplyr)
+library(tidyr)
+library(data.table)
+library(lubridate)
+library(readxl)
+library(jsonlite)
+library(rprojroot)
+library(ritis)
+library(stringr)
+library(purrr)
+library(lubridate)
+
 #------------------------------create phyto dataframe--------------
 phyto_dates <-  c(as.Date("2019-01-10"),as.Date("2019-01-15"),as.Date("2019-01-20"),as.Date("2019-01-25"),as.Date("2019-01-30"))
 
@@ -2750,6 +2759,8 @@ wq_test.df <- data.frame("sampledate" = wq_dates, "station" = wq_stations, "para
 #until all have been iterated through
 #using parallel p?
 
+
+
 #-------------------------------------------------------------------
 
 
@@ -2758,5 +2769,26 @@ wq_test.df <- data.frame("sampledate" = wq_dates, "station" = wq_stations, "para
 #-------------------------------------------------------------------
 test.df <- left_join(phyto_test.df, wq_test.df, by = c("station", "sampledate"))
 #
+```
+
+```{r}
+test_fun <- function(phyto_sampledate, date_lower, date_upper, waqu_sampledate, waqu_parameter, waqu_measurevalue, phyto_full) {
+  phyto_test <- phyto_full %>%
+    mutate(result = "blank")
+  
+  for(i in phyto_sampledate){
+
+      phyto_test$result[i] = case_when(i >= date_lower[i] && i <= date_upper[i] ~  "pass", TRUE ~ "fail"
+                )
+      
+  }
+  return(phyto_test)
+}
+
+lapply_test.df <- lapply(phyto_test.df$sampledate, test_fun, date_lower = phyto_test.df$lower_date, date_upper = phyto_test.df$upper_date, waqu_sampledate = wq_test.df$sampledate, waqu_parameter = wq_test.df$parameter, waqu_measurevalue = wq_test.df$measurevalue, phyto_full = phyto_test.df)
+```
+
+```{r}
+print(test.df$station[4])
 ```
 
