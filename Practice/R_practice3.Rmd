@@ -2792,3 +2792,75 @@ lapply_test.df <- lapply(phyto_test.df$sampledate, test_fun, date_lower = phyto_
 print(test.df$station[4])
 ```
 
+```{r}
+library(dplyr)
+library(tidyr)
+library(data.table)
+library(lubridate)
+library(readxl)
+library(jsonlite)
+library(rprojroot)
+library(ritis)
+library(stringr)
+library(purrr)
+library(lubridate)
+
+#------------------------------create phyto dataframe--------------
+phyto_dates <-  c(as.Date("2019-01-10"))
+
+phyto_stations <- c("B1")
+
+phyto_test.df <- data.frame("sampledate" = phyto_dates, "station" = phyto_stations)
+
+#assign upper and lower range for each date
+phyto_test.df <- phyto_test.df %>%
+    mutate(lower_date = sampledate - lubridate::days(3),
+         upper_date = sampledate + lubridate::days(3))
+#-------------------------------------------------------------------
+
+
+
+
+#-----------------------create water quality dataframe--------------
+wq_dates <-  c(as.Date("2019-01-11"),as.Date("2019-01-08"),as.Date("2019-01-16"))
+
+wq_stations <- c("B1", "B1","B1")
+
+wq_parameter <- c("chla", "chla", "chla")
+
+wq_measurevalue <-  c(8.01, 5.43, 9.54)
+
+wq_test.df <- data.frame("sampledate" = wq_dates, "station" = wq_stations, "parameter" = wq_parameter, "measurevalue" = wq_measurevalue)
+#-------------------------------------------------------------------
+```
+
+```{r}
+
+
+# final.df <- phyto_test.df %>%
+  apple <- "nunya"
+  for(phy in phyto_test.df$sampledate){
+    for(wq in wq_test.df$sampledate){
+      if (
+        (
+        (wq >= phyto_test.df$lower_date[phy] && wq <= phyto_test.df$upper_date[phy]) &&
+        (apple == "nunya") 
+      )
+        ||
+        (
+        (wq >= phyto_test.df$lower_date[phy] && wq <= phyto_test.df$upper_date[phy]) &&
+        ( abs(phyto_test.df$sampledate[phy] - wq) < abs(phyto_test.df$sampledate[phy] - apple) )
+      )
+      )
+      {apple = wq} 
+    }}
+print(apple)
+
+
+
+
+
+```
+
+
+
