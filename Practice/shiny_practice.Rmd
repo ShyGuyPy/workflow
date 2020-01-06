@@ -823,3 +823,219 @@ shinyApp(ui, server)
 
 ```
 
+```{r}
+
+library(leaflet)
+library(shiny)
+library(rgdal)
+library(jsonlite)
+library(tidyverse)
+#############################################################################################################################################
+## Acquire data
+data_full <- read.csv("data/CEDR/data_modified.csv")
+# 
+pal <- colorFactor(palette = c("red", "orange", "yellow", "chartreuse", "darkgreen"), levels = c("very_poor", "poor", "fair", "good", "excellent"))
+# 
+# PRB <- readOGR("C:/Users/RJepson/Documents/GIS data/Hydrology/Potomac River basin/PotomacBasin_Boundary_NHD2003.shp")
+# 
+# HUC8 <- readOGR("C:/Users/RJepson/Documents/DIME/R scripts/DIME Shiny/WBDHU8_PotmacBasin_Feb20162.shp")
+# 
+# ches <- readOGR("C:/Users/RJepson/Documents/GIS data/Hydrology/Chesapeake Bay watershed/ChesBay.shp")
+#############################################################################################################################################
+## Convert to wide format and subset
+# data_full <- data_full %>%
+#   spread(key = parameter, value = measurevalue)
+
+# %>%
+#   select("huc8", "eventid", "cruise", "program", "project", "agency", "source", "station", "sampledate", "latitude", "longitude", "secchi") %>%
+#   drop_na(secchi)
+
+pal <- colorNumeric(palette = c("yellow","darkgreen"), domain = data_secchi$secchi)
+#############################################################################################################################################
+
+select_param <- function(selected_parameter) {
+  data_selected <- data_full %>%
+    # select("huc8", "eventid", "cruise", "program", "project", "agency", "source", "station", "sampledate", "latitude", "longitude", as.character(selected_parameter)) #%>%
+  #drop_na(secchi)
+    
+    filter(parameter == as.character(selected_parameter))
+  
+  return(data_selected)
+}
+
+
+shinyApp(
+  ui = fluidPage(
+    titlePanel("Shiny with Leaflet working example"),
+    leafletOutput("MapPlot1", height = 850),
+    selectInput("data", "Parameter:",
+                c("Secchi" = "secchi",
+                  "Chlorophyll a" = "chla",
+                  "Dissolved Organic Carbon" = "doc"))  
+  ),
+ 
+  server = function(input, output) {
+   
+    output$MapPlot1 <- renderLeaflet({
+      leaflet() %>%
+        addTiles() %>%
+        setView(-78.193593, 38.917359, zoom = 7.5) #%>%
+    #     addPolygons(data = HUC8, fill = FALSE, weight = 2, color = "steelblue", group = "HUC8") %>%
+    #     addPolygons(data = PRB, fill = FALSE, weight = 3, color = "navy", group = "Potomac River Watershed") %>%
+    #     addPolygons(data = ches, fill = FALSE, weight = 3, color = "navy", group = "Chesapeake Bay Watershed") %>%
+    #     #addLegend("bottomleft", pal = pal, values = data_secchi$secchi, title = "Secchi depth (m)", opacity = 1) %>%
+    #     addLayersControl(overlayGroups = c("Chesapeake Bay Watershed", "Potomac River Watershed", "HUC8"), position = "bottomleft",
+    #                      options = layersControlOptions(collapsed = FALSE)) %>%
+    #     hideGroup("Chesapeake Bay Watershed")
+    })
+   
+    output$render_to_map <-  eventReactive(input$data, {
+      data_selected < - select_param(input$data)
+      
+      
+    observe({
+      leafletProxy("MapPlot1") %>%
+        clearMarkers() %>%
+        addCircleMarkers(data = data_selected,
+                         lng = ~longitude,
+                         lat = ~latitude,
+                         radius = 2,
+                         color = ~ pal(secchi),
+                         stroke = TRUE,
+                         fillOpacity = 0.5,
+                         popup=paste('<b>Date:</b>', data_selected$sampledate, "<br>",
+                                     '<b>Value:</b>', data_selected$parameter, "<br>",
+                                     '<b>Station:</b>', data_selected$station, "<br"),
+                         options = popupOptions(maxHeight = 50))
+
+    })
+
+
+    })
+   
+
+    # observe({
+    #   leafletProxy("MapPlot1") %>%
+    #     clearMarkers() %>%
+    #     addCircleMarkers(data = data_selected,
+    #                      lng = ~longitude,
+    #                      lat = ~latitude,
+    #                      radius = 2,
+    #                      color = ~ pal(secchi),
+    #                      stroke = TRUE,
+    #                      fillOpacity = 0.5,
+    #                      popup=paste('<b>Date:</b>', data_selected$sampledate, "<br>",
+    #                                  '<b>Value:</b>', data_selected$parameter, "<br>",
+    #                                  '<b>Station:</b>', data_selected$station, "<br"),
+    #                      options = popupOptions(maxHeight = 50))
+    # 
+    # })
+    
+    
+  }
+)
+
+###
+# UI
+# actionButton("error_report",
+#              "Report Errors",
+#              icon = NULL,
+#              width = "220px"
+# ),
+# SERVER
+# output$qualifiers <-  eventReactive(input$data, {
+#   #check_data()
+#  
+#   report_all_qualifiers()  
+# })
+# 
+# UI
+# verbatimTextOutput("qualifiers")
+
+
+   
+    # observe({
+    #   leafletProxy("MapPlot1") %>%
+    #     clearMarkers() %>%
+    #     addCircleMarkers(data = data_secchi,
+    #                      lng = ~longitude,
+    #                      lat = ~latitude,
+    #                      radius = 2,
+    #                      color = ~ pal(secchi),
+    #                      stroke = TRUE,
+    #                      fillOpacity = 0.5,
+    #                      popup=paste('<b>Date:</b>', data_secchi$sampledate, "<br>",
+    #                                  '<b>Value:</b>', data_secchi$secchi, "<br>",
+    #                                  '<b>Station:</b>', data_secchi$station, "<br"),
+    #                      options = popupOptions(maxHeight = 50))
+    # 
+    # })
+
+```
+
+
+```{r}
+library(leaflet)
+library(shiny)
+library(rgdal)
+library(jsonlite)
+library(tidyverse)
+
+data_raw <- read.csv("data/CEDR/data_modified.csv")
+
+parameter_data <- data_raw
+
+shinyApp(
+  ui = fluidPage(
+    titlePanel("Shiny with Leaflet working example"),
+    selectInput("data", "Parameter:",
+            c("Secchi" = "secchi",
+              "Chlorophyll a" = "chla",
+              "Dissolved Organic Carbon" = "doc",
+              "DIN" = "din",
+              "Pheophytin" = "pheo",
+              "Salinity" = "salinity",
+              "PO4" = "po4")),
+    leafletOutput("map", height = 850)#,width = "100%", height = "100%")
+  ),
+
+
+server <- function(input, output, session) {
+  
+  select_data <- reactive({
+    parameter_data <- parameter_data %>%
+      filter(parameter == as.character(input$data))
+    #return(select_data)
+  })
+  
+      output$map <- renderLeaflet({
+      leaflet() %>%
+        addTiles() %>%
+        setView(-78.193593, 38.917359, zoom = 7.5)
+      })
+      
+     observe({ 
+       test_data <- select_data()
+       
+       proxy <- leafletProxy("map", data = data_raw) %>%
+        clearMarkers() %>%
+        addCircleMarkers(data = test_data,
+                         lng = ~longitude,
+                         lat = ~latitude,
+                         radius = 2,
+                         #color = ~ pal(secchi),
+                         stroke = TRUE,
+                         fillOpacity = 0.5,
+                         # popup=paste('<b>Date:</b>', test_data$sampledate, "<br>",
+                         #             '<b>Value:</b>', test_data$parameter, "<br>",
+                         #             '<b>Station:</b>', test_data$station, "<br"),
+                         options = popupOptions(maxHeight = 50)
+                         )
+     })
+}
+)
+
+shinyApp(ui, server)
+  
+```
+
