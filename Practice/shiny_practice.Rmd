@@ -985,6 +985,11 @@ data_raw <- read.csv("data/CEDR/data_modified.csv")
 
 parameter_data <- data_raw
 
+test_data <- parameter_data
+
+pal <- colorNumeric(palette = c("yellow","darkgreen"), domain = test_data$measurevalue)
+
+
 shinyApp(
   ui = fluidPage(
     titlePanel("Shiny with Leaflet working example"),
@@ -1023,12 +1028,12 @@ server <- function(input, output, session) {
                          lng = ~longitude,
                          lat = ~latitude,
                          radius = 2,
-                         #color = ~ pal(secchi),
+                         color = ~ pal(test_data$measurevalue),
                          stroke = TRUE,
                          fillOpacity = 0.5,
-                         # popup=paste('<b>Date:</b>', test_data$sampledate, "<br>",
-                         #             '<b>Value:</b>', test_data$parameter, "<br>",
-                         #             '<b>Station:</b>', test_data$station, "<br"),
+                         popup=paste('<b>Date:</b>', test_data$sampledate, "<br>",
+                                     '<b>Value:</b>', test_data$measurevalue, "<br>",
+                                     '<b>Station:</b>', test_data$station, "<br"),
                          options = popupOptions(maxHeight = 50)
                          )
      })

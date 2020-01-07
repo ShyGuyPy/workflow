@@ -2906,11 +2906,6 @@ phyto_dates <-  c(as.Date("2019-01-10"),as.Date("2019-01-15"),as.Date("2019-01-2
 phyto_stations <- c("B1", "C2", "C2", "C3", "Z")
 
 event.df <- data.frame("sampledate" = phyto_dates, "station" = phyto_stations)
-
-#assign upper and lower range for each date
-# phyto_test.df <- phyto_test.df %>%
-#     mutate(lower_date = sampledate - lubridate::days(3),
-#          upper_date = sampledate + lubridate::days(3))
 #-------------------------------------------------------------------
 
 
@@ -2919,7 +2914,7 @@ wq_dates <-  c(as.Date("2019-01-10"),as.Date("2019-01-12"),as.Date("2019-01-16")
 
 wq_stations <- c("B1", "C2", "C2", "B1", "Z")
 
-wq_parameter <- c("chla", "chla", "chla", "chla", "chla" )
+wq_parameter <- c("chla", "chla", "chla", "pheo", "pheo" )
 
 wq_measurevalue <-  c(8.01, 5.43, 9.54, 6.66, 5.19)
 
@@ -2939,14 +2934,14 @@ cl <- makeCluster(n.cores)
 clusterExport(cl = cl, varlist = c("wq.df", "event.sub"))
 clusterEvalQ(cl, c(library(dplyr))) %>% invisible()
 
-# env.df <- parLapply(cl, 1:nrow(event.sub), function(row.i) {
-#   
-#   sub.df <- slice(event.sub, row.i)
-#   #----------------------------------------------------------------------------
-#   sub.env <- wq.df %>%
-#     filter(station == sub.df$station,
-#            date >= sub.df$lower_date,
-#            date <= sub.df$upper_date)
+env.df <- parLapply(cl, 1:nrow(event.sub), function(row.i) {
+
+  sub.df <- slice(event.sub, row.i)
+  # #----------------------------------------------------------------------------
+  # sub.env <- wq.df %>%
+  #   filter(station == sub.df$station,
+  #          date >= sub.df$lower_date,
+  #          date <= sub.df$upper_date)
   # #----------------------------------------------------------------------------
   # if (nrow(sub.env) == 0) return(data.frame(
   #   station = NA,
@@ -2968,7 +2963,7 @@ clusterEvalQ(cl, c(library(dplyr))) %>% invisible()
   # #----------------------------------------------------------------------------
   # return(final.df)
   
-# })
+})
 
 
 # %>%
@@ -2980,6 +2975,106 @@ stopCluster(cl)
 
 #is this necessary?
 env.wide <- env.df %>% 
+  spread(parameter, measurevalue)
+
+event.df <- left_join(event.df, env.df, by = c("station", "sampledate"))
+
+```
+
+
+```{r}
+library(dplyr)
+library(tidyr)
+library(data.table)
+library(lubridate)
+library(readxl)
+library(jsonlite)
+library(rprojroot)
+library(ritis)
+library(stringr)
+library(purrr)
+library(lubridate)
+
+#------------------------------create phyto dataframe--------------
+phyto_dates <-  c(as.Date("2019-01-10"),as.Date("2019-01-15"),as.Date("2019-01-20"),as.Date("2019-01-25"),as.Date("2019-01-30"))
+
+phyto_stations <- c("B1", "C2", "C2", "C3", "Z")
+
+event.df <- data.frame("sampledate" = phyto_dates, "station" = phyto_stations,
+                       stringsAsFactors = FALSE
+                       )
+#-------------------------------------------------------------------
+
+#-----------------------create water quality dataframe--------------
+wq_dates <-  c(as.Date("2019-01-10"),as.Date("2019-01-12"),as.Date("2019-01-16"),as.Date("2019-02-01"),as.Date("2019-01-30"))
+
+wq_stations <- c("B1", "C2", "C2", "B1", "Z")
+
+wq_parameter <- c("chla", "chla", "chla", "pheo", "pheo" )
+
+wq_measurevalue <-  c(8.01, 5.43, 9.54, 6.66, 5.19)
+
+wq.df <- data.frame("sampledate" = wq_dates, "station" = wq_stations, "parameter" = wq_parameter, 
+                    "measurevalue" = wq_measurevalue, stringsAsFactors = FALSE)
+#-------------------------------------------------------------------
+event.sub <- event.df %>% 
+  select(station, sampledate) %>% 
+  distinct() %>% 
+  mutate(sampledate = as.Date(sampledate)) %>%
+  mutate(lower_date = sampledate - lubridate::days(3),
+         upper_date = sampledate + lubridate::days(3))
+
+# event.df <-factor(event.df, levels = 4)
+# wq.df <- factor(wq.df,levels = 4)
+
+levels(event.df)
+levels(wq.df)
+
+library(parallel)
+n.cores <- detectCores() - 1
+cl <- makeCluster(n.cores)
+clusterExport(cl = cl, varlist = c("wq.df", "event.sub"))
+clusterEvalQ(cl, c(library(dplyr))) %>% invisible()
+
+env.df <- parLapply(cl, 1:nrow(event.sub), function(row.i) {
+
+  sub.df <- slice(event.sub, row.i)
+  #----------------------------------------------------------------------------
+  sub.env <- wq.df %>%
+    filter(station == sub.df$station,
+           sampledate >= sub.df$lower_date,
+           sampledate <= sub.df$upper_date
+           )
+  #----------------------------------------------------------------------------
+  if (nrow(sub.env) == 0) return(data.frame(
+    station = NA,
+    sampledate = NA,
+    parameter = NA,
+    measurevalue = NA
+  ))
+  #----------------------------------------------------------------------------
+  final.df <- sub.env %>%
+    mutate(date_diff = sampledate - sub.df$sampledate,
+           abs_date_diff = abs(date_diff),
+           sampledate = sub.df$sampledate) %>%
+    filter(abs_date_diff == min(abs_date_diff))
+  #----------------------------------------------------------------------------
+  if (nrow(final.df) > 1) {
+    final.df <- final.df %>%
+      filter(sampledate == min(sampledate))
+  }
+  #----------------------------------------------------------------------------
+  return(final.df)
+  
+}) %>%
+  bind_rows() %>%
+  filter(!is.na(station))
+
+stopCluster(cl)
+
+
+#is this necessary?
+env.wide <- env.df %>%
   spread(parameter, measurevalue)
 
 event.df <- left_join(event.df, env.df, by = c("station", "sampledate"))
