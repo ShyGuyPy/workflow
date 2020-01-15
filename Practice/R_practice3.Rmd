@@ -3081,5 +3081,30 @@ event.df <- left_join(event.df, env.df, by = c("station", "sampledate"))
 
 ```
 
+```{r}
+library(dplyr)
+library(tidyr)
+library(data.table)
+library(lubridate)
+library(readxl)
+library(jsonlite)
+library(rprojroot)
+library(ritis)
+library(stringr)
+library(purrr)
+library(lubridate)
 
+data_path <- "data/CEDR/"
+
+  data_modified.df <- data.table::fread(paste0(data_path, "data_modified.csv"),
+                                        data.table = FALSE) #%>%
+    
+    data_modified.df <-  data_modified.df %>%
+    spread(parameter, measurevalue)
+    
+    data_modified.df <-  data_modified.df %>%
+    mutate(chla_mean =  mean(chla, na.rm = TRUE))
+    
+    
+```
 
