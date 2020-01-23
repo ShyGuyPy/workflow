@@ -3108,3 +3108,90 @@ data_path <- "data/CEDR/"
     
 ```
 
+```{r}
+library(RCurl)
+library(stringr)
+library(curl)
+library(jsonlite)
+
+#script to get most recent virginia drought map
+
+
+test = "//waterservices.usgs.gov/nwis/iv/?format=waterml,2.0&sites=01646500&parameterCd=00060,00065&siteStatus=all"
+
+test2 = "http://waterservices.usgs.gov/nwis/iv/?sites=01646500&parameterCd=00060,00065"
+
+#json version
+test3 = "http://waterservices.usgs.gov/nwis/iv/?format=json&sites=01646500&parameterCd=00060,00065&siteStatus=all"
+
+test.df <- fromJSON(test3)
+
+test_curl <- curl::curl(test2)
+tmp <- tempfile()
+test_curl < - curl_download(test, tmp)
+
+
+
+library(XML)
+library(methods)
+
+# Give the input file name to the function.
+result <- xmlParse(file = "input.xml")
+
+# Print the result.
+print(result)
+
+# out <- readLines(test_curl)
+# print(out[1:30])
+```
+
+```{r}
+library(jsonlite)
+
+#json version
+test3 = "http://waterservices.usgs.gov/nwis/iv/?format=json&sites=01646500&parameterCd=00060,00065&siteStatus=all"
+
+usgs_base = "http://waterservices.usgs.gov/nwis/iv/"
+
+usgs_format = "format=json&sites=01646500"
+
+usgs_parameter = "parameterCd=00060,00065" 
+
+usgs_site ="siteStatus=all"
+
+
+
+
+test <- file.path(test3) %>%
+  fromJSON()
+
+test2 <- paste0(usgs_base, "?",usgs_format, "&", usgs_parameter, "&", usgs_site ) %>%
+  fromJSON()
+
+
+
+#ugh <- data.frame(test2[["value"]]["timeSeries"])
+ugh1 <- data.frame(test2[["value"]][["timeSeries"]][["values"]][[1]])
+ugh2 <- data.frame(test2[["value"]][["timeSeries"]][["values"]][2])
+
+
+
+
+#########################################
+
+
+# url.root <- test3#"http://datahub.chesapeakebay.net/api.JSON"
+# todays.date <- format(Sys.Date(), "%m-%d-%Y")
+# 
+# station.vec <- file.path(url.root,
+#                        "LivingResources",
+#                        "TidalPlankton",
+#                        "Reported",
+#                        min_date,
+#                        max_date, 
+#                        phyto_num,
+#                        "Station") %>% 
+#   fromJSON() %>% 
+#   pull(unique(MonitoringLocationId))
+```
+
