@@ -3147,6 +3147,8 @@ print(result)
 
 ```{r}
 library(jsonlite)
+library(dplyr)
+library(tidyr)
 
 #json version
 test3 = "http://waterservices.usgs.gov/nwis/iv/?format=json&sites=01646500&parameterCd=00060,00065&siteStatus=all"
@@ -3193,5 +3195,31 @@ ugh2 <- data.frame(test2[["value"]][["timeSeries"]][["values"]][2])
 #                        "Station") %>% 
 #   fromJSON() %>% 
 #   pull(unique(MonitoringLocationId))
+```
+
+```{r}
+library(EGRET)
+library(dataRetrieval)
+Daily <- getNWISDaily("01491000", "00060","1979-10-01", "2010-09-30")
+Daily <- EGRET::readNWISDaily("01491000", "00060","1979-10-01", "2010-09-30")
+```
+
+```{r}
+library(readxl)
+library(dplyr)
+library(ggplot2)
+library(tidyr)
+library(lubridate)
+
+project.dir <- rprojroot::find_rstudio_root_file()
+
+data_path <- "data/CEDR/"
+
+
+
+data_last.df <- data.table::fread(paste0(data_path, "cedr_phyto_tweak.csv"),
+                                        data.table = FALSE)
+
+last_download_date <- max(data_last.df$sampledate)
 ```
 
