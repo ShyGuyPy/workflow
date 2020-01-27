@@ -3223,3 +3223,37 @@ data_last.df <- data.table::fread(paste0(data_path, "cedr_phyto_tweak.csv"),
 last_download_date <- max(data_last.df$sampledate)
 ```
 
+```{r}
+library(shiny)
+library(shinythemes)
+library(shinydashboard)
+library(tidyverse)
+library(dplyr)
+library(jsonlite)
+library(ggplot2)
+library(rlang)
+library(data.table)
+library(stringi)
+library(Cairo)
+library(RcppRoll)
+library(tidyr)
+library(lubridate)
+library(pryr)
+library(zoo)
+library(sp)
+library(leaflet)
+library(rgdal)
+library(RCurl)
+library(curl)
+library(DT)
+library(shinyjs)
+
+CEDR_url <- "http://datahub.chesapeakebay.net/api.JSON"
+
+test <- FALSE
+
+if(url.exists(CEDR_url) == TRUE){
+  test <- TRUE
+}
+```
+
