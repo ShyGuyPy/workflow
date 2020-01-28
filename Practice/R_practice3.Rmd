@@ -3257,3 +3257,29 @@ if(url.exists(CEDR_url) == TRUE){
 }
 ```
 
+```{r}
+library(dplyr)
+
+# Standardize data frame column names.
+standard_names <- function(x) {
+  x %>% 
+    dplyr::rename_all(funs(tolower(.) %>% trimws() %>% gsub("  | ", "_", .)))
+}
+
+inventory.df <- suppressWarnings(
+  data.table::fread("data/wqdi.csv", showProgress = FALSE,
+                                        data.table = FALSE, header = TRUE)) %>% 
+  standard_names() %>% 
+  #dplyr::rename(source_no = "monitoring_station") %>% 
+  select(source_no, lat, long)
+#------------------------------------------------------------------------------
+meta.df <- suppressWarnings(
+  data.table::fread("data/icprb_metadata.csv",
+                                              showProgress = FALSE,
+                                        data.table = FALSE,header = TRUE)) %>%               
+  standard_names() #%>% 
+  #dplyr::rename(organization = "originator")
+#------------------------------------------------------------------------------
+inventory.df <- full_join(inventory.df, meta.df, by = c("source_no"))
+```
+
