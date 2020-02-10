@@ -1185,6 +1185,44 @@ shinyApp(ui, server)
 ```
 
 ```{r}
+#--------------------------------global---------------------------------------
+library(leaflet)
+library(shiny)
+library(rgdal)
+library(tidyverse)
+library(leaflet.minicharts)
+#############################################################################################################################################
+project.dir <- rprojroot::find_rstudio_root_file()
+data_path <- "data/CEDR/"
+map_path <- "DIME_leaflet/data/leaflet_maps/"
+
+raw_data <-data.table::fread(paste0(data_path, "cedr_raw.csv"),
+                                    data.table = FALSE)
+
+# raw_data <-data.table::fread(file.path(project.dir,data_path, "cedr_raw.csv"),
+#                                     data.table = FALSE)
+
+parameter_data <- raw_data %>%
+  drop_na(measurevalue)
+
+parameter_data$latitude <- jitter(parameter_data$latitude, factor = 7)
+parameter_data$longitude <- jitter(parameter_data$longitude, factor = 7)
+
+PRB <- readOGR(paste0(map_path, "PotomacBasin_Boundary_NHD2003.shp"))
+HUC8 <- readOGR(paste0(map_path,"WBDHU8_PotmacBasin_Feb20162.shp"))
+ches <- readOGR(paste0(map_path,"ChesBay.shp"))
+gage <- readOGR(paste0(map_path,"gages_clipped.shp"))
+
+# PRB <- readOGR(file.path(project.dir,map_path,"PotomacBasin_Boundary_NHD2003.shp"))
+# HUC8 <- readOGR(file.path(project.dir,map_path,"WBDHU8_PotmacBasin_Feb20162.shp"))
+# ches <- readOGR(file.path(project.dir,map_path,"ChesBay.shp"))
+# gage <- readOGR(file.path(project.dir,map_path,"gages_clipped.shp"))
+
+#-----------------------------end global--------------------------------------
+
+
+
+
 #-------------------------------------ui----------------------------------
 fluidPage(
     tags$head(
@@ -1283,40 +1321,6 @@ server <- function(input, output, session) {
 }
 #-------------------------------end server------------------------------------
 
-#--------------------------------global---------------------------------------
-library(leaflet)
-library(shiny)
-library(rgdal)
-library(tidyverse)
-library(leaflet.minicharts)
-#############################################################################################################################################
-project.dir <- rprojroot::find_rstudio_root_file()
-data_path <- "data/CEDR/"
-map_path <- "DIME_leaflet/data/leaflet_maps/"
-
-raw_data <-data.table::fread(paste0(data_path, "cedr_raw.csv"),
-                                    data.table = FALSE)
-
-# raw_data <-data.table::fread(file.path(project.dir,data_path, "cedr_raw.csv"),
-#                                     data.table = FALSE)
-
-parameter_data <- raw_data %>%
-  drop_na(measurevalue)
-
-parameter_data$latitude <- jitter(parameter_data$latitude, factor = 7)
-parameter_data$longitude <- jitter(parameter_data$longitude, factor = 7)
-
-PRB <- readOGR(paste0(map_path, "PotomacBasin_Boundary_NHD2003.shp"))
-HUC8 <- readOGR(paste0(map_path,"WBDHU8_PotmacBasin_Feb20162.shp"))
-ches <- readOGR(paste0(map_path,"ChesBay.shp"))
-gage <- readOGR(paste0(map_path,"gages_clipped.shp"))
-
-# PRB <- readOGR(file.path(project.dir,map_path,"PotomacBasin_Boundary_NHD2003.shp"))
-# HUC8 <- readOGR(file.path(project.dir,map_path,"WBDHU8_PotmacBasin_Feb20162.shp"))
-# ches <- readOGR(file.path(project.dir,map_path,"ChesBay.shp"))
-# gage <- readOGR(file.path(project.dir,map_path,"gages_clipped.shp"))
-
-#-----------------------------end global--------------------------------------
 
 ```
 
