@@ -1184,3 +1184,139 @@ shinyApp(ui, server)
 }
 ```
 
+```{r}
+#-------------------------------------ui----------------------------------
+fluidPage(
+    tags$head(
+      tags$link(rel = "stylesheet", type = "text/css", href = "CSS/main.css")),
+    titlePanel("This map displays the values and sampling locations of the selected parameter. You may also select a different parameter to display using the drop-down menu below."),
+    selectInput("data", "Parameter:",
+                c("Secchi Depth" = "Secchi Depth ",
+                  "Chlorophyll a" = "Chlorophyll a",
+                  "Dissolved Organic Carbon" = "Dissolved Organic Carbon",
+                  "Dissolved Inorganic Nitrogen" = "Dissolved Inorganic Nitrogen",
+                  "Pheophytin" = "Pheophytin",
+                  "Salinity" = "Salinity",
+                  "Orthophosphate" = "Orthophosphate")),
+    leafletOutput("map", height = 800),
+    absolutePanel(
+      top = "auto", left = "auto", right = 25, bottom = 735,
+      width = "auto", height = "auto",
+      actionButton("map_zoom_in", "+", style = 'font-size: 150%'),
+      actionButton("map_zoom_out", "-", style = 'font-size:160%')
+    )
+    )
+#------------------------end ui----------------------------------
+
+#---------------------------server------------------------------
+server <- function(input, output, session) {
+
+  select_data <- reactive({
+    parameter_data <- parameter_data %>%
+      filter(parameter == as.character(input$data))
+    
+  })
+  
+  output$map <- renderLeaflet({
+    leaflet(options = leafletOptions(zoomControl = FALSE)) %>%
+      addTiles() %>%
+      setView(-78.193593, 38.917359, zoom = 7.5) %>%
+      addPolygons(data = HUC8, fill = FALSE, weight = 2, color = "steelblue", group = "HUC8") %>%
+      addPolygons(data = PRB, fill = FALSE, weight = 3, color = "navy", group = "Potomac River Watershed") %>%
+      addPolygons(data = ches, fill = FALSE, weight = 3, color = "navy", group = "Chesapeake Bay Watershed") %>%
+      addCircles(data = gage, lng = ~LONDD, lat = ~LATDD, group = "USGS Stream Gage",
+                 popup=paste('<strong>Name:</strong>', gage$STATION_NM, "<br>",
+                             '<strong>ID:</strong>', gage$STATION_NO)) %>%
+      addLayersControl(overlayGroups = c("Potomac River Watershed", "Chesapeake Bay Watershed", "HUC8", "USGS Stream Gage"), position = "bottomleft",
+                       options = layersControlOptions(collapsed = FALSE)) %>%
+      hideGroup("Chesapeake Bay Watershed") %>%
+      hideGroup("USGS Stream Gage")
+  })
+  
+  observe({
+    parameter_data <- select_data()
+    
+    pal <- colorNumeric(palette = c("yellow","purple"), domain = select_data()$measurevalue)
+    
+    proxy <- leafletProxy("map", data = select_data()$measurevalue) %>%
+      clearMarkers() %>%
+      addCircleMarkers(data = parameter_data,
+                       lng = ~longitude,
+                       lat = ~latitude,
+                       radius = 6,
+                       fillColor = ~ pal(select_data()$measurevalue),
+                       stroke = TRUE,
+                       weight = 1,
+                       color = "black",
+                       fillOpacity = 1,
+                       label = paste(parameter_data$year),
+                       popup=paste('<strong>Date:</strong>', parameter_data$date, "<br>",
+                                   '<strong>Value:</strong>', parameter_data$measurevalue, "<br>",
+                                   '<strong>Unit:</strong>', parameter_data$unit, "<br>",
+                                   '<strong>Station:</strong>', parameter_data$station, "<br",
+                                   '<strong>Latitude:</strong>', formatC(parameter_data$latitude, digits = 4, format = "f"), "<br",
+                                   '<strong>Longitude:</strong>', formatC(parameter_data$longitude, digits = 4, format = "f")),
+                       options = popupOptions(maxHeight = 50))
+  })
+  
+  observe({
+    pal <- colorNumeric(palette = c("yellow","purple"), domain = select_data()$measurevalue)
+    
+    proxy <- leafletProxy("map", data = parameter_data) %>%
+      clearControls() %>%
+      addLegend("bottomleft", pal = pal, values =select_data()$measurevalue, title = as.character(input$data), opacity = 1)
+  })
+  # Zoom control - zoom out
+  observeEvent(input$map_zoom_out ,{
+    leafletProxy("map") %>% 
+      setView(lat  = (input$map_bounds$north + input$map_bounds$south) / 2,
+              lng  = (input$map_bounds$east + input$map_bounds$west) / 2,
+              zoom = input$map_zoom - 1)
+  })
+  # Zoom control - zoom in
+  observeEvent(input$map_zoom_in ,{
+    leafletProxy("map") %>% 
+      setView(lat  = (input$map_bounds$north + input$map_bounds$south) / 2,
+              lng  = (input$map_bounds$east + input$map_bounds$west) / 2,
+              zoom = input$map_zoom + 1)
+  })
+}
+#-------------------------------end server------------------------------------
+
+#--------------------------------global---------------------------------------
+library(leaflet)
+library(shiny)
+library(rgdal)
+library(tidyverse)
+library(leaflet.minicharts)
+#############################################################################################################################################
+project.dir <- rprojroot::find_rstudio_root_file()
+data_path <- "data/CEDR/"
+map_path <- "DIME_leaflet/data/leaflet_maps/"
+
+raw_data <-data.table::fread(paste0(data_path, "cedr_raw.csv"),
+                                    data.table = FALSE)
+
+# raw_data <-data.table::fread(file.path(project.dir,data_path, "cedr_raw.csv"),
+#                                     data.table = FALSE)
+
+parameter_data <- raw_data %>%
+  drop_na(measurevalue)
+
+parameter_data$latitude <- jitter(parameter_data$latitude, factor = 7)
+parameter_data$longitude <- jitter(parameter_data$longitude, factor = 7)
+
+PRB <- readOGR(paste0(map_path, "PotomacBasin_Boundary_NHD2003.shp"))
+HUC8 <- readOGR(paste0(map_path,"WBDHU8_PotmacBasin_Feb20162.shp"))
+ches <- readOGR(paste0(map_path,"ChesBay.shp"))
+gage <- readOGR(paste0(map_path,"gages_clipped.shp"))
+
+# PRB <- readOGR(file.path(project.dir,map_path,"PotomacBasin_Boundary_NHD2003.shp"))
+# HUC8 <- readOGR(file.path(project.dir,map_path,"WBDHU8_PotmacBasin_Feb20162.shp"))
+# ches <- readOGR(file.path(project.dir,map_path,"ChesBay.shp"))
+# gage <- readOGR(file.path(project.dir,map_path,"gages_clipped.shp"))
+
+#-----------------------------end global--------------------------------------
+
+```
+
