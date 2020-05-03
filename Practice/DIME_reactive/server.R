@@ -39,15 +39,15 @@ shinyServer(function(input, output, session) {
                              '<strong>ID:</strong>', gage$STATION_NO)) %>%
       addLayersControl(overlayGroups = c("Potomac River Watershed", "Chesapeake Bay Watershed", "HUC8", "USGS Stream Gage"), position = "bottomleft",
                        options = layersControlOptions(collapsed = FALSE)) %>%
-      hideGroup("Chesapeake Bay Watershed") %>%
-      hideGroup("USGS Stream Gage")
+      hideGroup("Chesapeake Bay Watershed") #%>%
+      #hideGroup("USGS Stream Gage")
   })
   
 
     observeEvent(input$action_select_data,{
       
       if(file.exists("data/reactive_test_data.csv")){
-      #pal <- colorNumeric(palette = c("yellow","purple"), domain = reactive_test()$measurevalue)
+      pal <- colorNumeric(palette = c("yellow","purple"), domain = reactive_test()$measurevalue)
       
       proxy <- leafletProxy("map", data = reactive_test()$measurevalue) %>%
         clearMarkers() %>%
@@ -55,11 +55,13 @@ shinyServer(function(input, output, session) {
                          lng = ~longitude,
                          lat = ~latitude,
                          radius = 6,
-                         fillColor = ~ "Blues",
-                           pal(reactive_test()$measurevalue),
+                         fillColor = ~ "Red",
+                         pal(reactive_test()$measurevalue),
+                         
                          stroke = TRUE,
                          weight = 1,
                          color = "black",
+                         #color = pal(reactive_test()$measurevalue),
                          fillOpacity = 1,
                          label = paste(as.Date(reactive_test()$sampledate)),
                          popup=paste('<strong>Date:</strong>', reactive_test()$sampledate, "<br>",
@@ -71,7 +73,7 @@ shinyServer(function(input, output, session) {
                          options = popupOptions(maxHeight = 50)
         )#end of addCircleMarkers
                          
-                         pal <- colorNumeric(palette = c("yellow","purple"), domain = reactive_test()$measurevalue)
+                         #pal <- colorNumeric(palette = c("yellow","purple"), domain = reactive_test()$measurevalue)
       }#end of if(file.exists)                
     })#end of observeEvent
 
