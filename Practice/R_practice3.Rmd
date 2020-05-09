@@ -3302,3 +3302,68 @@ leaflet(options = leafletOptions(zoomControl = FALSE)) %>%
                            '<strong>ID:</strong>', gage$STATION_NO)) #%>%
 ```
 
+```{r}
+
+library(readxl)
+library(dplyr)
+library(ggplot2)
+library(tidyr)
+library(lubridate)
+
+project.dir <- rprojroot::find_rstudio_root_file()
+
+data_path <- "data/CEDR/"
+
+
+
+data_last.df <- data.table::fread(paste0(data_path, "cedr_phyto_tweak.csv"),
+                                        data.table = FALSE)
+
+#last_download_date <- max(data_last.df$sampledate)
+
+
+
+
+## generate unique_id
+unique_id <- rownames(data_last.df)
+data_last.df <- cbind(unique_id=unique_id, data_last.df)
+
+
+repeat_me <- 3
+
+for(i in 1:repeat_me) {
+
+  # final_score <- ChessieBIBI_score()
+  # final_score <- final_score %>% select(unique_id, chessie_bibi)
+  # sc.df <-  full_join(sc.df, final_score, by = "unique_id")
+  # colnames(sc.df)[colnames(sc.df)=="chessie_bibi"] <- as.character(paste0("chessie_bibi", i))
+  # 
+  # final_metric <- ChessieBIBI_score()
+  # final_metric <- bibi_ratings_combined %>% select(starts_with("unique_id"), starts_with("margalefs"), starts_with("pct"), starts_with("pielou"),
+  #                 starts_with("rich"), starts_with("aspt_mod"), starts_with("gold"), starts_with("hbi"))
+  
+  # final_metric <- final_metric %>% rename_at(vars(-unique_id), ~ paste0(., "_metric"))
+  # met_test.df <-  full_join(met.df, final_metric, by = "unique_id")
+  # met_test.df <- met_test.df %>% rename_at(vars(-unique_id), ~ paste0(., i))   # THIS LINE IS THE CULPRIT
+  
+  #jitter(x, factor=1, amount = NULL)
+  
+  temp.df[] <- lapply(data_last.df, jitter) #factor=1, amount = NULL))
+  
+  ####need to assign unique ids first----*
+  test.df <- data_last.df %>% rename_at(vars(-unique_id), ~ paste0(., i))
+  }
+
+```
+
+```{r}
+d <- data.frame(V1=c(23, 45, 56), V2=c(45, 45, 67))
+
+## enter id here, you could also use 1:nrow(d) instead of rownames
+id <- rownames(d)
+d <- cbind(id=id, d)
+
+## set colnames to OP's wishes
+colnames(d) <- "unique_id"
+```
+
