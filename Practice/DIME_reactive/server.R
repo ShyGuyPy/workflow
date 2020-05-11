@@ -18,6 +18,7 @@ shinyServer(function(input, output, session) {
   
   no_data <- "no data has been selected"
   
+  #output report
   observeEvent(input$action_select_data,{
 
     if(file.exists("data/reactive_test_data.csv")){
@@ -26,7 +27,7 @@ shinyServer(function(input, output, session) {
 
   })
   
-  
+  #output base map
   output$map <- renderLeaflet({
     leaflet(options = leafletOptions(zoomControl = FALSE)) %>%
       addTiles() %>%
@@ -43,8 +44,8 @@ shinyServer(function(input, output, session) {
       #hideGroup("USGS Stream Gage")
   })
   
-
-    observeEvent(input$action_select_data,{
+  #update map after data selection
+  observeEvent(input$action_select_data,{
       
       if(file.exists("data/reactive_test_data.csv")){
       pal <- colorNumeric(palette = c("yellow","purple"), domain = reactive_test()$measurevalue)
