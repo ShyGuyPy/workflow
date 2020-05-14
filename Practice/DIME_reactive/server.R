@@ -6,6 +6,25 @@ shinyServer(function(input, output, session) {
     )
   })
   
+  
+  #output base map
+  output$map <- renderLeaflet({
+    leaflet(options = leafletOptions(zoomControl = FALSE)) %>%
+      addTiles() %>%
+      setView(-78.193593, 38.917359, zoom = 7.5) %>%
+      addPolygons(data = HUC8, fill = FALSE, weight = 2, color = "steelblue", group = "HUC8") %>%
+      addPolygons(data = PRB, fill = FALSE, weight = 3, color = "navy", group = "Potomac River Watershed") %>%
+      addPolygons(data = ches, fill = FALSE, weight = 3, color = "navy", group = "Chesapeake Bay Watershed") %>%
+      addCircles(data = gage, lng = ~LONDD, lat = ~LATDD, group = "USGS Stream Gage",
+                 popup=paste('<strong>Name:</strong>', gage$STATION_NM, "<br>",
+                             '<strong>ID:</strong>', gage$STATION_NO)) %>%
+      addLayersControl(overlayGroups = c("Potomac River Watershed", "Chesapeake Bay Watershed", "HUC8", "USGS Stream Gage"), position = "bottomleft",
+                       options = layersControlOptions(collapsed = FALSE)) %>%
+      hideGroup("Chesapeake Bay Watershed") #%>%
+    #hideGroup("USGS Stream Gage")
+  })
+  
+  
   observeEvent(input$action_select_data,{
     if(file.exists("data/reactive_test_data.csv")){
     output$plot <- renderPlot({ggplot(
@@ -27,22 +46,7 @@ shinyServer(function(input, output, session) {
 
   })
   
-  #output base map
-  output$map <- renderLeaflet({
-    leaflet(options = leafletOptions(zoomControl = FALSE)) %>%
-      addTiles() %>%
-      setView(-78.193593, 38.917359, zoom = 7.5) %>%
-      addPolygons(data = HUC8, fill = FALSE, weight = 2, color = "steelblue", group = "HUC8") %>%
-      addPolygons(data = PRB, fill = FALSE, weight = 3, color = "navy", group = "Potomac River Watershed") %>%
-      addPolygons(data = ches, fill = FALSE, weight = 3, color = "navy", group = "Chesapeake Bay Watershed") %>%
-      addCircles(data = gage, lng = ~LONDD, lat = ~LATDD, group = "USGS Stream Gage",
-                 popup=paste('<strong>Name:</strong>', gage$STATION_NM, "<br>",
-                             '<strong>ID:</strong>', gage$STATION_NO)) %>%
-      addLayersControl(overlayGroups = c("Potomac River Watershed", "Chesapeake Bay Watershed", "HUC8", "USGS Stream Gage"), position = "bottomleft",
-                       options = layersControlOptions(collapsed = FALSE)) %>%
-      hideGroup("Chesapeake Bay Watershed") #%>%
-      #hideGroup("USGS Stream Gage")
-  })
+
   
   #update map after data selection
   observeEvent(input$action_select_data,{
@@ -50,19 +54,24 @@ shinyServer(function(input, output, session) {
       if(file.exists("data/reactive_test_data.csv")){
       pal <- colorNumeric(palette = c("yellow","purple"), domain = reactive_test()$measurevalue)
       
+        
       proxy <- leafletProxy("map", data = reactive_test()$measurevalue) %>%
         clearMarkers() %>%
         addCircleMarkers(data = reactive_test(),
                          lng = ~longitude,
                          lat = ~latitude,
                          radius = 6,
-                         fillColor = ~ "Red",
-                         pal(reactive_test()$measurevalue),
-                         
+                         #fillColor = "Red",
+                         fillColor = ~ pal(reactive_test()$measurevalue),#~ "Purple",
+                         #pal(reactive_test()$measurevalue),
+                         #pal <- colorNumeric(palette = c("yellow","purple"), domain = reactive_test()$measurevalue),
+                         #test = pal(reactive_test()$measurevalue),
+                         #pal = pal_func(),
                          stroke = TRUE,
                          weight = 1,
                          color = "black",
                          #color = pal(reactive_test()$measurevalue),
+                         #color = test,
                          fillOpacity = 1,
                          label = paste(as.Date(reactive_test()$sampledate)),
                          popup=paste('<strong>Date:</strong>', reactive_test()$sampledate, "<br>",
