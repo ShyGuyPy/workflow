@@ -1423,6 +1423,8 @@ library(shiny)
 library(shinydashboard)
 
 
+test_var_main = test_var1
+
 
 ui <- fluidPage(#useShinyjs(),
                 
@@ -1438,9 +1440,9 @@ ui <- fluidPage(#useShinyjs(),
                               
                               #S-------------------sidebar---------------------------
                               dashboardSidebar(width = 200,
-                                               sidebarMenu(id ="main1",
-                                                 menuItem("Instructions", tabName = "instructions_tab"),
-                                                 menuItem("Download Data", tabName = "download_data_tab"),
+                                               sidebarMenu(id ="selected_tab",
+                                                 menuItem("Instructions", tabName = "first_tab"),
+                                                 menuItem("Download Data", tabName = "second_tab"),
                                                  menuItem("Select Data", tabName = "select_data_tab"),
                                                  menuItem("Error Report", tabName = "error_report_tab"),
                                                  menuItem("Summary Page", tabName = "summary_page_tab"),
@@ -1454,18 +1456,25 @@ ui <- fluidPage(#useShinyjs(),
                               
 
                               #S-----------------dashboard body--------------------------
-                              dashboardBody(tabItems(
-                                tabItem(tabName = "instructions_tab",
-                                        tags$div(
-  h1("test1"),
-  p("The test_var1 value is: ", test_var1))
+                              dashboardBody(
+                                verbatimTextOutput('out1'),
+                                
+  #                               tags$div(
+  # h1("test_main"),
+  # p("The test_var1 value is: ", test_var_reactive)),
+                                
+                                tabItems(
+                                tabItem(tabName = "first_tab",
+  #                                       tags$div(
+  # h1("test1"),
+  # p("The test_var1 value is: ", test_var_main))
                                         #source("code/ui/instructions_ui.R", local = TRUE)$value
                                 ),#end of instruction tabItem
                                 
-                                tabItem(tabName = "download_data_tab",
-                                                                                tags$div(
-  h1("test2"),
-  p("The test_var1 value is: ", test_var1))
+                                tabItem(tabName = "second_tab",
+  #                                                                               tags$div(
+  # h1("test2"),
+  # p("The test_var1 value is: ", test_var_main))
                                         #source("code/ui/download_data_ui.R", local = TRUE)$value
                                 ),#end of download data tabItem
                                 
@@ -1503,23 +1512,204 @@ ui <- fluidPage(#useShinyjs(),
 
 server <- function(input, output, session) {
   
-  test_var1 <- reactive({
-  list(input$instructions_tab,
-       input$download_data_tab,
-       input$select_data_tab,
-       input$error_report_tab,
-       input$summary_page_tab,
-       input$plot_data_tab,
-       input$map_data_tab)
+  # test_var_reactive <- reactive({
+    # req(input$download_tab)
+    # 
+    # get(input$download_tab)
+    
+  # list(input$instructions_tab,
+  #      input$download_data_tab,
+  #      input$select_data_tab,
+  #      input$error_report_tab,
+  #      input$summary_page_tab,
+  #      input$plot_data_tab,
+  #      input$map_data_tab)
                                              
-  })#0
-  # test_var1 <- 1
-  # 
-  # observeEvent(input$download_data_tab , {
-  #              test_var1 <- 5
-  # })
-}
+  # })#0
+ 
+  answer <- reactive({
+    #req(input$tab)
+    if (input$selected_tab == 'first_tab'){
+      answer <- "first"
+    } else if (input$selected_tab == 'second_tab'){
+      answer <- "second"
+    }
+    return(answer)
+  })
+  
+  
+  
+  output$out1 <- renderPrint(answer())
+
+  
+#   observeEvent(input$download_data_tab,
+#                {
+#                test_var_observed = 2
+# })
+}#end server
 
 shinyApp(ui, server)
 ```
+
+
+
+
+```{r}
+library(shiny)
+library(shinydashboard)
+library(dplyr)
+
+
+#test_var_main = test_var1
+
+
+ui <- fluidPage(#useShinyjs(),
+                
+                
+                #S------------dashboard page------------------------------
+                dashboardPage(skin = "blue",
+                              
+                              #S------------dashboard header----------------------------
+                              dashboardHeader(title = "tab observeEvent test", titleWidth = 300,
+                                              .list = NULL
+                              ),#end of dashboardheader
+                              #E-----)
+                              
+                              #S-------------------sidebar---------------------------
+                              dashboardSidebar(width = 200,
+                                               sidebarMenu(id ="selected_tab",
+                                                 menuItem("Instructions", tabName = "first_tab"),
+                                                 menuItem("Download Data", tabName = "second_tab"),
+                                                 menuItem("Select Data", tabName = "select_data_tab"),
+                                                 menuItem("Error Report", tabName = "error_report_tab"),
+                                                 menuItem("Summary Page", tabName = "summary_page_tab"),
+                                                 menuItem("Graph Data", tabName = "plot_data_tab"),
+                                                 menuItem("Map Data", tabName = "map_data_tab")
+                                                
+                                               )#end of sidebarMenu
+                              ),#end of dashboardsidebar
+                              #E------------------end of sidebar-------------------------
+  
+                              
+
+                              #S-----------------dashboard body--------------------------
+                              dashboardBody(
+                                verbatimTextOutput('out1'),
+                                
+  #                               tags$div(
+  # h1("test_main"),
+  # p("The test_var1 value is: ", test_var_reactive)),
+                                
+                                tabItems(
+                                tabItem(tabName = "first_tab",
+  #                                       tags$div(
+  # h1("test1"),
+  # p("The test_var1 value is: ", test_var_main))
+                                        #source("code/ui/instructions_ui.R", local = TRUE)$value
+                                ),#end of instruction tabItem
+                                
+                                tabItem(tabName = "second_tab",
+  #                                                                               tags$div(
+  # h1("test2"),
+  # p("The test_var1 value is: ", test_var_main))
+                                        #source("code/ui/download_data_ui.R", local = TRUE)$value
+                                )#,#end of download data tabItem
+                                
+                                # tabItem(tabName = "select_data_tab",
+                                #         #source("code/ui/select_data_ui.R", local = TRUE)$value
+                                # ),#end of select data tabItem
+                                # 
+                                # tabItem(tabName = "error_report_tab",
+                                #         #source("code/ui/error_report_ui.R", local = TRUE)$value
+                                # ),#end of error report tabItem
+                                # 
+                                # tabItem(tabName = "summary_page_tab",
+                                #         #source("code/ui/summary_page_ui.R", local = TRUE)$value
+                                # ),#end of summary page tabItem
+                                # 
+                                # tabItem(tabName = "plot_data_tab",
+                                #         #source("code/ui/plot_data_ui.R", local = TRUE)$value
+                                # ),#end of plot data tabItem
+                                # 
+                                # tabItem(tabName = "map_data_tab",
+                                #         #source("code/ui/map_data_ui.R", local = TRUE)$value
+                                # )#end of map tabItem
+                                
+                              )#end of tabItems
+                                
+                                ),#end of dashboardbody
+                              #E----------------end of dashboard body-----------------------
+                              
+                )#end of dashboard page
+                #E---------------end of dashboard page-----------------------
+                              
+                )#end fluidpage
+                #E---------------end of fluidpage-----------------------
+                                            
+
+server <- function(input, output, session) {
+  
+  # test_var_reactive <- reactive({
+    # req(input$download_tab)
+    # 
+    # get(input$download_tab)
+    
+  # list(input$instructions_tab,
+  #      input$download_data_tab,
+  #      input$select_data_tab,
+  #      input$error_report_tab,
+  #      input$summary_page_tab,
+  #      input$plot_data_tab,
+  #      input$map_data_tab)
+                                             
+  # })#0
+ 
+  # answer <- reactive({
+  #   #req(input$tab)
+  #   if (input$selected_tab == 'first_tab'){
+  #     answer <- "first"
+  #   } else if (input$selected_tab == 'second_tab'){
+  #     answer <- "second"
+  #   }
+  #   return(answer)
+  # })
+  # 
+  #changing from reactive to observeEvent
+  observeEvent(input$selected_tab#toListenMap()
+  #input$select_data
+  , {
+    test <- #answer() <- 
+      case_when(input$selected_tab == "first_tab"~ "apple",
+                input$selected_tab == "second_tab"~ "oranges")
+  # list(input$instructions_tab,
+  #      input$download_data_tab,
+  #      input$select_data_tab,
+  #      input$error_report_tab,
+  #      input$summary_page_tab,
+  #      input$plot_data_tab,
+  #      input$map_data_tab)
+
+    
+    output$out1 <- renderPrint(test)
+  })
+  
+  
+  
+  # output$out1 <- renderPrint(answer())
+
+  
+#   observeEvent(input$download_data_tab,
+#                {
+#                test_var_observed = 2
+# })
+}#end server
+
+shinyApp(ui, server)
+```
+
+
+
+
+
+
 
