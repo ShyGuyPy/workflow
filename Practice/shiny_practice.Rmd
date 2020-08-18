@@ -1707,8 +1707,175 @@ server <- function(input, output, session) {
 shinyApp(ui, server)
 ```
 
+```{r}
+ui <- fluidPage(#useShinyjs(),
+                
+                
+                #S------------dashboard page------------------------------
+                dashboardPage(skin = "blue",
+                              
+                              #S------------dashboard header----------------------------
+                              dashboardHeader(title = "empty data observeEvent test", titleWidth = 300,
+                                              .list = NULL
+                              ),#end of dashboardheader
+                              #E-----)
+                              
+                              #S-------------------sidebar---------------------------
+                              dashboardSidebar(width = 200,
+                                               sidebarMenu(id ="selected_tab",
+                                                 menuItem("First", tabName = "first_tab"),
+                                                 menuItem("Second", tabName = "second_tab"),
+                                                
+                                               )#end of sidebarMenu
+                              ),#end of dashboardsidebar
+                              #E------------------end of sidebar-------------------------
+  
+                              
+
+                              #S-----------------dashboard body--------------------------
+                              dashboardBody(
+                                verbatimTextOutput('out1'),
+                                
+
+                                
+                                tabItems(
+                                tabItem(tabName = "first_tab",
+
+                                ),#end of first tabItem
+                                
+                                tabItem(tabName = "second_tab",
+ 
+                                )#,#end of second tabItem
+                                
+         
+                                
+                              )#end of tabItems
+                                
+                                ),#end of dashboardbody
+                              #E----------------end of dashboard body-----------------------
+                              
+                )#end of dashboard page
+                #E---------------end of dashboard page-----------------------
+                              
+                )#end fluidpage
+                #E---------------end of fluidpage-----------------------
 
 
+server <- function(input, output, session) {
+  test_path <- "Practice/data/test_if_empty/"
+  
+  if(file.exists("Practice/data/test_if_empty/full.csv")){
+  
+  full_data.df <- data.table::fread(paste0(test_path, "full.csv"),
+                                                   header = TRUE,
+                                                   data.table = FALSE)
+  }#end if exist
+  
+  if(file.exists("Practice/data/test_if_empty/empty.csv")){
+    empty_data.df <- data.table::fread(paste0(test_path, "empty.csv"),
+                                                   header = TRUE,
+                                                   data.table = FALSE)
+  }#end if exist
+  
+
+  observeEvent(input$selected_tab#toListenMap()
+  #input$select_data
+  , {
+    test <- #answer() <- 
+      case_when(input$selected_tab == "first_tab"~ "apple",
+                input$selected_tab == "second_tab"~ "oranges")
+
+
+    
+    output$out1 <- renderPrint(test)
+  })
+  
+  
+
+}#end server
+
+shinyApp(ui, server)
+                              
+                
+```
+
+
+```{r}
+#play with adding a legend to a leaflet map 
+#attempting to do the same to Dime
+library(shiny)
+library(shinydashboard)
+library(dplyr)
+library(leaflet)
+
+ui <- fluidPage(
+           #      dashboardPage(skin = "blue",
+           #      dashboardHeader(title = "leaflet proxy legend test", titleWidth = 300, .list = NULL),
+           #      dashboardSidebar(),
+           #      dashboardBody(
+           #                 fluidRow(
+           # column(
+           #   width = 8,leafletOutput("map", height = 800))
+           #                 ))
+           #      )
+  
+           fluidRow(
+           column(
+             width = 8,
+             leafletOutput("map", height = 800),
+             absolutePanel(
+               top = "auto", left = "auto", right = 25, bottom = 735,
+               width = "auto", height = "auto",
+               actionButton("map_zoom_in", "+", style = 'font-size: 150%'),
+               actionButton("map_zoom_out", "-", style = 'font-size:160%')
+             )
+             
+           )#end col
+         )#end fluidrow
+  
+)
+  
+server <- function(input, output, session) {
+  
+  output$map <- renderLeaflet({
+  leaflet(options = leafletOptions(zoomControl = FALSE)) %>%
+    addTiles() %>%
+    setView(-78.193593, 38.917359, zoom = 7.5) %>%
+    addLayersControl(overlayGroups = c("Potomac River Watershed", "Chesapeake Bay Watershed", "HUC8", "USGS Stream Gage"), position = "bottomleft",
+                     options = layersControlOptions(collapsed = FALSE))
+  })
+  
+  active_data.df <- data.table::fread(paste0("data/CEDR/data_raw.csv"),
+                                      header = TRUE,
+                                        data.table = FALSE)
+  
+  pal <- colorNumeric(palette = c("yellow","purple"), domain = active_data.df$measurevalue)
+  
+  
+  
+  #checks if active_data.df has data
+  if(length(active_data.df) != 0){  
+  proxy <- leafletProxy("map", data = active_data.df$measurevalue)%>%
+    clearMarkers() %>%
+        addCircleMarkers(data = active_data.df,
+                     lng = ~longitude,
+                     lat = ~latitude,
+                     radius = 2#,
+                     
+                     )
+  
+    #add parameters and legend
+  proxy <- leafletProxy("map", data = active_data.df) %>%
+    clearControls() %>%
+    addLegend("topleft", pal = pal, values = active_data.df$measurevalue, #title = as.character(input$data), 
+              opacity = 1)
+  
+  }#end of if length != 0
+  
+}#end server
+
+shinyApp(ui, server)
+```
 
 
 
