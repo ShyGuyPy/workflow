@@ -1824,6 +1824,8 @@ ui <- fluidPage(
            column(
              width = 8,
              leafletOutput("map", height = 800),
+             leafletOutput("map", height = 800),
+             leafletOutput("map", height = 800),
              absolutePanel(
                top = "auto", left = "auto", right = 25, bottom = 735,
                width = "auto", height = "auto",
@@ -1909,6 +1911,193 @@ server <- function(input, output, session) {
 shinyApp(ui, server)
 ```
 
+```{r}
+library(shiny)
+library(shinydashboard)
+library(dplyr)
+library(leaflet)
+library(rgdal)
+
+  active_data.df <- data.table::fread(paste0("data/CEDR/data_raw.csv"),
+                                      header = TRUE,
+                                        data.table = FALSE)
+  
+  one_param_data.df <- data.table::fread(paste0("data/CEDR/one_param_data.csv"),
+                                      header = TRUE,
+                                        data.table = FALSE)
+  
+  #grab number of parameters
+  params.df <- active_data.df %>%
+    select(parameter) %>%
+    unique()
+  
+  params_one.df <- one_param_data.df %>%
+    select(parameter) %>%
+    unique()
+
+  print(params.df)
+  
+  check = nrow(params.df)
+  print(check)
+  
+  check = nrow(params_one.df)
+  print(check)
+  
+  test.df =  params.df 
+  
+  if(nrow(test.df)<=1) {
+  leaflet(options = leafletOptions(zoomControl = FALSE)) %>%
+    addTiles() %>%
+    setView(-78.193593, 38.917359, zoom = 5.5) %>%
+    addCircleMarkers(data = active_data.df,
+                     lng = ~longitude,
+                     lat = ~latitude,
+                     radius = 2) 
+  } else if(nrow(test.df)>1){
+      
+  leaflet(options = leafletOptions(zoomControl = FALSE)) %>%
+    addTiles() %>%
+    setView(-78.193593, 38.917359, zoom = 5.5) %>%
+    addCircleMarkers(data = active_data.df,
+                     lng = ~longitude,
+                     lat = ~latitude,
+                     radius = 2) 
+    
+  leaflet(options = leafletOptions(zoomControl = FALSE)) %>%
+    addTiles() %>%
+    setView(-78.193593, 38.917359, zoom = 5.5) %>%
+    addCircleMarkers(data = active_data.df,
+                     lng = ~longitude,
+                     lat = ~latitude,
+                     radius = 2) 
+    
+    
+    # for(i in nrow(test.df)){
+    #   
+    #   count = count +1
+    #   print(count)
+      #print("check")
+      
+      ###
+      #subset data
+      #for number of paramters
+      #generate a leafelet map
+    #}
+    
+    
+  }
+```
+
+
+
+```{r}
+library(shiny)
+library(shinydashboard)
+library(dplyr)
+library(leaflet)
+library(rgdal)
+
+ui <- fluidPage(
+    dashboardHeader(title = "multi_map_test", titleWidth = 300, .list = NULL),
+                                
+    dashboardSidebar(),
+  
+    dashboardBody(
+      conditionalPanel(
+  condition =   #"input.smooth == true",
+    #"length(active_data.df) == 0",
+    "output.test",
+      box(tabName = "map1",
+             leafletOutput("map1", height = 400)
+              #verbatimTextOutput("test1")
+      )
+    ),
+
+  conditionalPanel(
+  condition =   "input.smooth == true",
+   box(tabName = "map2",
+              leafletOutput("map2", height = 400)
+            #verbatimTextOutput("test2")
+   )
+   ),
+
+  conditionalPanel(
+  condition =   "input.smooth == true",
+   box(tabName = "map3",
+              leafletOutput("map3", height = 400)
+            #verbatimTextOutput("test3")
+   )
+   )
+
+             # absolutePanel(
+             #   top = "auto", left = "auto", right = 25, bottom = 735,
+             #   width = "auto", height = "auto",
+             #   actionButton("map_zoom_in", "+", style = 'font-size: 150%'),
+             #   actionButton("map_zoom_out", "-", style = 'font-size:160%')
+             # )
+   #)#end tabitems
+    )#end dashboardbody
+             
+
+  
+)
+
+server <- function(input, output, session) {
+  
+      active_data.df <- data.table::fread(paste0("data/CEDR/data_raw.csv"),
+                                      header = TRUE,
+                                        data.table = FALSE)
+      
+      test
+      active_data <- active_data.df %>%
+        filter(parameter != "salinity")
+
+      test <- reactive({
+      salinity.df <- active_data.df %>%
+        filter(parameter == "salinity")
+      })
+      
+      din.df <- active_data.df %>%
+        filter(parameter == "din")
+            
+      pheo.df <- active_data.df %>%
+        filter(parameter == "pheo")
+  
+  
+  
+    output$test1 <- renderText({
+    paste("tab1", input$rb)
+  })
+    
+    output$test2 <- renderText({
+    paste("tab2", input$rb)
+  })
+        
+    output$test3 <- renderText({
+    paste("tab3", input$rb)
+  })
+  
+    output$map1 <- renderLeaflet({
+  leaflet(options = leafletOptions(zoomControl = FALSE)) %>%
+    addTiles() %>%
+    setView(-78.193593, 38.917359, zoom = 7.5)
+      })
+
+        output$map2 <- renderLeaflet({
+  leaflet(options = leafletOptions(zoomControl = FALSE)) %>%
+    addTiles() %>%
+    setView(-78.193593, 38.917359, zoom = 7.5)
+      })
+
+            output$map3 <- renderLeaflet({
+  leaflet(options = leafletOptions(zoomControl = FALSE)) %>%
+    addTiles() %>%
+    setView(-78.193593, 38.917359, zoom = 7.5)
+      })
+}
+
+shinyApp(ui, server)
+```
 
 
 
