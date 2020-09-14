@@ -2003,10 +2003,20 @@ ui <- fluidPage(
     dashboardSidebar(),
   
     dashboardBody(
+      #select which maps to show
+      checkboxGroupInput("select_metric","Select Data Metrics",
+                      c("Salinity" = "salinity",
+                        "DIN" = "din",
+                        "Secchi" = "secchi",
+                        "PO4" = "po4",
+                        "Chla" = "chla",
+                        "Pheophytin" = "pheo",
+                        "DOC" = "doc"),inline = TRUE),
+
       conditionalPanel(
   condition =   #"input.smooth == true",
     #"length(active_data.df) == 0",
-    "output.test",
+    "input.select_metric.includes('salinity')",
       box(tabName = "map1",
              leafletOutput("map1", height = 400)
               #verbatimTextOutput("test1")
@@ -2014,7 +2024,7 @@ ui <- fluidPage(
     ),
 
   conditionalPanel(
-  condition =   "input.smooth == true",
+  condition =   "input.select_metric.includes('din')",
    box(tabName = "map2",
               leafletOutput("map2", height = 400)
             #verbatimTextOutput("test2")
@@ -2022,12 +2032,29 @@ ui <- fluidPage(
    ),
 
   conditionalPanel(
-  condition =   "input.smooth == true",
+  condition =   "input.select_metric.includes('secchi')",
    box(tabName = "map3",
               leafletOutput("map3", height = 400)
             #verbatimTextOutput("test3")
    )
+   ),
+  
+    conditionalPanel(
+  condition =   "input.select_metric.includes('po4')",
+   box(tabName = "map4",
+              leafletOutput("map4", height = 400)
+            #verbatimTextOutput("test3")
    )
+   ),
+  
+      conditionalPanel(
+  condition =   "input.select_metric.includes('chla')",
+   box(tabName = "map5",
+              leafletOutput("map5", height = 400)
+            #verbatimTextOutput("test3")
+   )
+   )
+
 
              # absolutePanel(
              #   top = "auto", left = "auto", right = 25, bottom = 735,
@@ -2044,55 +2071,93 @@ ui <- fluidPage(
 
 server <- function(input, output, session) {
   
-      active_data.df <- data.table::fread(paste0("data/CEDR/data_raw.csv"),
+      # active_data.df <- data.table::fread(paste0("data/CEDR/data_raw.csv"),
+      #                                 header = TRUE,
+      #                                   data.table = FALSE)
+      
+        active_data.df <- data.table::fread(paste0("data/CEDR/active_data.csv"),#"data/CEDR/one_param_data.csv"),
                                       header = TRUE,
                                         data.table = FALSE)
-      
-      test
-      active_data <- active_data.df %>%
-        filter(parameter != "salinity")
-
-      test <- reactive({
+  
+      # test <- reactive({
       salinity.df <- active_data.df %>%
         filter(parameter == "salinity")
-      })
+      # })
       
       din.df <- active_data.df %>%
         filter(parameter == "din")
             
-      pheo.df <- active_data.df %>%
-        filter(parameter == "pheo")
+      secchi.df <- active_data.df %>%
+        filter(parameter == "secchi")
+      
+      po4.df <- active_data.df %>%
+        filter(parameter == "po4")
+            
+      chla.df <- active_data.df %>%
+        filter(parameter == "chla")
   
   
   
-    output$test1 <- renderText({
-    paste("tab1", input$rb)
-  })
-    
-    output$test2 <- renderText({
-    paste("tab2", input$rb)
-  })
-        
-    output$test3 <- renderText({
-    paste("tab3", input$rb)
-  })
-  
+  #   output$test1 <- renderText({
+  #   paste("tab1", input$rb)
+  # })
+  #   
+  #   output$test2 <- renderText({
+  #   paste("tab2", input$rb)
+  # })
+  #       
+  #   output$test3 <- renderText({
+  #   paste("tab3", input$rb)
+  # })
+  # 
     output$map1 <- renderLeaflet({
   leaflet(options = leafletOptions(zoomControl = FALSE)) %>%
     addTiles() %>%
-    setView(-78.193593, 38.917359, zoom = 7.5)
+    setView(-78.193593, 38.917359, zoom = 5.5) %>%
+            addCircleMarkers(data = salinity.df,
+                     lng = ~longitude,
+                     lat = ~latitude,
+                     radius = 2)
       })
 
         output$map2 <- renderLeaflet({
   leaflet(options = leafletOptions(zoomControl = FALSE)) %>%
     addTiles() %>%
-    setView(-78.193593, 38.917359, zoom = 7.5)
+    setView(-78.193593, 38.917359, zoom = 5.5) %>%
+            addCircleMarkers(data = din.df,
+                     lng = ~longitude,
+                     lat = ~latitude,
+                     radius = 2)
       })
 
             output$map3 <- renderLeaflet({
   leaflet(options = leafletOptions(zoomControl = FALSE)) %>%
     addTiles() %>%
-    setView(-78.193593, 38.917359, zoom = 7.5)
+    setView(-78.193593, 38.917359, zoom = 5.5) %>%
+            addCircleMarkers(data = secchi.df,
+                     lng = ~longitude,
+                     lat = ~latitude,
+                     radius = 2)
+      })
+            
+                        output$map4 <- renderLeaflet({
+  leaflet(options = leafletOptions(zoomControl = FALSE)) %>%
+    addTiles() %>%
+    setView(-78.193593, 38.917359, zoom = 5.5) %>%
+            addCircleMarkers(data = po4.df,
+                     lng = ~longitude,
+                     lat = ~latitude,
+                     radius = 2)
+      })
+                        
+                        output$map5 <- renderLeaflet({
+  leaflet(options = leafletOptions(zoomControl = FALSE)) %>%
+    addTiles() %>%
+    setView(-78.193593, 38.917359, zoom = 5.5) %>%
+            addCircleMarkers(data = chla.df,
+                     lng = ~longitude,
+                     lat = ~latitude,
+                     radius = 2)
       })
 }
 
