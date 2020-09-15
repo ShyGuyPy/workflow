@@ -1,3 +1,5 @@
+multi_tab_active_file = "C:/Users/lcvaw/OneDrive/Documents/R/workflow/Practice/multi_tab_test/data/ACTIVE/active_data.csv"
+
 #--------------paths and packages----------------------
 #source("code/global/import_packages.R", local = TRUE)
 source("code/global/load_packages.R", local = TRUE)
@@ -31,6 +33,8 @@ todays.date <- format(Sys.Date(), "%m-%d-%Y")
 #----------this is the apps root directory---------------
 project.dir <- rprojroot::find_rstudio_root_file()
 #---------------------------------------------------------
+multi_tab_active_file = paste0(project.dir,"workflow/Practice/multi_tab_test/data/ACTIVE/active_data.csv")
+  #"C:/Users/lcvaw/OneDrive/Documents/R/workflow/Practice/multi_tab_test/data/ACTIVE/active_data.csv"
 
 #----------------date-range------------------------------
 # needs to be a user input, can't stay hard coded here

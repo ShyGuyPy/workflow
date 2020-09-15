@@ -133,12 +133,16 @@ shinyServer(function(input, output, session) {
   
   
   #if(file.exists(paste0(active_path, "active_data.csv"))){
-  active_data.df <- reactive({ 
-    if(file.exists(paste0(active_path, "active_data.csv"))){
-      fread(paste0(active_path, "active_data.csv"),
+  
+  active_data.df <- reactive({
+    if(file.exists(multi_tab_active_file)){
+      #paste0(active_path, "active_data.csv"))){
+      fread(multi_tab_active_file,
+        #paste0(active_path, "active_data.csv"),
             data.table = FALSE)
     }#end of if exists
   })
+  
   #}
   
   # source("code/server/download_data_server.R", local = TRUE)

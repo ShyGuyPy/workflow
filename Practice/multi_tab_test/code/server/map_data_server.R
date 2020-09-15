@@ -1,9 +1,13 @@
 source("server.R", local = TRUE)
 
-if(file.exists("data/ACTIVE/active_data.csv")){
-  
-  #assign acgive_data
-  active_data.df <- data.table::fread(paste0(active_path, "active_data.csv"),
+
+if(file.exists(#paste0(active_path, "active_data.csv"))
+  multi_tab_active_file)){
+
+
+  #assign active_data
+  active_data.df <- data.table::fread(multi_tab_active_file,
+    #paste0(active_path, "active_data.csv"),
                                       header = TRUE,
                                       data.table = FALSE)
 }
@@ -142,14 +146,17 @@ observeEvent(input$selected_tab#
                
                
                #only runs if active_data has been assigned and written to dirctory
-               if(file.exists("data/ACTIVE/active_data.csv")){#paste0(project.dir,"data/ACTIVE/", "active_data.csv"))){
+               if(file.exists(#"data/ACTIVE/active_data.csv"
+                 multi_tab_active_file
+                              )){#paste0(project.dir,"data/ACTIVE/", "active_data.csv"))){
                  
                  #reset scale of view
                  proxy <- leafletProxy("map", data = active_data.df) %>%
                    setView(-78.193593, 38.917359, zoom = 7.5)
                  
                  #grab active data
-                 active_data.df <- data.table::fread(paste0(active_path, "active_data.csv"),
+                 active_data.df <- data.table::fread(multi_tab_active_file,
+                   #paste0(active_path, "active_data.csv"),
                                                      header = TRUE,
                                                      data.table = FALSE)
                  
