@@ -1,0 +1,887 @@
+---
+title: "shiny_practice2"
+author: "Luke Vawter"
+date: "11/24/2020"
+output: html_document
+---
+
+
+```{r}
+library(shiny)
+library(shinydashboard)
+library(dplyr)
+library(leaflet)
+library(rgdal)
+
+project.dir <- rprojroot::find_rstudio_root_file()
+
+map_path = "Practice/DIME_leaflet/data/leaflet_maps/"
+
+test_huc = "20802080303"
+
+PRB <- readOGR(file.path(project.dir,map_path,"PotomacBasin_Boundary_NHD2003.shp"))
+HUC8 <- readOGR(file.path(project.dir,map_path,"WBDHU8_PotmacBasin_Feb20162.shp"))
+ches <- readOGR(file.path(project.dir,map_path,"ChesBay.shp"))
+gage <- readOGR(file.path(project.dir,map_path,"gages_clipped.shp"))
+
+
+HUC12 <- readOGR(file.path(project.dir,map_path,"WBDHU12_PotmacBasin_Feb20162.shp"))
+
+ui <- fluidPage(
+  tabPanel("Select Data",
+         
+         # #S----------------------select data radio buttons--------------------
+         # radioButtons("active_data","Select Data Source",
+         #              c("CEDR" = "cedr",
+         #                "NWIS" = "nwis",
+         #                "WQDP" = "wqdp")),
+         # #E----------------------end of select data radio buttons-------------
+         # 
+         #          #S----------------------select huc radio buttons--------------------
+         # radioButtons("hucs","Select Hucs",
+         #              c("Region 1" = "20802080303",
+         #                "Region 2" = "20801010000",
+         #                "Region 3" = "20801070204")),
+         # #E----------------------end of select huc radio buttons-------------
+         # 
+         # 
+         # 
+         # 
+         # br(),
+         
+         leafletOutput("map_huc12", height = 400, width = 400),
+         absolutePanel(
+           top = "auto", left = "auto", right = 25, bottom = 735,
+           width = "auto", height = "auto",
+           actionButton("map_zoom_in", "+", style = 'font-size: 150%'),
+           actionButton("map_zoom_out", "-", style = 'font-size:160%')
+)
+)
+)
+
+
+server <- function(input, output, session) {
+
+output$map_huc12 <- renderLeaflet({
+  leaflet(options = leafletOptions(zoomControl = FALSE)) %>%
+    addTiles() %>%
+    setView(-78.193593, 38.917359, zoom = 6.5) %>%#zoom = 7.5) %>%
+    addPolygons(data = HUC12, fill = TRUE, weight = 2, color = "steelblue", group = "HUC12") %>%
+      #addPolygons(data = HUC8, fill = FALSE, weight = 2, color = "steelblue", group = "HUC8") %>%
+    addPolygons(data = PRB, fill = FALSE, weight = 3, color = "navy", group = "Potomac River Watershed") %>%
+    addPolygons(data = ches, fill = FALSE, weight = 3, color = "navy", group = "Chesapeake Bay Watershed") %>%
+    #addCircleMarkers(popup=paste('<strong>Date:</strong>', "test", "<br>"))
+  addCircleMarkers(data = HUC12,
+      popup=paste('<b>Name:</b>', HUC12$NAME, "<br>",
+                  '<b>HUC#:</b>', HUC12$HUC12, "<br>",
+                  options = popupOptions(maxHeight = 50))
+  )
+  
+})
+
+ observe({
+
+event <- input$map_huc12_shape_click
+print( event )
+})
+
+
+}
+
+shinyApp(ui, server)
+```
+
+
+```{r}
+library(rgdal)
+library(raster)
+library(sp)
+library(leaflet)
+
+project.dir <- rprojroot::find_rstudio_root_file()
+
+map_path = "Practice/DIME_leaflet/data/leaflet_maps/"
+
+HUC12 <- readOGR(file.path(project.dir,map_path,"WBDHU12_PotmacBasin_Feb20162.shp"))
+
+HUC12test <- HUC12 <- readOGR(file.path(project.dir,map_path,"WBDHU12_PotmacBasin_Feb20162.dbf"))
+
+print(HUC12test)
+class(x=HUC12)
+crs(HUC12)
+length(HUC12)
+extent(HUC12)
+names(HUC12)
+
+#for HUC values
+#HUC12$HUC12
+
+# HUC12$NAME
+# HUC12$OBJECTID
+# HUC12$TNMID
+# HUC12$GNIS_ID
+
+
+
+
+# test_hucs <- subset(HUC12, HUC12$HUC12 %in% c(
+#   ###"020700100102","020700100201"
+#   "20801010000", "20801040305", "20801040406", "20801061101", "20801070102",
+# ))
+# 
+# print (test_hucs)
+
+# test <- HUC12[200,]
+# print(HUC12)
+# 
+# test_names <- subset(HUC12, HUC12$NAME %in% c(
+#   "Lower Rock Creek", "Northwest Branch Anacostia River" 
+# ))
+
+# LRC = HUC12[1:2,]
+# #plot(LRC)
+# 
+# test_color = '#444444'
+# 
+# leaflet(LRC) %>%
+#   addPolygons(color = test_color, weight = 1, smoothFactor = 0.5, opacity = 1.0, fillOpacity = 0.5,
+#               fillColor = "#000000",#~colorQuantile("YlOrRd"), ALAND)(ALAND),
+#               highlightOptions = highlightOptions(color = "white", weight = 2, bringToFront = TRUE))
+
+```
+
+```{r}
+library(shiny)
+library(shinydashboard)
+library(dplyr)
+library(rgdal)
+library(raster)
+library(sp)
+library(leaflet)
+library(rlist)
+
+
+project.dir <- rprojroot::find_rstudio_root_file()
+
+map_path = "Practice/DIME_leaflet/data/leaflet_maps/"
+
+HUC12 <- readOGR(file.path(project.dir,map_path,"WBDHU12_PotmacBasin_Feb20162.shp"))
+
+LRC = HUC12[1:2,]
+
+test_color= "444444"
+on_color= "#FF0000"
+off_color = '#000000'
+
+#path/filename for CEDR raw data
+our_data <- paste0(project.dir, "Practice/DIME_HUC12_select/data/CEDR/","h12_cedr_raw")
+
+###########################################
+ui <- fluidPage(
+  tabPanel("Interactive Map",
+           
+                    leafletOutput("map_huc12", height = 400, width = 400),
+         absolutePanel(
+           top = "auto", left = "auto", right = 25, bottom = 735,
+           width = "auto", height = "auto",
+           actionButton("map_zoom_in", "+", style = 'font-size: 150%'),
+           actionButton("map_zoom_out", "-", style = 'font-size:160%')
+         )
+  ))
+
+
+
+
+###########################################
+server <- function(input, output, session) {
+  
+  select_hucs <- reactive({ vector()})
+  
+  
+  output$map_huc12 <- renderLeaflet({
+  leaflet(LRC) %>%
+  addPolygons(color = test_color, weight = 1, smoothFactor = 0.5, opacity = 1.0, fillOpacity = 0.5,
+              fillColor = off_color,#~colorQuantile("YlOrRd"), ALAND)(ALAND),
+              highlightOptions = highlightOptions(color = "white", weight = 2, bringToFront = TRUE),
+              #assigns HUC12 id numbers to the id output on map region click
+              layerId = LRC$HUC12)
+  })
+  
+  #observe map polygon click
+  observeEvent(input$map_huc12_shape_click, { # update the location selectInput on map clicks
+  click <- input$map_huc12_shape_click
+  
+ select_hucs <- append(select_hucs(),click[1])
+ print(paste0("select_hucs: ",select_hucs))
+  
+  proxy <- leafletProxy("map_huc12")#, LRC) #%>%
+  if(click[1] %in% select_hucs()
+  # if(  select_hucs() %in% click[1]
+    ){  
+      # proxy %>% #addPolygons(fillColor = on_color)
+      # addPolygons(data=LRC,fillColor = on_color,layerId = LRC$HUC12)
+    print(paste0("clicked: ", click[1]))
+    
+                  
+              # color = test_color, weight = 1, smoothFactor = 0.5, opacity = 1.0, fillOpacity = 0.5,
+              # fillColor = on_color,#~colorQuantile("YlOrRd"), ALAND)(ALAND),
+              # highlightOptions = highlightOptions(color = "white", weight = 2, bringToFront = TRUE),
+              # #assigns HUC12 id numbers to the id output on map region click
+              # layerId = LRC$HUC12)
+  } else {
+    print(paste0("unclicked", click[1]))
+    # proxy %>% #addPolygons(fillColor = off_color)
+    #     addPolygons(data=LRC,fillcolor = off_color,layerId = LRC$HUC12)
+                    
+              # color = test_color, weight = 1, smoothFactor = 0.5, opacity = 1.0, fillOpacity = 0.5,
+              # fillColor = off_color,#~colorQuantile("YlOrRd"), ALAND)(ALAND),
+              # highlightOptions = highlightOptions(color = "white", weight = 2, bringToFront = TRUE),
+              # #assigns HUC12 id numbers to the id output on map region click
+              # layerId = LRC$HUC12)
+  }
+
+  # #prints the layerId we just assigned to index 1 of p
+  
+  print(paste0("HUC ID: ",click[1]))
+  print(select_hucs)
+  
+  ###if huc not in huc12_select
+  ###   add to huc12_select
+  
+  # observe({
+  #   if(###logic
+  #     ){
+  # leafletProxy("map_huc12") %>%
+  #     addPolygons(fillColor = "#111111")
+  # }else{
+  # ###else 
+  # ###   remove huc12 from huc12_select
+  #   
+  #   
+  # leafletProxy("map_huc12") %>%
+  #     addPolygons(fillColor = "#000000")
+  # }#end else
+  # })#end observe
+  
+})#end observeEvent
+
+}
+
+# #####select data
+#     #read selected data
+#     active_data.df <- data.table::fread(our_data,
+#                                         header = TRUE,
+#                                         data.table = FALSE) %>%
+#       
+#     #filter by date range selection
+#     #filter(as.Date(sampledate) >= as.Date(input$date_range[1]), as.Date(sampledate) <= as.Date(input$date_range[2])) %>%
+#       
+#     #filter by metric selection
+#     #filter(parameter %in% input$select_metric) %>%
+#       
+#     #filter by hucs
+#     filter(huc12 %in% input$select_huc12) %>%
+#       
+#       
+#     #and write to active data
+#     data.table::fwrite(file.path(our_data, "active_data.csv"))
+# #####
+
+
+
+shinyApp(ui, server)
+```
+
+```{r}
+library(rlist)
+
+test <- c("a","b","c")
+print(test)
+
+test <- append(test, "d")
+print(test)
+print(paste0("array test: ",test[4]))
+
+```
+```{r}
+
+library(shiny)
+library(shinydashboard)
+library(dplyr)
+library(rgdal)
+library(raster)
+library(sp)
+library(leaflet)
+library(rlist)
+
+
+project.dir <- rprojroot::find_rstudio_root_file()
+
+map_path = "Practice/DIME_leaflet/data/leaflet_maps/"
+
+HUC12 <- readOGR(file.path(project.dir,map_path,"WBDHU12_PotmacBasin_Feb20162.shp"))
+
+LRC = HUC12[1:2,]
+
+test_color= "444444"
+on_color= "#FF0000"
+off_color = '#000000'
+
+#path/filename for CEDR raw data
+our_data <- paste0(project.dir, "Practice/DIME_HUC12_select/data/CEDR/","h12_cedr_raw")
+
+###########################################
+ui <- fluidPage(
+  tabPanel("Interactive Map",
+           
+                    leafletOutput("map_huc12", height = 400, width = 400),
+         absolutePanel(
+           top = "auto", left = "auto", right = 25, bottom = 735,
+           width = "auto", height = "auto",
+           actionButton("map_zoom_in", "+", style = 'font-size: 150%'),
+           actionButton("map_zoom_out", "-", style = 'font-size:160%')
+         )
+  ))
+
+
+
+
+###########################################
+server <- function(input, output, session) {
+  
+  #select_hucs <- reactiveValues()#reactive({ vector()})
+  #huc12_ids <- reactiveValues(huc12 = LRC$HUC12)
+  select_hucs <- reactiveValues()#huc12 = 0)#reactive({ vector()})
+  #isolate(huc12_ids[['huc12']][2])
+  
+  
+  output$map_huc12 <- renderLeaflet({
+  leaflet(LRC) %>%
+  addPolygons(color = test_color, weight = 1, smoothFactor = 0.5, opacity = 1.0, fillOpacity = 0.5,
+              fillColor = off_color,#~colorQuantile("YlOrRd"), ALAND)(ALAND),
+              highlightOptions = highlightOptions(color = "white", weight = 2, bringToFront = TRUE),
+              #assigns HUC12 id numbers to the id output on map region click
+              layerId = LRC$HUC12)
+  })
+  
+  #observe map polygon click
+  observeEvent(input$map_huc12_shape_click, { # update the location selectInput on map clicks
+  click <- input$map_huc12_shape_click
+  print(click[1])
+  
+ #select_hucs <- append(select_hucs[['huc12']],click[1])
+ #select_hucs$huc12 <- click[1]#reactive({input$data})
+  append(select_hucs$huc12, click[1])
+  
+ print(paste0("select_hucs: ",select_hucs$huc12))#isolate(select_hucs[['huc12']])))#select_hucs))
+  })
+}#end server
+
+shinyApp(ui, server)
+```
+```{r}
+library(rgdal)
+library(shiny)
+
+project.dir <- rprojroot::find_rstudio_root_file()
+
+map_path = "Practice/DIME_leaflet/data/leaflet_maps/"
+
+HUC12 <- readOGR(file.path(project.dir,map_path,"WBDHU12_PotmacBasin_Feb20162.shp"))
+
+LRC = HUC12[1:2,]
+
+test <- c()
+
+append(test, LRC$HUC12)
+
+
+# ts <- reactiveValues(huc12 = LRC$HUC12[2])
+# 
+# isolate(ts[['huc12']])
+# 
+# observe({append(isolate(ts$huc12), LRC$HUC12[1])})
+# 
+# isolate(ts[['huc12']])
+
+
+
+```
+```{r}
+library(shiny)
+library(shinydashboard)
+library(dplyr)
+library(rgdal)
+library(raster)
+library(sp)
+library(leaflet)
+library(rlist)
+
+
+project.dir <- rprojroot::find_rstudio_root_file()
+
+map_path = "Practice/DIME_leaflet/data/leaflet_maps/"
+
+HUC12 <- readOGR(file.path(project.dir,map_path,"WBDHU12_PotmacBasin_Feb20162.shp"))
+
+LRC = HUC12[1:2,]
+
+test_color= "444444"
+on_color= "#FF0000"
+off_color = '#000000'
+
+#path/filename for CEDR raw data
+our_data <- paste0(project.dir, "Practice/DIME_HUC12_select/data/CEDR/","h12_cedr_raw")
+
+###########################################
+ui <- fluidPage(
+  tabPanel("Interactive Map",
+           
+                    leafletOutput("map_huc12", height = 400, width = 400),
+         absolutePanel(
+           top = "auto", left = "auto", right = 25, bottom = 735,
+           width = "auto", height = "auto",
+           actionButton("map_zoom_in", "+", style = 'font-size: 150%'),
+           actionButton("map_zoom_out", "-", style = 'font-size:160%')
+         )
+  ))
+
+
+
+
+###########################################
+server <- function(input, output, session) {
+  
+  #test <- c("12121")
+  test <- reactiveValues(tmp=NULL)
+  count <- reactiveValues(x=0)
+  
+  
+  output$map_huc12 <- renderLeaflet({
+  leaflet(LRC) %>%
+  addPolygons(color = test_color, weight = 1, smoothFactor = 0.5, opacity = 1.0, fillOpacity = 0.5,
+              fillColor = off_color,#~colorQuantile("YlOrRd"), ALAND)(ALAND),
+              highlightOptions = highlightOptions(color = "white", weight = 2, bringToFront = TRUE),
+              #assigns HUC12 id numbers to the id output on map region click
+              layerId = LRC$HUC12)
+  })
+  
+  #observe map polygon click
+  observeEvent(input$map_huc12_shape_click, { # update the location selectInput on map clicks
+  click <- input$map_huc12_shape_click
+  print(click[1])
+  huc_num = as.numeric(click[1])
+  
+  #execute if clicked huc has already been clicked
+  if(huc_num %in% test$tmp
+
+    ) {
+    print("already in array")
+    temp_list <-reactiveValuesToList(test)
+    print(typeof(temp_list))
+    for(i in temp_list){
+      #print(i)
+      #print("counted")
+      if(i == huc_num){
+        print("found it")
+  
+        i = NULL
+        print("temp_list: ")
+        print(temp_list)
+        test$temp <- temp_list
+        
+        # count$x = count$x -1
+        # print(count$x)
+        
+      }
+    }#end for i in
+    print(test$tmp)
+    }else{
+  
+  count$x = count$x +1
+  print(count$x)
+  
+  print(typeof(test$tmp))
+  
+  
+  
+  #append(test$tmp, huc_num)#click[1])
+  test$tmp[count$x] = huc_num
+
+  
+ #print(paste0("select_hucs: ",test$tmp))
+ print(test$tmp)
+ #print(typeof(huc_num))
+ 
+  }#end of else
+  })
+}#end server
+
+shinyApp(ui, server)
+```
+```{r}
+library(shiny)
+library(shinydashboard)
+library(dplyr)
+library(rgdal)
+library(raster)
+library(sp)
+library(leaflet)
+library(rlist)
+
+###########################################
+ui <- fluidPage(
+  tabPanel("test",
+           actionButton("action1", "Click to test")
+  )
+)
+
+
+server <- function(input, output, session) {
+  test <- reactiveValues(tmp=c(1,2,3))
+  
+  observeEvent(input$action1, {
+  test$tmp[2] = 0
+  print(test$tmp)
+  })
+  
+
+}
+
+shinyApp(ui, server)
+```
+
+```{r}
+library(hash)
+library(Dict)
+
+HUC12 <- readOGR(file.path(project.dir,map_path,"WBDHU12_PotmacBasin_Feb20162.shp"))
+
+#LRC = HUC12[1:2,]
+HUC12_ids = HUC12$HUC12
+
+#print(LRC)
+
+test <- dict('key1' = TRUE, "key2" = FALSE)#init_keys = 1, init_values = NULL)
+
+
+# ##for number of huc12 ids
+# for(i in HUC12_ids){
+#   ##assign huc id as key
+#   test[as.Character[1]] <- HUC12_ids[i]
+# 
+# }
+
+#test["1"] <- "Test"
+#print(HUC12_ids[1])
+#print(test[[1]])
+print(test)
+print(test$keys[[1]])
+print(test[[]])
+  
+
+
+```
+```{r}
+
+HUC12 <- readOGR(file.path(project.dir,map_path,"WBDHU12_PotmacBasin_Feb20162.shp"))
+
+HUC12_ids = as.list(HUC12$HUC12)
+
+#as.list(HUC12_ids)
+
+#print(HUC12_ids)
+
+count = 0
+
+for(i in HUC12_ids){
+  count = count+1
+  test[i] = TRUE
+}
+
+test <- c()
+names(test) <- C(HUC12_ids)
+print(test)
+
+# count =0
+# ##for number of huc12 ids
+# for(i in HUC12_ids){
+#   count = count+1
+#   #print(i)
+#   ##assign huc id as key
+#   #test[as.Character[1]] <- HUC12_ids[i]
+#   names(test) <- c(i)
+#   #test[count] = TRUE
+# 
+# }
+# 
+# # test <- c(1,2,3)
+# # names(test) <- c("one","two","three")
+# print(test)
+```
+
+
+```{r}
+
+#make it a dataframe, not a dict
+
+HUC12 <- readOGR(file.path(project.dir,map_path,"WBDHU12_PotmacBasin_Feb20162.shp"))
+
+HUC12_ids <- as.list(as.numeric(HUC12$HUC12))
+
+HUC12.df <- data.frame(HUC12_ids)
+HUC12.df <- data.frame(t(HUC12.df))
+rownames(HUC12.df)<-c(1:length(HUC12_ids))
+HUC12.df <- rename(HUC12.df,  Huc_id = t.HUC12.df.)
+#print(HUC12.df)
+
+HUC12.df$download=FALSE
+print(HUC12.df)
+
+test_huc = 020700100102
+
+for(i in HUC12.df$Huc_id){
+  if(as.numeric(i) == test_huc){
+    print(i.index.values)
+    #print(HUC12.df[HUC12.df[Huc_id]==test_huc].index.values)
+    #print(df[df[‘Name’]==’Donna’].index.values)
+    print(HUC12.df$download[1])
+  }#else{print("don't got it")}
+}
+
+
+
+```
+
+```{r}
+library(shiny)
+library(shinydashboard)
+library(dplyr)
+library(rgdal)
+library(raster)
+library(sp)
+library(leaflet)
+library(rlist)
+
+
+project.dir <- rprojroot::find_rstudio_root_file()
+
+map_path = "Practice/DIME_leaflet/data/leaflet_maps/"
+
+HUC12 <- readOGR(file.path(project.dir,map_path,"WBDHU12_PotmacBasin_Feb20162.shp"))
+
+LRC = HUC12[1:2,]
+
+test_color= "444444"
+on_color= "#FF0000"
+off_color = '#000000'
+
+#path/filename for CEDR raw data
+our_data <- paste0(project.dir, "Practice/DIME_HUC12_select/data/CEDR/","h12_cedr_raw")
+
+###########################################
+ui <- fluidPage(
+  tabPanel("Interactive Map",
+           
+                    leafletOutput("map_huc12", height = 400, width = 400),
+         absolutePanel(
+           top = "auto", left = "auto", right = 25, bottom = 735,
+           width = "auto", height = "auto",
+           actionButton("map_zoom_in", "+", style = 'font-size: 150%'),
+           actionButton("map_zoom_out", "-", style = 'font-size:160%')
+         )
+  ))
+
+
+
+
+###########################################
+server <- function(input, output, session) {
+  
+  #test <- c("12121")
+  test <- reactiveValues(tmp=NULL)
+  count <- reactiveValues(x=0)
+  
+  
+  output$map_huc12 <- renderLeaflet({
+  leaflet(LRC) %>%
+  addPolygons(color = test_color, weight = 1, smoothFactor = 0.5, opacity = 1.0, fillOpacity = 0.5,
+              fillColor = off_color,#~colorQuantile("YlOrRd"), ALAND)(ALAND),
+              highlightOptions = highlightOptions(color = "white", weight = 2, bringToFront = TRUE),
+              #assigns HUC12 id numbers to the id output on map region click
+              layerId = LRC$HUC12)
+  })
+  
+  #observe map polygon click
+  observeEvent(input$map_huc12_shape_click, { # update the location selectInput on map clicks
+  click <- input$map_huc12_shape_click
+  print(click[1])
+  huc_num = as.numeric(click[1])
+  
+  #execute if clicked huc has already been clicked
+  if(huc_num %in% test$tmp
+
+    ) {
+    print("already in array")
+    temp_list <-reactiveValuesToList(test)
+    print(typeof(temp_list))
+    for(i in temp_list){
+      #print(i)
+      #print("counted")
+      if(i == huc_num){
+        print("found it")
+  
+        i = NULL
+        print("temp_list: ")
+        print(temp_list)
+        test$temp <- temp_list
+        
+        # count$x = count$x -1
+        # print(count$x)
+        
+      }
+    }#end for i in
+    print(test$tmp)
+    }else{
+  
+  count$x = count$x +1
+  print(count$x)
+  
+  print(typeof(test$tmp))
+  
+  
+  
+  #append(test$tmp, huc_num)#click[1])
+  test$tmp[count$x] = huc_num
+
+  
+ #print(paste0("select_hucs: ",test$tmp))
+ print(test$tmp)
+ #print(typeof(huc_num))
+ 
+  }#end of else
+  })
+}#end server
+
+shinyApp(ui, server)
+```
+```{r}
+library(shiny)
+library(shinydashboard)
+library(dplyr)
+library(rgdal)
+library(raster)
+library(sp)
+library(leaflet)
+library(rlist)
+
+
+project.dir <- rprojroot::find_rstudio_root_file()
+
+map_path = "Practice/DIME_leaflet/data/leaflet_maps/"
+
+#import huc12 shapefiles
+HUC12 <- readOGR(file.path(project.dir,map_path,"WBDHU12_PotmacBasin_Feb20162.shp"))
+
+#path/filename for CEDR raw data
+our_data <- paste0(project.dir, "Practice/DIME_HUC12_select/data/CEDR/","h12_cedr_raw")
+
+#narrow down to two hucs to simplify testing
+LRC = HUC12[1:2,]
+
+test_color= "444444"
+on_color= "#FF0000"
+off_color = "#000000"
+
+
+
+#custom build dataframe for jolding on/off values for hucs
+huc_id <- c(20700100201,20700100102)
+on_state <- c(FALSE, FALSE)
+data.df <- data.frame(huc_id,on_state)
+#load custom built dataframe into reactive
+test_reactive <- reactiveValues(huc_selection=data.df)
+
+#creates a palette function for changing color of polygon is seleceted or unselected
+bins <- c(FALSE,TRUE)
+colorpal <- reactive(colorBin("YlOrRd", domain = test_reactive$huc_selection$on_state, bins = bins))
+#pal <- colorNumeric(c(off_color, on_color), 0:1)
+
+###########################################
+ui <- fluidPage(
+  tabPanel("Interactive Map",
+           
+                    leafletOutput("map_huc12", height = 400, width = 400),
+         absolutePanel(
+           top = "auto", left = "auto", right = 25, bottom = 735,
+           width = "auto", height = "auto",
+           actionButton("map_zoom_in", "+", style = 'font-size: 150%'),
+           actionButton("map_zoom_out", "-", style = 'font-size:160%')
+         )
+  ))
+
+
+
+
+###########################################
+server <- function(input, output, session) {
+
+    output$map_huc12 <- renderLeaflet({
+  leaflet(LRC) %>%
+  addPolygons(color = test_color, weight = 1, smoothFactor = 0.5, opacity = 1.0, fillOpacity = 0.5,
+              fillColor = off_color,#~colorQuantile("YlOrRd"), ALAND)(ALAND),
+              highlightOptions = highlightOptions(color = "white", weight = 2, bringToFront = TRUE),
+              #assigns HUC12 id numbers to the id output on map region click
+              layerId = LRC$HUC12)
+  })
+    
+      #observe map polygon click
+  observeEvent(input$map_huc12_shape_click, { # update the location selectInput on map clicks
+  click <- input$map_huc12_shape_click
+  print(click[1])
+  huc_num = as.numeric(click[1])
+  
+  
+  #turns on or off selection state for hucs if they are clicked
+  test_reactive$huc_selection <- test_reactive$huc_selection  %>%
+    mutate(on_state = case_when(huc_id == huc_num & on_state == FALSE~TRUE,
+                                      huc_id == huc_num & on_state == TRUE~FALSE,
+                                      TRUE ~ on_state))
+  
+  #output on/off states of hucs
+  print(test_reactive$huc_selection)
+  print(paste0("On States:___",test_reactive$huc_selection$on_state))
+  
+  pal <- colorpal()
+  proxy <- leafletProxy("map_huc12", data = LRC) %>%
+    addPolygons(color = test_color, weight = 1, smoothFactor = 0.5, opacity = 1.0, fillOpacity = 0.5,
+              fillColor = ~pal(test_reactive$huc_selection$on_state),#~colorQuantile("YlOrRd"), ALAND)(ALAND),
+              highlightOptions = highlightOptions(color = "white", weight = 2, bringToFront = TRUE),
+              #assigns HUC12 id numbers to the id output on map region click
+              layerId = LRC$HUC12)
+    
+    
+    
+
+    
+  })#end observeEvent
+}#end of server
+
+shinyApp(ui, server) 
+```
+
+```{r}
+huc_id <- c(20700100201,20700100102)
+on_state <- c(FALSE, FALSE)
+test_data.df <- data.frame(huc_id,on_state)
+
+huc_num = 20700100102
+
+
+test_data.df <- test_data.df %>% mutate(on_state = case_when(huc_id == huc_num & on_state == FALSE~TRUE,
+                                      huc_id == huc_num & on_state == TRUE~FALSE,
+                                      TRUE ~ on_state))
+
+
+```
+

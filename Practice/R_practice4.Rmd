@@ -1,0 +1,452 @@
+---
+title: "R_practice4"
+author: "Luke Vawter"
+date: "9/23/2020"
+output: html_document
+---
+```{r}
+project.dir <- rprojroot::find_rstudio_root_file()
+
+active_path <- "/data/ACTIVE/"
+
+test_path <- (paste0(project.dir,active_path, "active_data.csv"))
+
+print(test_path)
+
+```
+
+
+
+```{r}
+# library(shiny)
+# library(shinythemes)
+# library(shinydashboard)
+# library(ggplot2)
+# library(dplyr)
+# library(rlang)
+# library(data.table)
+# library(stringi)
+# library(Cairo)
+# library(RcppRoll)
+# library(tidyr)
+library(lubridate)
+# library(pryr)
+# library(zoo)
+# library(sp)
+# library(png)
+# library(leaflet)
+# library(rgdal)
+library(RCurl)
+# library(tidyverse)
+# library(curl)
+
+test_date = as.Date(today())
+
+# url_to_date = (paste0('https://mde.maryland.gov/programs/Water/droughtinformation/Currentconditions/PublishingImages/DroughtGraphsStarting2019jan31/Drought',format(test_date,"20%y-%m-%d"),'.png'))
+url_to_date = ('https://mde.maryland.gov/programs/Water/droughtinformation/Currentconditions/PublishingImages/DroughtGraphsStarting2019jan31/Drought2020-08-31.png')
+    
+#tests if
+test <- url.exists(url_to_date)
+    
+print(test)
+
+md_drought_map <- readPNG(url_to_date)
+
+
+        box(
+          title = NULL,#"MARYLAND DROUGHT STATUS",
+          width = NULL,#6,
+          height = 220,
+          htmlOutput(outputId="MD_title"),
+          box(tags$img(alt="Drought Status Map:2019-05-31",
+                       src= md_drought_map,
+                       style="width:250px;height:150px;border:0;")
+            #leafletOutput("mymap", height =140, width =300)
+            )
+          )
+
+
+```
+```{r}
+library(shiny)
+library(shinythemes)
+library(shinydashboard)
+library(png)
+library(lubridate)
+
+date_today0 <- as.Date(today())
+date_yest <- date_today0 - 1
+
+print(date_yest)
+
+#url to site with map
+url_to_date = (paste0('https://mde.maryland.gov/programs/Water/droughtinformation/Currentconditions/PublishingImages/DroughtGraphsStarting2019jan31/Drought',date_today0,'.png'))
+  
+               
+#https://mde.maryland.gov/programs/Water/droughtinformation/Currentconditions/PublishingImages/DroughtGraphsStarting2019jan31/Drought2020-08-31.png
+project.dir <- rprojroot::find_rstudio_root_file()
+
+map_path <- "/Practice/www/"#data/drought_map/"
+
+md_map_full_path <- (paste0(project.dir,map_path, "md_map.png"))
+
+map_download = download.file(url_to_date, md_map_full_path, mode = 'wb')
+  
+md_drought_map <- readPNG(md_map_full_path)
+
+
+ui <- #fluidPage(
+  dashboardPage(skin = "blue" ,
+  dashboardHeader(title = "Drought Map",
+                  .list = NULL),
+  dashboardSidebar(),
+  dashboardBody(
+  
+  
+          box(
+          title = NULL,#"MARYLAND DROUGHT STATUS",
+          width = NULL,#6,
+          height = 220,
+          htmlOutput(outputId="MD_title"),
+          box(tags$img(alt="Drought Status Map:2019-05-31",
+                       src= md_drought_map,
+                       style="width:250px;height:150px;border:0;")
+            #leafletOutput("mymap", height =140, width =300)
+            )
+          )
+          
+  )
+  
+)
+
+server <- function(input, output)({
+
+})
+
+
+shinyApp(ui, server)
+```
+
+```{r}
+library(tidyr)
+library(dplyr)
+library(shiny)
+library(shinythemes)
+library(shinydashboard)
+library(png)
+library(lubridate)
+
+ #this is the url that contains all the map files
+  map_url_head ='http://deq1.bse.vt.edu/drought/state/images/maps/'
+  
+  #creates an object to open 
+  test <- curl::curl(map_url_head)
+  
+  #open and read said object
+  open(test)
+  out <- readLines(test)
+  
+  map.df <- as.data.frame(out, row.names = NULL, optional = TRUE)#, col.names = cols )
+  colnames(map.df) <- c("html")
+  
+  ######patterns for finding string fragments for retrieving map
+  pattern_id <- "(\\d{10,})"
+  pattern_date <- "(\\d{4}[-]\\d{2}[-]\\d{2})"
+  pattern_time <- "(\\d{2}[:]\\d{2})"
+  ################
+  
+  #executing above patterns with extract to generate dataframes containing relevant fragments of string
+  id.df <- extract(map.df,html, c("id"), regex = pattern_id)
+  date.df <- extract(map.df,html, c("date"), regex = pattern_date)
+  time.df <- extract(map.df,html, c("time"), regex = pattern_time)
+  
+  #bind dataframes into one
+  maps_full.df <- cbind(map.df,id.df, date.df,time.df)
+  
+  #arrange so that most current file is at the top
+  maps_full.df <- arrange(maps_full.df, desc(date),desc(time))
+  
+  #grabs the top item
+  map_url_id = maps_full.df$id[1]
+  
+  #concatinate all relevant parts into a retrievable url
+  map_url_full = as.character(paste0(map_url_head,"imageMapFile", map_url_id,".png"))
+  
+  map_path <- "/Practice/www/"
+  
+  #place to download png
+  va_map_full_path <- (paste0(project.dir,map_path, "va_map.png"))
+
+  #downloading png
+  map_download = download.file(map_url_full, va_map_full_path, mode = 'wb')
+  
+  va_drought_map <- readPNG(va_map_full_path)#map_url_full)
+  
+  
+  
+
+  
+server <- function(input, output, session) {
+ 
+output$boxes  <- renderUI({
+          box(
+          title = NULL,#"MARYLAND DROUGHT STATUS",
+          width = NULL,#6,
+          height = 220,
+          htmlOutput(outputId="VA_title"),
+          box(tags$img(alt="Drought Status Map:2019-05-31",
+                       src= va_drought_map,
+                       style="width:250px;height:150px;border:0;")
+            #leafletOutput("mymap", height =140, width =300)
+            )
+          )
+})}
+  
+  
+  
+server <- function(input, output)({
+
+  ui <- dashboardPage(
+  dashboardHeader(title = "break me"
+                  ),
+  dashboardSidebar(dateInput("date", "enter a date")
+                   ),
+  dashboardBody(htmlOutput(outputId = "boxes")
+  )
+)
+  
+})
+  
+  
+#   ui <- #fluidPage(
+#   dashboardPage(skin = "blue" ,
+#   dashboardHeader(title = "Drought Map",
+#                   .list = NULL),
+#   dashboardSidebar(),
+#   dashboardBody(
+#   
+#   
+#           box(
+#           title = NULL,#"MARYLAND DROUGHT STATUS",
+#           width = NULL,#6,
+#           height = 220,
+#           htmlOutput(outputId="VA_title"),
+#           box(tags$img(alt="Drought Status Map:2019-05-31",
+#                        src= va_drought_map,
+#                        style="width:250px;height:150px;border:0;")
+#             #leafletOutput("mymap", height =140, width =300)
+#             )
+#           )
+#           
+#   )
+#   
+# )
+# 
+# server <- function(input, output)({
+# 
+# })
+
+
+shinyApp(ui, server)
+```
+```{r}
+library(tidyr)
+library(dplyr)
+library(shiny)
+library(shinythemes)
+library(shinydashboard)
+library(png)
+library(lubridate)
+
+  project.dir <- rprojroot::find_rstudio_root_file()
+
+ #this is the url that contains all the map files
+  map_url_head ='http://deq1.bse.vt.edu/drought/state/images/maps/'
+  
+  #creates an object to open 
+  test <- curl::curl(map_url_head)
+  
+  #open and read said object
+  open(test)
+  out <- readLines(test)
+  
+  map.df <- as.data.frame(out, row.names = NULL, optional = TRUE)#, col.names = cols )
+  colnames(map.df) <- c("html")
+  
+  ######patterns for finding string fragments for retrieving map
+  pattern_id <- "(\\d{10,})"
+  pattern_date <- "(\\d{4}[-]\\d{2}[-]\\d{2})"
+  pattern_time <- "(\\d{2}[:]\\d{2})"
+  ################
+  
+  #executing above patterns with extract to generate dataframes containing relevant fragments of string
+  id.df <- extract(map.df,html, c("id"), regex = pattern_id)
+  date.df <- extract(map.df,html, c("date"), regex = pattern_date)
+  time.df <- extract(map.df,html, c("time"), regex = pattern_time)
+  
+  #bind dataframes into one
+  maps_full.df <- cbind(map.df,id.df, date.df,time.df)
+  
+  #arrange so that most current file is at the top
+  maps_full.df <- arrange(maps_full.df, desc(date),desc(time))
+  
+  #grabs the top item
+  map_url_id = maps_full.df$id[1]
+  
+  #concatinate all relevant parts into a retrievable url
+  map_url_full = as.character(paste0(map_url_head,"imageMapFile", map_url_id,".png"))
+  
+  map_path <- "/Practice/www/"
+  
+  #place to download png
+  va_map_full_path <- (paste0(project.dir,map_path, "va_map.png"))
+
+  #downloading png
+  map_download = download.file(map_url_full, va_map_full_path, mode = 'wb')
+  
+  va_drought_map <- readPNG(va_map_full_path)#map_url_full)
+  
+  print(va_drought_map)
+  
+  rasterImage(va_drought_map)
+  
+shinyApp(ui, server)
+```
+
+```{r}
+library(tidyr)
+library(dplyr)
+
+cedr_path <- "data/CEDR/"
+
+active_data.df <- data.table::fread(paste0(cedr_path, "data", "_raw", ".csv"),
+                                    data.table = FALSE)
+
+  metrics_list <- active_data.df %>%
+     dplyr::select(parameter) %>%
+     unique %>%
+     pull(.,parameter)
+     #.$paramter
+  
+print(metrics_list)
+print(typeof(metrics_list))
+
+if("panda" %in% metrics_list){print("success")}
+```
+```{r}
+library(lubridate)
+library(dplyr)
+
+#this is the minimum date to be included
+min_date = #"01-01-1970"
+#"01-01-2018"
+"2018-01-01"
+
+
+#-------------------todays date-----------------------
+todays.date <- #format(Sys.Date(), "%m-%d-%Y")
+  format(Sys.Date(), "%Y-%m-%d")
+  #"2020-01-01"
+#------------------------------------------------------
+
+#this is the maximum date to be included, add the variable todays.date into this variable if you want the most recent data
+max_date = todays.date#
+
+cedr_path <- "data/CEDR/"
+
+raw_data <- "cedr_raw_huc12.csv"
+
+our_data <- paste0(cedr_path,raw_data)
+
+active_data.df <- data.table::fread(our_data,
+                                        header = TRUE,
+                                        data.table = FALSE) %>%
+      #filter by date range selection
+  filter(as.Date(sampledate) >= as.Date(min_date), as.Date(sampledate) <= as.Date(max_date))
+    # filter(as.Date(sampledate) >= as.Date(input$date_range[1]), as.Date(sampledate) <= as.Date(input$date_range[2])) %>%
+      
+    # #filter by metric selection
+    # filter(parameter %in% input$select_metric) #%>%
+
+```
+
+```{r}
+# library(EGRET)
+library(dataRetrieval)
+
+#siteNumber can be found at:  https://maps.waterdata.usgs.gov/mapper/index.html
+
+# Site Number: 01649500
+# Site Name: NORTHEAST BRANCH
+
+# nwis_data <- readNWISDaily(siteNumber = "01646500", parameterCd = "00060", startDate = "2019-01-01",
+#   endDate = "2020-01-01", verbose = TRUE, interactive = NULL, convert = TRUE)
+# 
+# nwis_data2 <- readNWISDaily(siteNumber = "01594440", parameterCd = "00060", startDate = "2019-01-01",
+#   endDate = "2020-01-01", verbose = TRUE, interactive = NULL, convert = TRUE)
+
+# INFO <- readNWISInfo("01646500","00060")
+
+siteNumbers <- c("01594440","01646500") 
+site_info <- readNWISsite(siteNumbers)
+# 
+# INFO2<- readNWISInfo('01594440',"00618")
+
+params<-whatNWISdata(siteNumber ="01646500", service="all", statCd="all")
+                     #service="dv", statCd="00003")
+ 
+parameterINFO <- readNWISpCode(parameterCd="00060")
+
+
+```
+
+```{r}
+
+####this is a script for formatting RSM ticket reports
+
+####the Team columns need to be changed to Team1 and Team2 before this script will run
+library(dplyr)
+library(data.table)
+
+project.dir <- rprojroot::find_rstudio_root_file()
+
+ticket_report.df <- data.table::fread(file.path(project.dir, 
+                                         "Practice/data/ticket_reports/RSM_ticket_report_4_2021_input.csv"),
+                            data.table = FALSE,
+                            #colClasses = col.class.vec,
+                            na.strings = "")
+
+
+
+ticket_report_new.df <- ticket_report.df %>%
+  mutate(Priority = case_when(
+    Priority == 'common/images/../../common/images/infoIcons/urgencyColors/Red.gif' ~ "EMERGENCY",
+    Priority == 'common/images/../../common/images/infoIcons/urgencyColors/orange.gif' ~ "priority",
+    Priority == 'common/images/../../common/images/infoIcons/urgencyColors/pink.gif' ~ "medium",
+    Priority == 'common/images/../../common/images/infoIcons/urgencyColors/yellow.gif' ~ "next available",
+    Priority == 'common/images/../../common/images/infoIcons/urgencyColors/White.gif' ~ "as scheduled",
+    Priority == 'common/images/../../common/images/infoIcons/urgencyColors/purple.gif' ~ "open for all",
+    TRUE ~ Priority
+  ))%>%
+  filter(`Summary Description` != 'MyAnalytics | Wellbeing Edition'
+)
+
+#average_closed_ticket_time.df <- ticket_report_new.df %>%
+    
+# 
+#   
+#open_closed_tickets.df <- ticket_report_new.df %>%
+    # mutate(iris, sepal = Sepal.Length + Sepal. Width) 
+    # mutate(Open = )
+    # Open <- as.numeric(sum(ticket_report_new.df$Display == "open"))
+    # Closed <- as.numeric(sum(ticket_report_new.df$Display == "open"))
+#mutate(carriers, n = n())
+      
+#   
+# Ticket_by_type <- ticket_report_new.df %>%
+  
+  
+    write.csv(ticket_report_new.df, paste0(project.dir, 
+                                         "/Practice/data/ticket_reports/RSM_ticket_report_4_2021_output.csv"))
+```
+
