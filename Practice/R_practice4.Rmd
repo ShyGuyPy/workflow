@@ -450,3 +450,431 @@ ticket_report_new.df <- ticket_report.df %>%
                                          "/Practice/data/ticket_reports/RSM_ticket_report_4_2021_output.csv"))
 ```
 
+
+```{r}
+library(SSN)
+
+ data_path ='data/SSN/Colorado.ssn'
+ 
+ # 'C:\Users\lvawter\Documents\R_scripts\workflow\Practice\data\SSN\Colorado.ssn'
+
+# Function to standardize variables
+stand <- function(x) { (x-mean(x))/(2*sd(x))}
+
+# Function to standardize a prediction dataset based on the fitting dataset 
+stdpreds <- function(newset,originalset) {
+	xnames <- colnames(newset)
+	sx <- matrix(rep(NA,ncol(newset)*nrow(newset)),nrow=nrow(newset))
+	for(i in 1:ncol(newset)) {
+		var <- with(originalset,get(xnames[i]))
+		sx[,i] <- (newset[,i]-mean(var))/(2*sd(var))
+		}
+	colnames(sx) <- colnames(newset)
+	return(sx)
+}
+
+test.ssn <- importSSN(data_path, predpts = "preds", o.write = T)
+
+plot(test.ssn, lwdLineCol = "addfunccol", lwdLineEx = 8,
+lineCol = "blue", cex = 2, xlab = "x-coordinate",
+ylab = "y-coordinate", pch = 1)
+
+# pred_test = getPreds(test.ssn, pred.type = 'pred')
+
+
+#had to check memory and then adjust memory limit
+memory.size()
+memory.limit()
+memory.limit(size=200000)
+
+#dist_mat_test = 
+createDistMat(test.ssn, o.write=T, predpts = 'preds', amongpreds=T)
+# ssn, predpts = NULL, o.write = FALSE, amongpreds = FALSE)
+
+SD_test <- getStreamDistMat(test.ssn)
+# print(SD_test)
+# Create raw torgegram
+test_torg <- Torgegram(test.ssn,"STREAM_AUG",nlag=20)
+
+test.df<- getSSNdata.frame(test.ssn)
+test.lm <- lm(STREAM_AUG ~ ELEV + CANOPY + SLOPE + PRECIP + CUMDRAINAG + Y_COORD + NLCD11PC + GLACIER + BFI + TAILWATER + Air_Aug + Flow_Aug, data=test.df)
+summary(test.lm)
+
+# Standardize continuous covariates and add factor for year
+continuous <- test.df[,c(10:18,20:21)]
+cont.s <- apply(continuous,2,stand)
+colnames(cont.s) <- c("elev","canopy","slope","precip","drainage","lat","water","glacier","bfi","airtemp","flow")
+test.df.s <- data.frame(test.df,cont.s)
+test.df.s$yearf <- factor(test.df.s$SAMPLEYEAR)
+test_cov <- putSSNdata.frame(test.df.s,test.ssn,"Obs")
+
+
+
+testAe <- summary(test.lm)$coefficients
+backtrans <- testAe[-c(1,10),1:2]/(2*sapply(continuous[,-8],sd))
+esttable <- cbind(rbind(testAe[1,1:2],backtrans[1:8,],testAe[10,1:2],backtrans[9:10,]),testAe)
+rownames(esttable) <- rownames(testAe)
+write.csv(esttable,"test_aspatialestimates.csv")
+
+# Aspatial performance
+predictA <- predict(test.lm)
+sqrt(mean((predictA-test.df.s$STREAM_AUG)^2))
+print(predictA)
+# 1.885
+
+# Examine correlations
+library(ellipse)
+cor(cont.s)
+# jpeg("corrplot.jpg")
+plotcorr(cor(cont.s),type="lower")
+dev.off()
+
+# Get VIFs from linear model as an indicator of multicollinearity
+library(car)
+vif(test.lm)
+#      ELEV     CANOPY      SLOPE     PRECIP CUMDRAINAG    Y_COORD   NLCD11PC 
+#  2.399760   1.584861   1.351117   1.577125   1.909954   2.585873   1.305458 
+#   GLACIER        BFI  TAILWATER    Air_Aug   Flow_Aug 
+#  1.048601   1.255432   1.323322   1.048707   1.051820 
+
+# Standardize preds based on obs and add factor for year- prednorth
+testpreddf <- getSSNdata.frame(test.ssn, "preds")
+contpred <- testpreddf[,c(10:18,20:21)]
+contpred.s <- stdpreds(contpred,continuous)
+colnames(contpred.s) <- c("elev","canopy","slope","precip","drainage","lat","water","glacier","bfi","airtemp","flow")
+testpreddf.s <- data.frame(testpreddf,contpred.s)
+testpreddf.s$yearf <- factor(testpreddf.s$SAMPLEYEAR)
+test_pred <- putSSNdata.frame(testpreddf.s,test_cov,"preds")
+```
+
+```{r}
+library(xlsx)
+library(rJava)
+library(dplyr)
+
+path = 'data/SSN/META_SITES-EDGES.xlsx'
+
+wb     <- loadWorkbook(path)
+sheet1 <- getSheets(wb)[[1]]
+
+# get all rows
+rows  <- getRows(sheet1)
+cells <- getCells(rows)
+```
+
+attempt to log into Data Portal with curl
+```{r}
+library(curl)
+
+    login_url = 'https://icprbcoop.org/user/login'
+
+    data_url = 'https://icprbcoop.org/products/wma_withdrawals_private.csv'
+    
+    wma_pub_url = 'https://icprbcoop.org/products/wma_withdrawals_public.csv'
+   
+    
+    userid <- "admin1"
+    passwd <- "CsSaAsLv123!!"
+    credentials = paste0(userid,':',passwd)
+   
+    h = new_handle(verbose = TRUE)
+    handle_setopt(handle = h, httpauth =1, userpwd = credentials)
+    
+    # wma <- curl::curl_fetch_memory(wma_pub_url,  handle = h)
+    # jsonlite::fromJSON(rawToChar(wma$content))
+    
+    login_attempt <- curl::curl_fetch_memory(login_url, handle = h)
+    jsonlite::fromJSON(rawToChar(login_attempt$content))
+    # wma <- curl::curl_fetch_memory(data_url,  handle = h)
+    # jsonlite::fromJSON(rawToChar(wma$content))
+
+    
+```
+```{r}
+library(RCurl)
+
+#Set your browsing links 
+loginurl = 'https://icprbcoop.org/user/login'
+dataurl  = 'https://icprbcoop.org/products/wma_withdrawals_private.csv'
+
+#Set user account data and agent
+pars=list(
+     Username="admin1",
+     Password="CsSaAsLv123!!"
+)
+agent="Mozilla/5.0" #or whatever 
+
+#Set RCurl pars
+curl = getCurlHandle()
+curlSetOpt(cookiejar="cookies.txt",  useragent = agent, followlocation = TRUE, curl=curl)
+#Also if you do not need to read the cookies. 
+#curlSetOpt(  cookiejar="", useragent = agent, followlocation = TRUE, curl=curl)
+
+#Post login form
+html=postForm(loginurl, .params = pars, curl=curl)
+# print(html)
+
+#Go wherever you want
+html=getURL(dataurl, curl=curl)
+print(html)
+
+# html=getURL('https://icprbcoop.org/user/1', curl=curl)
+
+# out <- read.csv(textConnection(html))
+# print(out)
+
+
+#Start parsing your page
+# matchref=gregexpr("... my regexp ...", html)
+
+#... .... ...
+
+#Clean up. This will also print the cookie file
+rm(curl)
+gc()
+```
+
+```{r}
+library(RCurl)
+dataurl  = 'https://icprbcoop.org/products/wma_withdrawals_public.csv'
+
+agent="Mozilla/5.0" #or whatever 
+
+curl = getCurlHandle()
+curlSetOpt(cookiejar="cookies.txt",  useragent = agent, followlocation = TRUE, curl=curl)
+
+html=getURL(dataurl, curl=curl)
+
+print(html)
+
+# out <- read.csv(textConnection(html))
+# print(out)
+```
+
+```{r}
+library(httr)
+
+# r <- GET('https://icprbcoop.org/')
+r <- GET('https://icprbcoop.org/fw/')
+# r <- GET('https://google.com/')
+print(cookies(r))
+
+xVYgJCBeaXGwEQTMuUL4X2caHzBalzO1t29zfW--RJU
+```
+```{r}
+library(httr)
+url<-"https://icprbcoop.org/products/wma_withdrawals_private.csv"
+
+r <-GET(url, 
+    set_cookies( "SSESS26ffc8725d1747c99af20df19a5da588"))###"xVYgJCBeaXGwEQTMuUL4X2caHzBalzO1t29zfW--RJU"))
+r_content= content(as="text",r)
+print(r_content)
+
+
+
+####public
+url2<-"https://icprbcoop.org/products/wma_withdrawals_public.csv"
+
+r_public <-GET(url2)
+
+r_pub_content= content(as="text",r_public)
+print(r_pub_content)
+```
+
+```{r}
+library(httr)
+url_control<-"https://icprb.sharepoint.com/sites/COOPPortal/_layouts/15/Doc.aspx?sourcedoc={a90d9594-9041-469c-8c33-79b9cd286b5c}&action=edit&wd=target%28backups.one%7C127bfce4-1455-4f75-a577-eccb62c3ce64%2FBackups%20old%7Ce21a084a-42ae-4cdf-85a7-e48e32e081c2%2F%29&wdorigin=NavigationUrl"
+
+r_control <-GET(url)
+r_control_content= content(as="text",r)
+print(r_control_content)
+```
+wma_hidden_test
+```{r}
+library(digest)
+library(lubridate)
+
+test_time = ymd_hms(now("GMT"))
+print(test_time)
+
+test_month = month.abb[month(test_time)]
+print(test_month)
+
+hash_stamp = paste0(test_month,day(test_time),year(test_time), sprintf("%02d",hour(test_time))) ##converts hour to two digit format 
+print(hash_stamp)
+test_hash = toString(paste0(hash_stamp,'wikajfkgha'))
+print(test_hash)
+test_hash_full = digest::digest(test_hash, algo="md5", serialize = FALSE)
+print(test_hash_full)
+# Sep12202216wikajfkgha
+
+library(httr)
+
+file_url <- paste0("https://icprbcoop.org/products/wma_withdrawals_hidden.csv?password=",test_hash_full)
+print(file_url)
+
+wma_csv <-GET(file_url)
+
+wma_csv_content <-content(as="text",wma_csv)
+
+print(wma_csv_content)
+###1f38dddfeebcb6cbae72c7b62ca1cf77
+
+```
+
+control test
+```{r}
+
+wma_csv <-GET("https://icprbcoop.org/products/wma_withdrawals_public.csv")
+# 
+# # print(wma_csv)
+wma_csv_content <-content(as="text",wma_csv)
+print(wma_csv_content)
+url2<-"https://icprbcoop.org/products/wma_withdrawals_public.csv"
+
+
+```
+
+data_view hidden test
+```{r}
+library(digest)
+library(lubridate)
+library(httr)
+
+test_time = ymd_hms(now("GMT"))
+print(test_time)
+test_month = month.abb[month(test_time)]
+print(test_month)
+hash_stamp = paste0(test_month,day(test_time),year(test_time), sprintf("%02d",hour(test_time)))
+print(hash_stamp)
+hash = toString(paste0(hash_stamp,'djasokdmas'))
+print(hash)
+
+hash = digest::digest(hash, algo="md5", serialize = FALSE)
+print("hash is: ...")
+print(hash)
+site_url = "https://icprbcoop.org/products/data_view_hidden?password="
+
+selection = paste0("&wssc_usable_storage_patuxent=wssc_usable_storage_patuxent",
+"&wssc_usable_storage_seneca=wssc_usable_storage_seneca",
+"&fw_usable_storage_occoquan=fw_usable_storage_occoquan")
+
+date_submit ="&startdate=09%2F12%2F2022&enddate=09%2F19%2F2022&format=graph&submit=Submit"
+file_url <- paste0(site_url,hash,selection,date_submit)
+# print(file_url)
+
+#acaf4343a553abdf2773c3cdf7f554dd
+  
+print(file_url)
+data_view <-GET(file_url)
+data_view_content <-content(as="text",data_view)
+print(data_view_content)
+
+storage_local_daily_bg_df <- data.table::fread(data_view_content)
+
+# password=4682e91a861af0cbf54a63258b1a346d&wssc_usable_storage_patuxent=wssc_usable_storage_patuxent&wssc_usable_storage_seneca=wssc_usable_storage_seneca&fw_usable_storage_occoquan=fw_usable_storage_occoquan&startdate=09%2F12%2F2022&enddate=09%2F19%2F2022&format=graph&submit=Submit"
+
+# https://icprbcoop.org/products/data_view_public?wssc_usable_storage_patuxent=wssc_usable_storage_patuxent&wssc_usable_storage_seneca=wssc_usable_storage_seneca&fw_usable_storage_occoquan=fw_usable_storage_occoquan&startdate=09%2F12%2F2022&enddate=09%2F19%2F2022&format=graph&submit=Submit
+# 
+# https://icprbcoop.org/products/data_view_hidden?password=574a66c0dc25de031d010bf3099141b4&wssc_usable_storage_patuxent=wssc_usable_storage_patuxent&wssc_usable_storage_seneca=wssc_usable_storage_seneca&fw_usable_storage_occoquan=fw_usable_storage_occoquan&startdate=09%2F12%2F2022&enddate=09%2F19%2F2022&format=graph&submit=Submit
+```
+
+```{r}
+test_time = ymd_hms(now("GMT"))
+
+test_month = month.abb[month(test_time)]
+print(test_month)
+print(year(test_time))
+print(sprintf("%02d",hour(test_time)))
+sprintf("%02d",day(test_time))
+
+hash_stamp = paste0(test_month,sprintf("%02d",day(test_time)),year(test_time), sprintf("%02d",hour(test_time)))
+##converts hour and day to two digit format 
+
+# hash_stamp = paste0(test_month,day(test_time),year(test_time), sprintf("%02d",hour(test_time)))
+
+test_hash = toString(paste0(hash_stamp,'wikajfkgha'))
+print(test_hash)
+test_hash_full = digest::digest(test_hash, algo="md5", serialize = FALSE)
+print(test_hash_full)
+
+site_url = "https://icprbcoop.org/products/wma_withdrawals_hidden.csv?password="
+full_url = paste0(site_url,test_hash_full)
+print(full_url)
+library(RCurl)
+print(url.exists(full_url))
+# print(url.exists("https://youtube.com"))
+#wma hash a71d3967da217fa58ddb78388f60d8b5
+
+#a71d3967da217fa58ddb78388f60d8b5
+# r=Nov1202218wikajfkgha
+# Drupal=Nov01202218wikajfkgha
+```
+
+```{r}
+
+library(digest)
+library(lubridate)
+library(httr)
+library(RCurl)
+
+test_time = ymd_hms(now("GMT"))
+# print(test_time)
+test_month = month.abb[month(test_time)]
+# print(test_month)
+hash_stamp = paste0(test_month,sprintf("%02d",day(test_time)),year(test_time), sprintf("%02d",hour(test_time)))
+# hash_stamp = paste0(test_month,day(test_time),year(test_time), sprintf("%02d",hour(test_time)))
+
+print(hash_stamp)
+hash = toString(paste0(hash_stamp,'djasokdmas'))
+# print(hash)
+
+hash = digest::digest(hash, algo="md5", serialize = FALSE)
+# print("hash is: ...")
+# print(hash)
+site_url = "https://icprbcoop.org/products/data_view_hidden?password="
+
+selection = paste0("&wssc_usable_storage_patuxent=wssc_usable_storage_patuxent",
+"&wssc_usable_storage_seneca=wssc_usable_storage_seneca",
+"&fw_usable_storage_occoquan=fw_usable_storage_occoquan")
+
+date_submit ="&startdate=09%2F12%2F2022&enddate=09%2F19%2F2022&format=csv&submit=Submit"
+file_url_full <- paste0(site_url,hash,selection,date_submit)
+file_url_part <- paste0(site_url,hash)
+print(file_url_full)
+# print(url.exists(file_url_part))
+# print(url.exists(file_url_full))
+# print(file_url)
+
+#acaf4343a553abdf2773c3cdf7f554dd
+  
+# print(file_url_part)
+data_view <-GET(file_url_full)
+data_view_content <-content(as="text",data_view)
+# print(data_view_content)
+
+storage_local_daily_bg_df <- data.table::fread(data_view_content)
+print(storage_local_daily_bg_df)
+
+# read.file <- function (file.name) {
+#   require(data.table)
+#   file <- try(fread(file.name))
+#   if (class(file) == "try-error") {
+#     cat("Caught an error with data portal data, using local data.\n")
+#     file <- 1
+#     print(class(file))
+#   }else{file <- 2}
+#   file
+# }
+# 
+# data_view_file <- read.file(data_view_content)
+# print(data_view_file)
+
+
+
+```
+
+
+
+
+

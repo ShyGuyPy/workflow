@@ -1,0 +1,327 @@
+---
+title: "shiny_practice3.Rmd"
+author: "Luke Vawter"
+date: "11/24/2020"
+output: html_document
+---
+
+```{r}
+library(shiny)
+library(shinydashboard)
+library(shinyjs)
+
+
+ui <- fluidPage(
+  fluidRow(
+    column(4,
+      "test number 1"
+    ),
+    column(4, #offset = 1,
+      "test number 2"
+    ),      
+  
+    column(3, #offset = 1,
+      "test number 3"
+    ),
+ 
+  )
+)
+
+# ui <- fluidPage(useShinyjs(),
+#                  dashboardPage(
+#                     dashboardHeader(title = "Water Quality Data Inventory",
+#                                     titleWidth = 300),
+#                     dashboardSidebar(disable = TRUE),
+# 
+#                     dashboardBody(
+#   fluidRow(
+#     column(4,
+#       "4"
+#     ),
+#     column(4, offset = 4,
+#       "4 offset 4"
+#     )      
+#   ),
+#   fluidRow(
+#     column(3, offset = 3,
+#       "3 offset 3"
+#     ),
+#     column(3, offset = 3,
+#       "3 offset 3"
+#     )  
+#   )
+# )#end dashboardBody
+# )#end dashboardPage
+# )#end fluidPage
+
+server <- function(input, output, session) {
+}
+
+shinyApp(ui, server)
+```
+```{r}
+library(shiny)
+library(shinydashboard)
+library(shinyjs)
+library(shinyWidgets)
+
+if (interactive()) {
+
+  ui <- fluidPage(
+    tags$h1("checkboxGroupButtons examples"),
+
+    checkboxGroupButtons(
+      inputId = "somevalue1",
+      label = "Make a choice: ",
+      choices = c("A", "B", "C")
+    ),
+    verbatimTextOutput("value1"),
+
+    checkboxGroupButtons(
+      inputId = "somevalue2",
+      label = "With custom status:",
+      choices = names(iris),
+      status = "primary"
+    ),
+    verbatimTextOutput("value2"),
+
+    checkboxGroupButtons(
+      inputId = "somevalue3",
+      label = "With icons:",
+      choices = names(mtcars),
+      checkIcon = list(
+        yes = icon("check-square"),
+        no = icon("square-o")
+      )
+    ),
+    verbatimTextOutput("value3")
+  )
+  server <- function(input, output) {
+
+    output$value1 <- renderPrint({ input$somevalue1 })
+    output$value2 <- renderPrint({ input$somevalue2 })
+    output$value3 <- renderPrint({ input$somevalue3 })
+
+  }
+  shinyApp(ui, server)
+
+}
+
+
+```
+
+```{r}
+
+library(shiny)
+library(shinydashboard)
+library(shinyjs)
+library(shinyWidgets)
+# library(data.table)
+library(DT)
+
+DTWrapper <- function(data){
+  datatable(data, 
+            options = list(dom='t',ordering=F, 
+                           columnDefs=list(list(targets=1:2, className="dt-right"))), 
+            caption= htmltools::tags$caption(
+              style = "caption-side: left; text-align: left; color:black;", "Title"), 
+            rownames = FALSE)
+}
+################################################################################
+server = function(input, output) {
+
+  ds <- head(mtcars[,1:3])
+  output$one <- DT::renderDataTable(DTWrapper(ds))
+  output$two <- DT::renderDataTable(DTWrapper(ds))
+  output$three <- DT::renderDataTable(DTWrapper(ds))
+  output$four <- DT::renderDataTable(DTWrapper(ds))
+  output$five <- DT::renderDataTable(DTWrapper(ds))
+  output$six <- DT::renderDataTable(DTWrapper(ds))
+  output$seven <- DT::renderDataTable(DTWrapper(ds))
+  output$eight <- DT::renderDataTable(DTWrapper(ds))
+}
+################################################################################
+ui = fluidPage(
+  
+    fluidRow(column(2, DT::dataTableOutput("one"),style='margin-bottom:30px; padding: 5px;') 
+           ,column(2,
+                   DT::dataTableOutput("two"),style='margin-bottom:30px;border-right:1px solid; padding: 5px;')  
+           ,column(2,
+                   DT::dataTableOutput("three"),style='margin-bottom:30px; padding: 5px;')  
+           ,column(2,
+                   DT::dataTableOutput("four"),style='margin-bottom:30px; padding: 5px;')  
+  ), hr(),
+  fluidRow(column(2,
+                  DT::dataTableOutput("five"),style='margin-bottom:30px; padding: 5px;') 
+           ,column(2,style='margin-bottom:30px;border-right:1px solid; padding: 5px;') 
+           ,column(2,
+                   DT::dataTableOutput("seven"),style='margin-bottom:30px; padding: 5px;') 
+           ,column(2,
+                   DT::dataTableOutput("eight"),style='margin-bottom:30px; padding: 5px;') 
+  )
+)
+shinyApp(server=server, ui=ui)
+  
+```
+```{r}
+library(shiny)
+library(shinydashboard)
+ui <- fluidPage(
+
+                  dashboardPage(
+                    dashboardHeader(title = "Water Quality Data Inventory",
+                                    titleWidth = 300),
+                    dashboardSidebar(
+                      # sidebarMenu(
+                      #   menuItem(text = "test1"),
+                      #   sidebarMenuOutput()
+                      #   menuItem(text = "test3")
+                      # )
+                      # 
+                      
+fluidRow(
+box (title = p("Rates by Gender and Race",  tags$head(  tags$style(HTML('#titleBtId{background-color:black}'))), actionButton("titleBtId", "", icon=icon('question-circle'),class = "btn-xs", title = "Info"),hover=T), width = 15, status = 'primary', solidHeader = TRUE,                                     tabPanel('',plotlyOutput("racegender",height = "100%"))%>% withSpinner(color="#0dc5c1")))
+                    ),
+                    dashboardBody(),
+                  )#end dashboardPage
+)#end fluidPage
+
+server = function(input, output) {
+  observeEvent(input$titleBtId, {
+    showModal(modalDialog(
+      title = "Note",
+      "This chart if independent of Date-range and Age-range selections",
+      easyClose = TRUE
+    ))
+  })
+}
+
+shinyApp(server=server, ui=ui)
+```
+
+```{r}
+library(shiny)
+library(shinydashboard)
+library(DT)
+library(data.table)
+library(shinyjs)
+
+#                       sketch = htmltools::withTags(table(
+#   class = 'display',
+#   thead(
+#     tr(
+#       th('', title = 'Row Names'),
+#       th('Sepal.Length', title = 'The Sepal Length'),
+#       th('Sepal.Width', title = 'The Sepal Width'),
+#       th('Petal.Length', title = 'The Petal Length'),
+#       th('Petal.Width', title = 'The Petal Width'),
+#       th('Species', title = 'Iris Species')
+#     )
+#   )
+# ))
+
+
+
+
+ui <- fluidPage(
+
+  useShinyjs(),
+
+  includeCSS("wqdi/www/styles.css"),
+  # source("wqdi/ui/ui_loading.R", local = TRUE)$value,
+  hidden(div(
+    id = "app_content",
+    dashboardPage(
+      dashboardHeader(title = "Water Quality Data Inventory",
+                                    titleWidth = 300),
+                    dashboardSidebar(
+                      tabsetPanel(#title = "stuff",
+          tabPanel(title = "Filter", icon = icon("filter"),
+                   source("wqdi/ui/ui_filter_vertical2.R", local = TRUE)$value
+          ))
+                    ),
+                    dashboardBody(
+                      # datatable(iris, container = sketch)
+                      
+                      fluidPage(fluidRow(
+                                  column(width = 12,
+                 tabBox(
+                   width = 12,
+                   height = 700,
+                   #tabPanel("Program", icon = icon("table"),
+                   dt_output("program_dt")#)
+                   #  tabPanel("Site", icon = icon("table"),
+                   #          dt_output("site_dt"))
+                 ))
+        ))
+      )#end dashboardBody
+    )#end dashboardPage
+  )#end div
+  )#end hidden
+)
+
+server = function(input, output) {
+
+source("wqdi/server/server_filter.R", local = TRUE)
+source("wqdi/server/server_program_rec.R", local = TRUE)
+callModule(dt_table, "program_dt", program.rec)
+}
+
+shinyApp(server=server, ui=ui)
+```
+```{r}
+ui <- fluidPage(
+   dashboardPage(
+      dashboardHeader(title = "Water Quality Data Inventory",
+                                    titleWidth = 300),
+                    dashboardSidebar(
+                      tabsetPanel(#title = "stuff",
+          tabPanel(title = "Filter", icon = icon("filter")
+                   
+          ))
+                    ),
+                    dashboardBody(
+                      # datatable(iris, container = sketch)
+                      
+                      
+      )#end dashboardBody
+   )#end dashboardPage
+)#end FluidPage
+server = function(input, output) {}
+shinyApp(server=server, ui=ui)
+```
+```{r}
+library(shiny)
+library(shinydashboard)
+library(DT)
+library(data.table)
+library(shinyjs)
+
+ui <- fluidPage(
+  hidden(div(
+    id = "app_content",
+   dashboardPage(
+     dashboardHeader(title = "Water Quality Data Inventory",
+                                    titleWidth = 300),
+                    dashboardSidebar(
+                      tabsetPanel(#title = "stuff",
+          tabPanel(title = "Filter", icon = icon("filter")
+                   
+          ))
+                    ),
+                    dashboardBody(
+                      # datatable(iris, container = sketch)
+                      
+                      
+      )#end dashboardBody
+
+   )#end dashboardPage
+  )#end div
+  )#end hidden
+)#end FluidPage
+
+server = function(input, output) {
+  options(shiny.maxRequestSize=8000*1024^2)
+}
+shinyApp(server=server, ui=ui)
+```
